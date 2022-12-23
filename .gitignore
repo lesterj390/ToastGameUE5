@@ -20,5 +20,4 @@ Content/Python
 *.pyc
 Content/Python/__pycache__/Maze2.cpython-37.pyc
 Content/Levels/MainLevel/MainLevel.umap
-Content/Python/__pycache__/Maze2.cpython-39.pyc
 .vsconfig
