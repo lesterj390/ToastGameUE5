@@ -26,6 +26,9 @@ protected:
 
 	AActor* CreatePipe(int row, int col, TSubclassOf<AActor> pipeType, bool randomRotation);
 
+	void GetSelected();
+	void GetInput();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -66,6 +69,8 @@ public:
 	int lastType;
 
 protected:
+	bool inPuzzle;
+
 	TArray<TArray<AActor*>> PipePieces;
 
 	UPROPERTY()
@@ -78,4 +83,7 @@ protected:
 
 	FVector startPipeLocation;
 
+	FCell selectedPipe;
+	UMaterialInterface* tempMat;
+	UMaterialInstanceDynamic* PipeMat;
 };

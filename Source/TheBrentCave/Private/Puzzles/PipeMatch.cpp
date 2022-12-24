@@ -20,6 +20,7 @@ APipeMatch::APipeMatch()
 	NailMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Nail Mesh"));
 	NailMesh->SetupAttachment(Pivot);
 
+	inPuzzle = true;
 }
 
 // Called when the game starts or when spawned
@@ -44,7 +45,7 @@ void APipeMatch::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-
+	GetInput();
 }
 
 /*
@@ -265,4 +266,58 @@ void APipeMatch::GeneratePieces()
 
 	// Creates end pipe
 	CreatePipe(PuzzleSize - 1, PuzzleSize - 1, EndPipe, false);
+}
+
+void APipeMatch::GetInput()
+{
+	if (inPuzzle) {
+		if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Left)) {
+			// Move selected pipe piece one to the left, if the selected col is > than 0
+			if (selectedPipe[1] > 0) {
+				selectedPipe[1]--;
+				GetSelected();
+			}
+		} else if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Right)) {
+			// Move selected pipe piece one to the right, if the selected col is < than PuzzleSize
+			if (selectedPipe[1] < PuzzleSize - 1) {
+				selectedPipe[1]++;
+				GetSelected();
+			}
+		} else if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Up)) {
+			// Move selected pipe piece one up, if the selected col is > than 0
+			if (selectedPipe[0] > 0) {
+				selectedPipe[0]--;
+				GetSelected();
+			}
+		} else if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Down)) {
+			// Move selected pipe piece one down, if the selected col is < than PuzzleSize
+			if (selectedPipe[0] < PuzzleSize - 1) {
+				selectedPipe[0]++;
+				GetSelected();
+			}
+		}
+	}
+}
+
+void APipeMatch::GetSelected()
+{
+	UStaticMeshComponent* PipeMesh;
+	TArray<UActorComponent*> FoundComponents;
+	PipePieces[selectedPipe[0]][selectedPipe[1]]->GetComponents(UStaticMeshComponent::StaticClass(), FoundComponents);
+	PipeMesh = Cast<UStaticMeshComponent>(FoundComponents[0]);
+
+	tempMat = PipeMesh->GetMaterial(0);
+	PipeMat = UMaterialInstanceDynamic::Create(tempMat, this);
+	PipeMesh->SetMaterial(0, PipeMat);
+
+	for (int row = 0; row < PuzzleSize; row++) {
+		for (int col = 0; col < PuzzleSize; col++) {
+			if (selectedPipe == FCell(row, col)) {
+				PipeMat->SetScalarParameterValue(TEXT("Glow"), 0.5);
+			}
+			else {
+				PipeMat->SetScalarParameterValue(TEXT("Glow"), 0);
+			}
+		}
+	}
 }
