@@ -64,5 +64,4 @@ public:
 
 	UPROPERTY()
 		UUserWidget* ChosenSentenceWidget;
-
 };
