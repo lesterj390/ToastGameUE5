@@ -22,7 +22,9 @@ protected:
 
 	void SetupPath();
 
-	FCell nextPath(int row, int col);
+	FCell GetUnvisitedNeighbour(FCell cell);
+
+	AActor* CreatePipe(int row, int col, TSubclassOf<AActor> pipeType, bool randomRotation);
 
 public:	
 	// Called every frame
@@ -73,5 +75,7 @@ protected:
 		TArray<FCell> visitedPath;
 
 	float pipeLength;
+
+	FVector startPipeLocation;
 
 };
