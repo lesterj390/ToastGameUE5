@@ -38,6 +38,8 @@ void APipeMatch::BeginPlay()
 	
 	SetupPath();
 	GeneratePieces();
+
+	selectedPipe = FCell(0, 0);
 }
 
 // Called every frame
@@ -266,57 +268,135 @@ void APipeMatch::GeneratePieces()
 
 	// Creates end pipe
 	CreatePipe(PuzzleSize - 1, PuzzleSize - 1, EndPipe, false);
+
+	SetupMaterials();
+	GetSelected();
 }
 
 void APipeMatch::GetInput()
 {
 	if (inPuzzle) {
+		// Move selected pipe piece one to the left, if the selected col is > than 0
 		if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Left)) {
-			// Move selected pipe piece one to the left, if the selected col is > than 0
-			if (selectedPipe[1] > 0) {
+			FCell lastSelected = selectedPipe;
+			// Go to the next non-null cell on the left if there is any
+			while (selectedPipe[1] > 0) {
+				// If the cell is not empty
 				selectedPipe[1]--;
-				GetSelected();
+				if (PipePieces[selectedPipe[0]][selectedPipe[1]] != NULL) {
+					GetSelected();
+					break;
+				}
+				// If every cell to the left of this row is null
+				else if (selectedPipe[1] == 0) {
+					selectedPipe = lastSelected;
+					break;
+				}
 			}
+			//GEngine->AddOnScreenDebugMessage(-1, 999.f, FColor::Cyan, FString::Printf(TEXT("Went Left to %s"), *(selectedPipe.ToString())));
+		// Move selected pipe piece one to the right, if the selected col is < than PuzzleSize
 		} else if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Right)) {
-			// Move selected pipe piece one to the right, if the selected col is < than PuzzleSize
-			if (selectedPipe[1] < PuzzleSize - 1) {
+			FCell lastSelected = selectedPipe;
+			// Go to the next non-null cell on the right if there is any
+			while (selectedPipe[1] < PuzzleSize - 1) {
+				// If the cell is not empty
 				selectedPipe[1]++;
-				GetSelected();
+				if (PipePieces[selectedPipe[0]][selectedPipe[1]] != NULL) {
+					GetSelected();
+					break;
+				}
+				// If every cell to the right of this row is null
+				else if (selectedPipe[1] == PuzzleSize - 1) {
+					selectedPipe = lastSelected;
+					break;
+				}
 			}
+			//GEngine->AddOnScreenDebugMessage(-1, 999.f, FColor::Cyan, FString::Printf(TEXT("Went Right to %s"), *(selectedPipe.ToString())));
+		// Move selected pipe piece one up, if the selected col is > than 0
 		} else if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Up)) {
-			// Move selected pipe piece one up, if the selected col is > than 0
-			if (selectedPipe[0] > 0) {
+			FCell lastSelected = selectedPipe;
+			// Go to the next non-null cell above if there is any
+			while (selectedPipe[0] > 0) {
+				// If the cell is not empty
 				selectedPipe[0]--;
-				GetSelected();
+				if (PipePieces[selectedPipe[0]][selectedPipe[1]] != NULL) {
+					GetSelected();
+					break;
+				}
+				// If every cell above in this column is null
+				else if (selectedPipe[0] == 0) {
+					selectedPipe = lastSelected;
+					break;
+				}
 			}
+			//GEngine->AddOnScreenDebugMessage(-1, 999.f, FColor::Cyan, FString::Printf(TEXT("Went Up to %s"), *(selectedPipe.ToString())));
+		// Move selected pipe piece one down, if the selected col is < than PuzzleSize
 		} else if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Down)) {
-			// Move selected pipe piece one down, if the selected col is < than PuzzleSize
-			if (selectedPipe[0] < PuzzleSize - 1) {
+			FCell lastSelected = selectedPipe;
+			// Go to the next non-null cell below if there is any
+			while (selectedPipe[0] < PuzzleSize - 1) {
+				// If the cell is not empty
 				selectedPipe[0]++;
-				GetSelected();
+				if (PipePieces[selectedPipe[0]][selectedPipe[1]] != NULL) {
+					GetSelected();
+					break;
+				}
+				// If every cell below in this column is null
+				else if (selectedPipe[0] == PuzzleSize - 1) {
+					selectedPipe = lastSelected;
+					break;
+				}
+			}
+			//GEngine->AddOnScreenDebugMessage(-1, 999.f, FColor::Cyan, FString::Printf(TEXT("Went Down to %s"), *(selectedPipe.ToString())));
+		}
+	}
+}
+
+/*
+* Replaces all the materials with dynamic material instances so material parameters can be modified
+*/
+void APipeMatch::SetupMaterials()
+{
+	UStaticMeshComponent* PipeMesh;
+	TArray<UActorComponent*> FoundComponents;
+
+	for (int row = 0; row < PuzzleSize; row++) {
+		for (int col = 0; col < PuzzleSize; col++) {
+			if (PipePieces[row][col] != NULL) {
+				PipePieces[row][col]->GetComponents(UStaticMeshComponent::StaticClass(), FoundComponents);
+				PipeMesh = Cast<UStaticMeshComponent>(FoundComponents[0]);
+
+				tempMat = PipeMesh->GetMaterial(0);
+				PipeMat = UMaterialInstanceDynamic::Create(tempMat, this);
+				PipeMesh->SetMaterial(0, PipeMat);
 			}
 		}
 	}
 }
 
+/*
+* Replaces all the materials with dynamic material instances so material parameters can be modified
+*/
 void APipeMatch::GetSelected()
 {
 	UStaticMeshComponent* PipeMesh;
 	TArray<UActorComponent*> FoundComponents;
-	PipePieces[selectedPipe[0]][selectedPipe[1]]->GetComponents(UStaticMeshComponent::StaticClass(), FoundComponents);
-	PipeMesh = Cast<UStaticMeshComponent>(FoundComponents[0]);
-
-	tempMat = PipeMesh->GetMaterial(0);
-	PipeMat = UMaterialInstanceDynamic::Create(tempMat, this);
-	PipeMesh->SetMaterial(0, PipeMat);
 
 	for (int row = 0; row < PuzzleSize; row++) {
 		for (int col = 0; col < PuzzleSize; col++) {
-			if (selectedPipe == FCell(row, col)) {
-				PipeMat->SetScalarParameterValue(TEXT("Glow"), 0.5);
-			}
-			else {
-				PipeMat->SetScalarParameterValue(TEXT("Glow"), 0);
+			if (PipePieces[row][col] != NULL) {
+				PipePieces[row][col]->GetComponents(UStaticMeshComponent::StaticClass(), FoundComponents);
+				PipeMesh = Cast<UStaticMeshComponent>(FoundComponents[0]);
+
+				tempMat = PipeMesh->GetMaterial(0);
+				PipeMat = Cast<UMaterialInstanceDynamic>(tempMat);
+
+				if (selectedPipe == FCell(row, col)) {
+					PipeMat->SetScalarParameterValue(TEXT("Glow"), 0.5);
+				}
+				else {
+					PipeMat->SetScalarParameterValue(TEXT("Glow"), 0);
+				}
 			}
 		}
 	}

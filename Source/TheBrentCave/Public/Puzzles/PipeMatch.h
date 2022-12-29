@@ -29,6 +29,8 @@ protected:
 	void GetSelected();
 	void GetInput();
 
+	void SetupMaterials();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
