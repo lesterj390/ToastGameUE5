@@ -299,9 +299,9 @@ void AGrid::GenerateWalls()
 			VertWallLocation.X += 1000 * Scale.X;
 			OffsetWallTexture(currentWall, totalWallsSpawned++);
 
-			FString PillarString = FString::Printf(TEXT("Pillar (%d, %d)"), row, col);
-			SpawnActor(PillarActor, PillarLocation, Rot, FName(*PillarString), TEXT("Maze/Pillars"));
-			PillarLocation.X += 1000 * Scale.X;
+			//FString PillarString = FString::Printf(TEXT("Pillar (%d, %d)"), row, col);
+			//SpawnActor(PillarActor, PillarLocation, Rot, FName(*PillarString), TEXT("Maze/Pillars"));
+			//PillarLocation.X += 1000 * Scale.X;
 		}
 		//CellLocation.Y += 1000 * Scale.Y;
 		HorizWallLocation.Y += 1000 * Scale.Y;
@@ -318,9 +318,9 @@ void AGrid::GenerateWalls()
 		HorizWallLocation.X += 1000 * Scale.X;
 		OffsetWallTexture(currentWall, totalWallsSpawned++);
 
-		FString PillarString = FString::Printf(TEXT("Pillar (%d, %d)"), Rows, col);
-		SpawnActor(PillarActor, PillarLocation, Rot, FName(*PillarString), TEXT("Maze/Pillars"));
-		PillarLocation.X += 1000 * Scale.X;
+		//FString PillarString = FString::Printf(TEXT("Pillar (%d, %d)"), Rows, col);
+		//SpawnActor(PillarActor, PillarLocation, Rot, FName(*PillarString), TEXT("Maze/Pillars"));
+		//PillarLocation.X += 1000 * Scale.X;
 	}
 
 	//Last Vert Walls and Pillars
@@ -332,13 +332,13 @@ void AGrid::GenerateWalls()
 		VertWallLocation.Y += 1000 * Scale.Y;
 		OffsetWallTexture(currentWall, totalWallsSpawned++);
 
-		FString PillarString = FString::Printf(TEXT("Pillar (%d, %d)"), row, Columns);
-		SpawnActor(PillarActor, PillarLocation, Rot, FName(*PillarString), TEXT("Maze/Pillars"));
-		PillarLocation.Y += 1000 * Scale.Y;
+		//FString PillarString = FString::Printf(TEXT("Pillar (%d, %d)"), row, Columns);
+		//SpawnActor(PillarActor, PillarLocation, Rot, FName(*PillarString), TEXT("Maze/Pillars"));
+		//PillarLocation.Y += 1000 * Scale.Y;
 	}
 
-	FString PillarString = FString::Printf(TEXT("Pillar (%d, %d)"), Rows, Columns);
-	SpawnActor(PillarActor, PillarLocation, Rot, FName(*PillarString), TEXT("Maze/Pillars"));
+	//FString PillarString = FString::Printf(TEXT("Pillar (%d, %d)"), Rows, Columns);
+	//SpawnActor(PillarActor, PillarLocation, Rot, FName(*PillarString), TEXT("Maze/Pillars"));
 
 }
 
