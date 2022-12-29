@@ -26,10 +26,16 @@ protected:
 
 	AActor* CreatePipe(int row, int col, TSubclassOf<AActor> pipeType, bool randomRotation);
 
+	void SetupKeybinds();
+	void Interact();
+
 	void GetSelected();
 	void GetInput();
 
 	void SetupMaterials();
+
+	int GetRotation(AActor* piece);
+	void SetRotation();
 
 public:	
 	// Called every frame
@@ -60,8 +66,6 @@ public:
 		int PuzzleSize;
 
 	float PieceSpacing;
-
-	int PieceRotation;
 
 	void GeneratePieces();
 

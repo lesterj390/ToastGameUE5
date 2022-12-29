@@ -40,6 +40,8 @@ void APipeMatch::BeginPlay()
 	GeneratePieces();
 
 	selectedPipe = FCell(0, 0);
+
+	SetupKeybinds();
 }
 
 // Called every frame
@@ -47,7 +49,9 @@ void APipeMatch::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	GetInput();
+	if (inPuzzle) {
+		GetInput();
+	}
 }
 
 /*
@@ -180,6 +184,28 @@ AActor* APipeMatch::CreatePipe(int row, int col, TSubclassOf<AActor> pipeType, b
 	AActor* currentPipe = GetWorld()->SpawnActor<AActor>(pipeType, spawnTransform);
 	currentPipe->SetActorScale3D(FVector(GetActorScale3D() / PuzzleSize));
 	return currentPipe;
+}
+
+void APipeMatch::SetupKeybinds()
+{
+	InputComponent = NewObject<UInputComponent>(this);
+	InputComponent->RegisterComponent();
+
+	InputComponent->BindAction("Interact", IE_Pressed, this, &APipeMatch::Interact);
+
+	EnableInput(GetWorld()->GetFirstPlayerController());
+}
+
+void APipeMatch::Interact()
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 999.f, FColor::Cyan, FString::Printf(TEXT("Interact function called")));
+
+	if (inPuzzle) {
+		SetRotation();
+	}
+	else {
+		//enterPuzzle();
+	}
 }
 
 /*
@@ -372,6 +398,47 @@ void APipeMatch::SetupMaterials()
 			}
 		}
 	}
+}
+
+int APipeMatch::GetRotation(AActor* piece)
+{
+	float piecePitch = piece->GetActorRotation().Pitch;
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Actor Rotation: %f"), piecePitch));
+
+	if (FMath::Abs(piecePitch) <= 0.1) {
+		return 0;
+	}
+	else if (FMath::Abs(piecePitch - 90) <= 0.1) {
+		return 90;
+	}
+	else if (FMath::Abs(piecePitch - 180) <= 0.1) {
+		return 180;
+	}
+	else if (FMath::Abs(piecePitch - 270) <= 0.1) {
+		return 270;
+	}
+	else {
+		return 0;
+	}
+}
+
+void APipeMatch::SetRotation()
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 999.f, FColor::Cyan, FString::Printf(TEXT("SetRotation function called")));
+
+	AActor* chosenPipe = PipePieces[selectedPipe[0]][selectedPipe[1]];
+	int pieceRotation = GetRotation(chosenPipe);
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Rotation 1: %d"), pieceRotation));
+
+	pieceRotation += 90;
+	if (pieceRotation >= 360) {
+		pieceRotation = 0;
+	}
+
+	chosenPipe->SetActorRotation(FRotator(pieceRotation, chosenPipe->GetActorRotation().Roll, chosenPipe->GetActorRotation().Yaw));
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("New Rotation: %f"), chosenPipe->GetActorRotation().Pitch));
 }
 
 /*
