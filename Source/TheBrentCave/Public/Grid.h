@@ -124,8 +124,10 @@ protected:
 		void RemoveWalls();
 
 	UFUNCTION()
-		void SpawnActor(TSubclassOf<AActor> Actor, FVector Loc, FRotator Rot, FName CellTag, FName Path);
-		void SpawnActor(TSubclassOf<AActor> Actor, FVector Loc, FRotator Rot, FVector Scale, FName CellTag, FName Path);
+		AActor* SpawnActor(TSubclassOf<AActor> Actor, FVector Loc, FRotator Rot, FName CellTag, FName Path);
+		AActor* SpawnActor(TSubclassOf<AActor> Actor, FVector Loc, FRotator Rot, FVector Scale, FName CellTag, FName Path);
+
+		void OffsetWallTexture(AActor* wallActor, int wallCount);
 
 	UFUNCTION()
 		void GenerateFloorAndCeiling();

@@ -28,7 +28,7 @@ void AGrid::BeginPlay()
 
 }
 
-void AGrid::SpawnActor(TSubclassOf<AActor> Actor, FVector Loc, FRotator Rot, FName CellTag, FName Path)
+AActor* AGrid::SpawnActor(TSubclassOf<AActor> Actor, FVector Loc, FRotator Rot, FName CellTag, FName Path)
 {
 	FTransform SpawnTransform;
 	SpawnTransform.SetLocation(Loc);
@@ -61,10 +61,12 @@ void AGrid::SpawnActor(TSubclassOf<AActor> Actor, FVector Loc, FRotator Rot, FNa
 	else if (Rot == FRotator(0, 90, 0)) {
 		SpawnedActorRef->Tags.Add(TEXT("RIGHT"));
 	}
+
+	return SpawnedActorRef;
 }
 
 
-void AGrid::SpawnActor(TSubclassOf<AActor> Actor, FVector Loc, FRotator Rot, FVector Scale, FName CellTag, FName Path)
+AActor* AGrid::SpawnActor(TSubclassOf<AActor> Actor, FVector Loc, FRotator Rot, FVector Scale, FName CellTag, FName Path)
 {
 	FTransform SpawnTransform;
 	SpawnTransform.SetLocation(Loc);
@@ -100,6 +102,8 @@ void AGrid::SpawnActor(TSubclassOf<AActor> Actor, FVector Loc, FRotator Rot, FVe
 	else if (Rot == FRotator(0, 90, 0)) {
 		SpawnedActorRef->Tags.Add(TEXT("RIGHT"));
 	}
+
+	return SpawnedActorRef;
 }
 
 
@@ -236,6 +240,22 @@ void AGrid::GenerateFloorAndCeiling()
 	//SpawnActor(CeilingActor, CellLocation, CellRot, CellScale, FName(TEXT("Ceiling")), TEXT("Maze"));
 }
 
+void AGrid::OffsetWallTexture(AActor* wallActor, int wallCount)
+{
+	UStaticMeshComponent* wallMesh;
+	TArray<UActorComponent*> foundComponents;
+	UMaterialInterface* wallMat;
+	UMaterialInstanceDynamic* wallMatDynamic;
+
+	wallActor->GetComponents(UStaticMeshComponent::StaticClass(), foundComponents);
+	wallMesh = Cast<UStaticMeshComponent>(foundComponents[0]);
+	wallMat = wallMesh->GetMaterial(0);
+	wallMatDynamic = UMaterialInstanceDynamic::Create(wallMat, wallActor);
+	wallMesh->SetMaterial(0, wallMatDynamic);
+
+	wallMatDynamic->SetScalarParameterValue(FName(TEXT("PixelOffset")), (0.1/Rows) * wallCount);
+}
+
 
 void AGrid::GenerateWalls()
 {
@@ -254,6 +274,9 @@ void AGrid::GenerateWalls()
 	FRotator VertRot = Rot;
 	VertRot.Yaw += 90;
 
+	int totalWallsSpawned = 0;
+	AActor* currentWall;
+
 	//Main Walls
 	for (int32 row = 0; row < Rows; ++row) {
 		//CellLocation.X = GetActorLocation().X;
@@ -267,12 +290,14 @@ void AGrid::GenerateWalls()
 			//CellLocation.X += 1000 * Scale.X;
 		
 			FString HorizWallString = FString::Printf(TEXT("(%d, %d)|(%d, %d)"), row-1, col, row, col);
-			SpawnActor(WallActor, HorizWallLocation, Rot, FName(*HorizWallString), TEXT("Maze/Walls"));
+			currentWall = SpawnActor(WallActor, HorizWallLocation, Rot, FName(*HorizWallString), TEXT("Maze/Walls"));
 			HorizWallLocation.X += 1000 * Scale.X;
+			OffsetWallTexture(currentWall, totalWallsSpawned++);
 
 			FString VertWallString = FString::Printf(TEXT("(%d, %d)|(%d, %d)"), row, col-1, row, col);
-			SpawnActor(WallActor, VertWallLocation, VertRot, FName(*VertWallString), TEXT("Maze/Walls"));
+			currentWall = SpawnActor(WallActor, VertWallLocation, VertRot, FName(*VertWallString), TEXT("Maze/Walls"));
 			VertWallLocation.X += 1000 * Scale.X;
+			OffsetWallTexture(currentWall, totalWallsSpawned++);
 
 			FString PillarString = FString::Printf(TEXT("Pillar (%d, %d)"), row, col);
 			SpawnActor(PillarActor, PillarLocation, Rot, FName(*PillarString), TEXT("Maze/Pillars"));
@@ -289,8 +314,9 @@ void AGrid::GenerateWalls()
 	PillarLocation.X = GetActorLocation().X - 500 * Scale.X;
 	for (int32 col = 0; col < Columns; ++col) {
 		FString HorizWallString = FString::Printf(TEXT("(%d, %d)|(%d, %d)"), Rows-1, col, Rows, col);
-		SpawnActor(WallActor, HorizWallLocation, Rot, FName(*HorizWallString), TEXT("Maze/Walls"));
+		currentWall = SpawnActor(WallActor, HorizWallLocation, Rot, FName(*HorizWallString), TEXT("Maze/Walls"));
 		HorizWallLocation.X += 1000 * Scale.X;
+		OffsetWallTexture(currentWall, totalWallsSpawned++);
 
 		FString PillarString = FString::Printf(TEXT("Pillar (%d, %d)"), Rows, col);
 		SpawnActor(PillarActor, PillarLocation, Rot, FName(*PillarString), TEXT("Maze/Pillars"));
@@ -302,8 +328,9 @@ void AGrid::GenerateWalls()
 	PillarLocation.Y = GetActorLocation().Y - 500 * Scale.Y;
 	for (int32 row = 0; row < Columns; ++row) {
 		FString VertWallString = FString::Printf(TEXT("(%d, %d)|(%d, %d)"), row, Columns-1, row, Columns);
-		SpawnActor(WallActor, VertWallLocation, VertRot, FName(*VertWallString), TEXT("Maze/Walls"));
+		currentWall = SpawnActor(WallActor, VertWallLocation, VertRot, FName(*VertWallString), TEXT("Maze/Walls"));
 		VertWallLocation.Y += 1000 * Scale.Y;
+		OffsetWallTexture(currentWall, totalWallsSpawned++);
 
 		FString PillarString = FString::Printf(TEXT("Pillar (%d, %d)"), row, Columns);
 		SpawnActor(PillarActor, PillarLocation, Rot, FName(*PillarString), TEXT("Maze/Pillars"));
