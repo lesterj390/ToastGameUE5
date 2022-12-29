@@ -174,7 +174,7 @@ void UPlayerStatsComponent::ConsumeSanity()
 	if (sanityState == IDLE || sanityState == REGENERATING)
 	{
 
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Sanity Consuming: %f"), Sanity));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Sanity Consuming: %f"), Sanity));
 		GetWorld()->GetTimerManager().ClearTimer(SanityHandle);
 		GetWorld()->GetTimerManager().SetTimer(SanityHandle, this, &UPlayerStatsComponent::ConsumeSanity, updateRate, true);
 		sanityState = CONSUMING;
@@ -192,7 +192,7 @@ void UPlayerStatsComponent::ConsumeSanity()
 	else {
 		GetWorld()->GetTimerManager().ClearTimer(SanityHandle);
 		sanityState = IDLE;
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, FString::Printf(TEXT("Gone Insane")));
+		//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, FString::Printf(TEXT("Gone Insane")));
 	}
 
 	//Updating HUD
@@ -206,7 +206,7 @@ void UPlayerStatsComponent::ConsumeSanity()
 void UPlayerStatsComponent::RegenerateSanity()
 {
 	if (sanityState == CONSUMING || sanityState == IDLE) {
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Sanity Regenerating: %f"), Sanity));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Sanity Regenerating: %f"), Sanity));
 		GetWorld()->GetTimerManager().ClearTimer(SanityHandle);
 		GetWorld()->GetTimerManager().SetTimer(SanityHandle, this, &UPlayerStatsComponent::RegenerateSanity, updateRate, true);
 		sanityState = REGENERATING;
@@ -224,7 +224,7 @@ void UPlayerStatsComponent::RegenerateSanity()
 	}
 	else {
 		GetWorld()->GetTimerManager().ClearTimer(SanityHandle);
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, FString::Printf(TEXT("Completely Sane")));
+		//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, FString::Printf(TEXT("Completely Sane")));
 		ConsumeSanity();
 	}
 	
@@ -237,7 +237,7 @@ void UPlayerStatsComponent::RegenerateSanity()
 
 void UPlayerStatsComponent::IdleSanity()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Sanity Idle: %f"), Sanity));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Sanity Idle: %f"), Sanity));
 	if (sanityState == REGENERATING || sanityState == CONSUMING)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(SanityHandle);
