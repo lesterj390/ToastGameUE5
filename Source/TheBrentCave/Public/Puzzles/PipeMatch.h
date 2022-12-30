@@ -34,8 +34,8 @@ protected:
 
 	void SetupMaterials();
 
-	int GetRotation(AActor* piece);
-	void SetRotation();
+	int GetRotation();
+	void RotateSelectedPipe();
 
 public:	
 	// Called every frame

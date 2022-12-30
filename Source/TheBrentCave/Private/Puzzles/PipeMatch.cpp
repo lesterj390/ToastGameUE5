@@ -201,7 +201,7 @@ void APipeMatch::Interact()
 	//GEngine->AddOnScreenDebugMessage(-1, 999.f, FColor::Cyan, FString::Printf(TEXT("Interact function called")));
 
 	if (inPuzzle) {
-		SetRotation();
+		RotateSelectedPipe();
 	}
 	else {
 		//enterPuzzle();
@@ -400,45 +400,69 @@ void APipeMatch::SetupMaterials()
 	}
 }
 
-int APipeMatch::GetRotation(AActor* piece)
+int APipeMatch::GetRotation()
 {
-	float piecePitch = piece->GetActorRotation().Pitch;
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Actor Rotation: %f"), piecePitch));
+	//float piecePitch = piece->GetActorRotation().Pitch;
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Actor Rotation: %f"), piecePitch));
 
-	if (FMath::Abs(piecePitch) <= 0.1) {
-		return 0;
+	//if (FMath::Abs(piecePitch) <= 0.1) {
+	//	return 0;
+	//}
+	//else if (FMath::Abs(piecePitch - 90) <= 0.1) {
+	//	return 90;
+	//}
+	//else if (FMath::Abs(piecePitch - 180) <= 0.1) {
+	//	return 180;
+	//}
+	//else if (FMath::Abs(piecePitch - 270) <= 0.1) {
+	//	return 270;
+	//}
+	//else {
+	//	return 0;
+	//}
+	AActor* chosenPipe = PipePieces[selectedPipe[0]][selectedPipe[1]];
+	UStaticMeshComponent* pipeMesh;
+	TArray<UActorComponent*> foundComponents;
+	chosenPipe->GetComponents(UStaticMeshComponent::StaticClass(), foundComponents);
+	pipeMesh = Cast<UStaticMeshComponent>(foundComponents[0]);
+
+	FRotator oldRotation = pipeMesh->GetRelativeRotation();
+
+	// Rounding every value
+	oldRotation.Pitch = FMath::RoundHalfFromZero(oldRotation.Pitch);
+	oldRotation.Roll = FMath::RoundHalfFromZero(oldRotation.Roll);
+	oldRotation.Yaw = FMath::RoundHalfFromZero(oldRotation.Yaw);
+
+	// Switching values equal to 360 to 0
+	if ((int)oldRotation.Roll % 360 == 0) {
+		oldRotation.Roll = 0;
 	}
-	else if (FMath::Abs(piecePitch - 90) <= 0.1) {
-		return 90;
+	if ((int)oldRotation.Pitch % 360 == 0) {
+		oldRotation.Pitch = 0;
 	}
-	else if (FMath::Abs(piecePitch - 180) <= 0.1) {
-		return 180;
+	if ((int)oldRotation.Yaw % 360 == 0) {
+		oldRotation.Yaw = 0;
 	}
-	else if (FMath::Abs(piecePitch - 270) <= 0.1) {
-		return 270;
+
+	if (oldRotation.Yaw != 0) {
+		oldRotation = oldRotation.GetEquivalentRotator();
 	}
-	else {
-		return 0;
-	}
+
+	return (int)(360 - oldRotation.Pitch) % 360;
 }
 
-void APipeMatch::SetRotation()
+void APipeMatch::RotateSelectedPipe()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 999.f, FColor::Cyan, FString::Printf(TEXT("SetRotation function called")));
-
 	AActor* chosenPipe = PipePieces[selectedPipe[0]][selectedPipe[1]];
-	int pieceRotation = GetRotation(chosenPipe);
+	UStaticMeshComponent* pipeMesh;
+	TArray<UActorComponent*> foundComponents;
+	chosenPipe->GetComponents(UStaticMeshComponent::StaticClass(), foundComponents);
+	pipeMesh = Cast<UStaticMeshComponent>(foundComponents[0]);
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Rotation 1: %d"), pieceRotation));
-
-	pieceRotation += 90;
-	if (pieceRotation >= 360) {
-		pieceRotation = 0;
-	}
-
-	chosenPipe->SetActorRotation(FRotator(pieceRotation, chosenPipe->GetActorRotation().Roll, chosenPipe->GetActorRotation().Yaw));
-
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("New Rotation: %f"), chosenPipe->GetActorRotation().Pitch));
+	int rotation = GetRotation();
+	pipeMesh->SetRelativeRotation(FQuat(FVector(0, 1, 0), FMath::DegreesToRadians(rotation + 90)), false, (FHitResult*)nullptr, ETeleportType::TeleportPhysics);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Pitch = %d"), rotation + 90));
 }
 
 /*
