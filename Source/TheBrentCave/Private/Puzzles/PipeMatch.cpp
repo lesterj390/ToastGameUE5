@@ -202,6 +202,7 @@ void APipeMatch::Interact()
 
 	if (inPuzzle) {
 		RotateSelectedPipe();
+		DiscoverPathInputs();
 	}
 	else {
 		//enterPuzzle();
@@ -248,6 +249,9 @@ void APipeMatch::GeneratePieces()
 	CreatePipe(0, 0, StartPipe, false);
 
 	// Creates the pipes for the pipe path
+	FCell lastPipe = FCell(0, 0);
+	int lastRow = 0;
+	int lastCol = 0;
 	for (int i = 1; i < pipePath.Num() - 1; i++) {
 
 		FCell currentPipe = pipePath[i];
@@ -266,6 +270,28 @@ void APipeMatch::GeneratePieces()
 		else {
 			PipePieces[currentRow][currentCol] = CreatePipe(currentRow, currentCol, Angle);
 		}
+
+		// Setting pipes input
+		// Left
+		if (currentRow == lastRow && currentCol - 1 == lastCol) {
+			PipePieces[currentRow][currentCol]->Tags.Add(FName("LEFT"));
+		}
+		// Right
+		else if (currentRow == lastRow && currentCol + 1 == lastCol) {
+			PipePieces[currentRow][currentCol]->Tags.Add(FName("RIGHT"));
+		}
+		// Up
+		else if (currentRow - 1 == lastRow && currentCol == lastCol) {
+			PipePieces[currentRow][currentCol]->Tags.Add(FName("UP"));
+		}
+		//Down
+		else if (currentRow + 1 == lastRow && currentCol == lastCol) {
+			PipePieces[currentRow][currentCol]->Tags.Add(FName("DOWN"));
+		}
+
+		lastPipe = currentPipe;
+		lastRow = currentRow;
+		lastCol = currentCol;
 	}
 
 	// Creates the occasional random pipe that's not on the path to throw you off
@@ -399,9 +425,9 @@ void APipeMatch::SetupMaterials()
 	}
 }
 
-int APipeMatch::GetRotation()
+int APipeMatch::GetRotation(FCell cell)
 {
-	AActor* chosenPipe = PipePieces[selectedPipe[0]][selectedPipe[1]];
+	AActor* chosenPipe = PipePieces[cell[0]][cell[1]];
 	FRotator oldRotation = chosenPipe->GetActorRotation();
 
 	// Rounding every value
@@ -431,9 +457,9 @@ void APipeMatch::RotateSelectedPipe()
 {
 	AActor* chosenPipe = PipePieces[selectedPipe[0]][selectedPipe[1]];
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Old Pitch = %d"), GetRotation()));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Old Pitch = %d"), GetRotation(selectedPipe)));
 	chosenPipe->AddActorLocalRotation(FRotator(-90, 0, 0));
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("New Pitch = %d"), GetRotation()));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("New Pitch = %d"), GetRotation(selectedPipe)));
 }
 
 /*
@@ -462,4 +488,190 @@ void APipeMatch::GetSelected()
 			}
 		}
 	}
+}
+
+/*
+* Traverses the current path of the pipes and set's the input tags of said path
+*/
+void APipeMatch::DiscoverPathInputs()
+{
+	// Setting the first pipes input to UP
+	AActor* currentPipe = PipePieces[0][0];
+	FCell currentCell = FCell(0, 0);
+	currentPipe->Tags.Empty();
+	if (GetPipeDirections(currentCell).Contains(UP)) {
+		currentPipe->Tags.Add(FName("UP"));
+	}
+	else {
+		// Can't discover path if the first pipe doesn't have an UP input
+		return;
+	}
+	direction currentOutput = GetPipeOutput(currentCell);
+	TArray<FCell> visited;
+	visited.Add(currentCell);
+
+	while (currentOutput != NONE) {
+		if (currentOutput == UP) {
+			currentCell[0] -= 1;
+			if (currentCell[0] < 0 || PipePieces[currentCell[0]][currentCell[1]] == nullptr) {
+				break;
+			}
+			currentPipe = PipePieces[currentCell[0]][currentCell[1]];
+			currentPipe->Tags.Empty();
+			currentPipe->Tags.Add(FName("DOWN"));
+		}
+		else if (currentOutput == DOWN) {
+			currentCell[0] += 1;
+			if (currentCell[0] >= PuzzleSize || PipePieces[currentCell[0]][currentCell[1]] == nullptr) {
+				break;
+			}
+			currentPipe = PipePieces[currentCell[0]][currentCell[1]];
+			currentPipe->Tags.Empty();
+			currentPipe->Tags.Add(FName("UP"));
+		}
+		else if (currentOutput == LEFT) {
+			currentCell[1] -= 1;
+			if (currentCell[1] < 0 || PipePieces[currentCell[0]][currentCell[1]] == nullptr) {
+				break;
+			}
+			currentPipe = PipePieces[currentCell[0]][currentCell[1]];
+			currentPipe->Tags.Empty();
+			currentPipe->Tags.Add(FName("RIGHT"));
+		}
+		else if (currentOutput == RIGHT) {
+			currentCell[1] += 1;
+			if (currentCell[1] >= PuzzleSize || PipePieces[currentCell[0]][currentCell[1]] == nullptr) {
+				break;
+			}
+			currentPipe = PipePieces[currentCell[0]][currentCell[1]];
+			currentPipe->Tags.Empty();
+			currentPipe->Tags.Add(FName("LEFT"));
+		}
+		
+		// Avoids infinite pipe loops
+		if (visited.Contains(currentCell)) {
+			break;
+		}
+		else {
+			visited.Add(currentCell);
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan, FString::Printf(TEXT("Current Cell %s"), *(currentCell.ToString())));
+		}
+	}
+}
+
+/*
+* Gets the two pipe directions and returns them in a TArray
+*/
+TArray<APipeMatch::direction> APipeMatch::GetPipeDirections(FCell pipe)
+{
+	AActor* pipeActor = PipePieces[pipe[0]][pipe[1]];
+	int pipeRotation = GetRotation(pipe);
+	TArray<direction> directions;
+
+	if (pipeActor->GetClass()->IsChildOf(Straight)) {
+		// Pipe is vertical
+		if (pipeRotation == 0 || 180) {
+			directions.Add(UP);
+			directions.Add(DOWN);
+		}
+		// Pipe is horizontal
+		else if (pipeRotation == 90 || pipeRotation == 270) {
+			directions.Add(LEFT);
+			directions.Add(RIGHT);
+		}
+
+	}
+	// The current pipe is angled
+	else if (pipeActor->GetClass()->IsChildOf(Angle)) {
+		if (pipeRotation == 0) {
+			directions.Add(UP);
+			directions.Add(RIGHT);
+		}
+		else if (pipeRotation == 90) {
+			directions.Add(RIGHT);
+			directions.Add(DOWN);
+		}
+		else if (pipeRotation == 180) {
+			directions.Add(DOWN);
+			directions.Add(LEFT);
+		}
+		else if (pipeRotation == 270) {
+			directions.Add(LEFT);
+			directions.Add(UP);
+		}
+	}
+	
+	return directions;
+}
+
+/*
+* Returns the input direction of the pipe
+*/
+APipeMatch::direction APipeMatch::GetPipeInput(FCell pipe)
+{
+	AActor* pipeActor = PipePieces[pipe[0]][pipe[1]];
+	if (pipeActor->Tags.Num() > 0) {
+		FName directionName = pipeActor->Tags[0];
+		if (directionName.IsEqual(FName("UP"))) {
+			return UP;
+		}
+		else if (directionName.IsEqual(FName("DOWN"))) {
+			return DOWN;
+		}
+		else if (directionName.IsEqual(FName("LEFT"))) {
+			return LEFT;
+		}
+		else if (directionName.IsEqual(FName("RIGHT"))) {
+			return RIGHT;
+		}
+	}
+	return NONE;
+}
+
+/*
+* Returns the output direction of the pipe
+*/
+APipeMatch::direction APipeMatch::GetPipeOutput(FCell pipe)
+{
+	AActor* pipeActor = PipePieces[pipe[0]][pipe[1]];
+	int pipeRotation = GetRotation(pipe);
+	TArray<direction> directions = GetPipeDirections(pipe);
+
+	// Remove the pipeActor's input direction
+	directions.Remove(GetPipeInput(pipe));
+
+	// Return the remaining output direction
+	return directions[0];
+}
+
+/*
+* Returns true if the top left pipe leads to the bottom right pipe
+* False otherwise
+*/
+bool APipeMatch::CheckForWin()
+{
+	FCell currentCell = FCell(0, 0);
+	AActor* currentCellActor = PipePieces[currentCell[0]][currentCell[1]];
+	int currentRotation;
+
+	while (currentCellActor != nullptr && currentCell == FCell(PuzzleSize-1, PuzzleSize-1)) {
+		currentRotation = GetRotation(currentCell);
+		// The current pipe is straight
+		if (currentCellActor->GetClass()->IsChildOf(Straight)) {
+			// Pipe is vertical
+			if (currentRotation == 0 || currentRotation == 180) {
+
+			}
+			// Pipe is horizontal
+			else if (currentRotation == 90 || currentRotation == 270) {
+
+			}
+		}
+		// The current pipe is angled
+		else if (currentCellActor->GetClass()->IsChildOf(Angle)) {
+
+		}
+	}
+	
+	return true;
 }
