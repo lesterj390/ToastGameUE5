@@ -20,13 +20,31 @@ APipeMatch::APipeMatch()
 	NailMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Nail Mesh"));
 	NailMesh->SetupAttachment(Pivot);
 
-	inPuzzle = true;
+	Hitbox = CreateDefaultSubobject<UBoxComponent>(TEXT("Hitbox"));
+	Hitbox->SetupAttachment(Pivot);
+
+	PuzzleCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	PuzzleCamera->SetupAttachment(Pivot);
+
+	Spotlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Spotlight"));
+	Spotlight->SetupAttachment(Pivot);
+
+	InteractComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Interact Widget"));
+	InteractComponent->SetupAttachment(Pivot);
+
+	inOverlap = false;
+	inPuzzle = false;
 }
 
 // Called when the game starts or when spawned
 void APipeMatch::BeginPlay()
 {
 	Super::BeginPlay();
+
+	PuzzleSize = FMath::RandRange(MinPuzzleSize, MaxPuzzleSize);
+
+	Spotlight->SetVisibility(false);
+	InteractComponent->SetVisibility(false);
 
 	PieceSpacing = GetActorScale3D().X / PuzzleSize;
 
@@ -191,9 +209,15 @@ void APipeMatch::SetupKeybinds()
 	InputComponent = NewObject<UInputComponent>(this);
 	InputComponent->RegisterComponent();
 
-	InputComponent->BindAction("Interact", IE_Pressed, this, &APipeMatch::Interact);
+	Hitbox->OnComponentBeginOverlap.AddDynamic(this, &APipeMatch::OnOverlapStart);
+	Hitbox->OnComponentEndOverlap.AddDynamic(this, &APipeMatch::OnOverlapEnd);
 
-	EnableInput(GetWorld()->GetFirstPlayerController());
+	InputComponent->BindAction("Interact", IE_Pressed, this, &APipeMatch::Interact);
+	InputComponent->BindAction("Exit", IE_Pressed, this, &APipeMatch::ExitPuzzle);
+	DisableInput(GetWorld()->GetFirstPlayerController());
+
+
+	DisableInput(GetWorld()->GetFirstPlayerController());
 }
 
 void APipeMatch::Interact()
@@ -203,11 +227,12 @@ void APipeMatch::Interact()
 	if (inPuzzle) {
 		RotateSelectedPipe();
 		if (CheckForWin()) {
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Victory")));
+			ExitPuzzle();
+			GetWorldTimerManager().SetTimer(breakPuzzle, this, &APipeMatch::WinPuzzle, 0.6, false);
 		}
 	}
 	else {
-		//enterPuzzle();
+		EnterPuzzle();
 	}
 }
 
@@ -248,7 +273,7 @@ void APipeMatch::GeneratePieces()
 	TempPipe->Destroy();
 
 	// Creates start pipe
-	CreatePipe(0, 0, StartPipe, false);
+	CornerPipes.Add(CreatePipe(0, 0, StartPipe, false));
 
 	// Creates the pipes for the pipe path
 	FCell lastPipe = FCell(0, 0);
@@ -320,10 +345,45 @@ void APipeMatch::GeneratePieces()
 	}
 
 	// Creates end pipe
-	CreatePipe(PuzzleSize - 1, PuzzleSize - 1, EndPipe, false);
+	CornerPipes.Add(CreatePipe(PuzzleSize - 1, PuzzleSize - 1, EndPipe, false));
 
 	SetupMaterials();
 	GetSelected();
+}
+
+void APipeMatch::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ATBCCharacter* OtherTBCCharacter = Cast<ATBCCharacter>(OtherActor);
+	if (OtherTBCCharacter) {
+		if (OtherTBCCharacter->Tags.Num() > 0)
+		{
+
+			FName PlayerTag = OtherTBCCharacter->Tags[0];
+			TArray<AActor*> FoundActors;
+
+			UGameplayStatics::GetAllActorsWithTag(GetWorld(), PlayerTag, FoundActors);
+
+			if (FoundActors.Num() > 0)
+			{
+				EnableInput(GetWorld()->GetFirstPlayerController());
+				InteractComponent->SetVisibility(true);
+
+				HitBoxPlayer = Cast<ATBCCharacter>(FoundActors[0]);
+				inOverlap = true;
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, "Found Permanent Actor Reference");
+			}
+		}
+	}
+}
+
+void APipeMatch::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	inOverlap = false;
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Left Hitbox")));
+	if (HitBoxPlayer) {
+		DisableInput(GetWorld()->GetFirstPlayerController());
+		InteractComponent->SetVisibility(false);
+	}
 }
 
 void APipeMatch::GetInput()
@@ -480,8 +540,13 @@ void APipeMatch::GetSelected()
 				tempMat = PipeMesh->GetMaterial(0);
 				PipeMat = Cast<UMaterialInstanceDynamic>(tempMat);
 
-				if (selectedPipe == FCell(row, col)) {
-					PipeMat->SetScalarParameterValue(TEXT("Glow"), 0.5);
+				if (inPuzzle) {
+					if (selectedPipe == FCell(row, col)) {
+						PipeMat->SetScalarParameterValue(TEXT("Glow"), 0.5);
+					}
+					else {
+						PipeMat->SetScalarParameterValue(TEXT("Glow"), 0);
+					}
 				}
 				else {
 					PipeMat->SetScalarParameterValue(TEXT("Glow"), 0);
@@ -753,4 +818,60 @@ bool APipeMatch::CheckForWin()
 	else {
 		return false;
 	}
+}
+
+void APipeMatch::EnterPuzzle()
+{
+	if (HitBoxPlayer)
+	{
+		inPuzzle = true;
+
+		GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(this, 0.5f);
+		InteractComponent->SetVisibility(false);
+		Spotlight->SetVisibility(true);
+
+		HitBoxPlayer->SetActorHiddenInGame(true);
+
+		GetSelected();
+	}
+}
+
+void APipeMatch::ExitPuzzle()
+{
+	if (HitBoxPlayer)
+	{
+		inPuzzle = false;
+
+		Spotlight->SetVisibility(false);
+		HitBoxPlayer->SetActorHiddenInGame(false);
+		InteractComponent->SetVisibility(true);
+
+		GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(HitBoxPlayer, 0.5f);
+
+		GetSelected();
+	}
+}
+
+void APipeMatch::WinPuzzle()
+{
+	// Destroy all Pipe Piece Actors
+	for (int row = 0; row < PuzzleSize; row++) {
+		for (int col = 0; col < PuzzleSize; col++) 
+		{
+			if (PipePieces[row][col] != NULL) {
+				PipePieces[row][col]->Destroy();
+			}
+		}
+	}
+
+	// Destroy Start and End Pipes
+	for (int i = 0; i < CornerPipes.Num(); i++) {
+		CornerPipes[i]->Destroy();
+	}
+
+	// Spawn Destroy Puzzle Actor
+	AActor* breakPipePuzzle = GetWorld()->SpawnActor<AActor>(breakPipeActor, PuzzleBase->GetComponentLocation(), GetActorRotation());
+
+	// Destroy this
+	Destroy();
 }
