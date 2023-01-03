@@ -202,7 +202,9 @@ void APipeMatch::Interact()
 
 	if (inPuzzle) {
 		RotateSelectedPipe();
-		DiscoverPathInputs();
+		if (CheckForWin()) {
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Victory")));
+		}
 	}
 	else {
 		//enterPuzzle();
@@ -457,9 +459,8 @@ void APipeMatch::RotateSelectedPipe()
 {
 	AActor* chosenPipe = PipePieces[selectedPipe[0]][selectedPipe[1]];
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Old Pitch = %d"), GetRotation(selectedPipe)));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Old Pitch = %d"), GetRotation(selectedPipe)));
 	chosenPipe->AddActorLocalRotation(FRotator(-90, 0, 0));
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("New Pitch = %d"), GetRotation(selectedPipe)));
 }
 
 /*
@@ -518,7 +519,12 @@ void APipeMatch::DiscoverPathInputs()
 			}
 			currentPipe = PipePieces[currentCell[0]][currentCell[1]];
 			currentPipe->Tags.Empty();
-			currentPipe->Tags.Add(FName("DOWN"));
+			if (GetPipeDirections(currentCell).Contains(DOWN)) {
+				currentPipe->Tags.Add(FName("DOWN"));
+			}
+			else {
+				break;
+			}
 		}
 		else if (currentOutput == DOWN) {
 			currentCell[0] += 1;
@@ -527,7 +533,12 @@ void APipeMatch::DiscoverPathInputs()
 			}
 			currentPipe = PipePieces[currentCell[0]][currentCell[1]];
 			currentPipe->Tags.Empty();
-			currentPipe->Tags.Add(FName("UP"));
+			if (GetPipeDirections(currentCell).Contains(UP)) {
+				currentPipe->Tags.Add(FName("UP"));
+			}
+			else {
+				break;
+			}
 		}
 		else if (currentOutput == LEFT) {
 			currentCell[1] -= 1;
@@ -536,7 +547,12 @@ void APipeMatch::DiscoverPathInputs()
 			}
 			currentPipe = PipePieces[currentCell[0]][currentCell[1]];
 			currentPipe->Tags.Empty();
-			currentPipe->Tags.Add(FName("RIGHT"));
+			if (GetPipeDirections(currentCell).Contains(RIGHT)) {
+				currentPipe->Tags.Add(FName("RIGHT"));
+			}
+			else {
+				break;
+			}
 		}
 		else if (currentOutput == RIGHT) {
 			currentCell[1] += 1;
@@ -545,8 +561,15 @@ void APipeMatch::DiscoverPathInputs()
 			}
 			currentPipe = PipePieces[currentCell[0]][currentCell[1]];
 			currentPipe->Tags.Empty();
-			currentPipe->Tags.Add(FName("LEFT"));
+			if (GetPipeDirections(currentCell).Contains(LEFT)) {
+				currentPipe->Tags.Add(FName("LEFT"));
+			}
+			else {
+				break;
+			}
 		}
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Current Cell = %s"), *currentCell.ToString()), false);
+		currentOutput = GetPipeOutput(currentCell);
 		
 		// Avoids infinite pipe loops
 		if (visited.Contains(currentCell)) {
@@ -554,9 +577,40 @@ void APipeMatch::DiscoverPathInputs()
 		}
 		else {
 			visited.Add(currentCell);
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan, FString::Printf(TEXT("Current Cell %s"), *(currentCell.ToString())));
 		}
 	}
+}
+
+
+bool APipeMatch::PipeInBounds(FCell pipe)
+{
+	int row = pipe[0];
+	int col = pipe[1];
+
+	if (row < 0 || row >= PuzzleSize) {
+		return false;
+	}
+	if (col < 0 || col >= PuzzleSize) {
+		return false;
+	}
+	return true;
+}
+
+FString APipeMatch::directionToString(direction d)
+{
+	if (d == UP) {
+		return FString("Up");
+	}
+	else if (d == DOWN) {
+		return FString("Down");
+	}
+	else if (d == LEFT) {
+		return FString("Left");
+	}
+	else if (d == RIGHT) {
+		return FString("Right");
+	}
+	return FString("None");
 }
 
 /*
@@ -570,7 +624,7 @@ TArray<APipeMatch::direction> APipeMatch::GetPipeDirections(FCell pipe)
 
 	if (pipeActor->GetClass()->IsChildOf(Straight)) {
 		// Pipe is vertical
-		if (pipeRotation == 0 || 180) {
+		if (pipeRotation == 0 || pipeRotation == 180) {
 			directions.Add(UP);
 			directions.Add(DOWN);
 		}
@@ -609,6 +663,10 @@ TArray<APipeMatch::direction> APipeMatch::GetPipeDirections(FCell pipe)
 */
 APipeMatch::direction APipeMatch::GetPipeInput(FCell pipe)
 {
+	if (!PipeInBounds(pipe)) {
+		return NONE;
+	}
+
 	AActor* pipeActor = PipePieces[pipe[0]][pipe[1]];
 	if (pipeActor->Tags.Num() > 0) {
 		FName directionName = pipeActor->Tags[0];
@@ -633,15 +691,25 @@ APipeMatch::direction APipeMatch::GetPipeInput(FCell pipe)
 */
 APipeMatch::direction APipeMatch::GetPipeOutput(FCell pipe)
 {
-	AActor* pipeActor = PipePieces[pipe[0]][pipe[1]];
+	if (!PipeInBounds(pipe) || PipePieces[pipe[0]][pipe[1]] == nullptr) {
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Cell %s null or out of bounds"), *(pipe.ToString())), false);
+		return NONE;
+	}
 	int pipeRotation = GetRotation(pipe);
 	TArray<direction> directions = GetPipeDirections(pipe);
 
 	// Remove the pipeActor's input direction
 	directions.Remove(GetPipeInput(pipe));
 
-	// Return the remaining output direction
-	return directions[0];
+	// If there is only one directions left / the pipe had an input
+	if (directions.Num() == 1) {
+		// Return the remaining output direction
+		return directions[0];
+	}
+	else {
+		return NONE;
+	}
+
 }
 
 /*
@@ -650,28 +718,39 @@ APipeMatch::direction APipeMatch::GetPipeOutput(FCell pipe)
 */
 bool APipeMatch::CheckForWin()
 {
+	DiscoverPathInputs();
+
 	FCell currentCell = FCell(0, 0);
-	AActor* currentCellActor = PipePieces[currentCell[0]][currentCell[1]];
-	int currentRotation;
+	//AActor* currentCellActor = PipePieces[currentCell[0]][currentCell[1]];
+	direction currentOutput = UP;
 
-	while (currentCellActor != nullptr && currentCell == FCell(PuzzleSize-1, PuzzleSize-1)) {
-		currentRotation = GetRotation(currentCell);
-		// The current pipe is straight
-		if (currentCellActor->GetClass()->IsChildOf(Straight)) {
-			// Pipe is vertical
-			if (currentRotation == 0 || currentRotation == 180) {
 
-			}
-			// Pipe is horizontal
-			else if (currentRotation == 90 || currentRotation == 270) {
+	while (currentOutput != NONE) {
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Cell %s"), *(currentCell.ToString())), false);
+		currentOutput = GetPipeOutput(currentCell);
 
-			}
+		// Move Up
+		if (currentOutput == UP) {
+			currentCell[0] -= 1;
 		}
-		// The current pipe is angled
-		else if (currentCellActor->GetClass()->IsChildOf(Angle)) {
-
+		// Move Down
+		else if (currentOutput == DOWN) {
+			currentCell[0] += 1;
+		}
+		// Move Left
+		else if (currentOutput == LEFT) {
+			currentCell[1] -= 1;
+		}
+		// Move Right
+		else if (currentOutput == RIGHT) {
+			currentCell[1] += 1;
 		}
 	}
-	
-	return true;
+
+	if (currentCell == FCell(PuzzleSize, PuzzleSize - 1)) {
+		return true;
+	}
+	else {
+		return false;
+	}
 }

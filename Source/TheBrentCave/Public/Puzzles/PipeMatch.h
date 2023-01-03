@@ -95,6 +95,9 @@ protected:
 	int GetRotation(FCell cell);
 	void RotateSelectedPipe();
 
+	FString directionToString(direction d);
+
+	bool PipeInBounds(FCell pipe);
 	direction GetPipeInput(FCell pipe);
 	direction GetPipeOutput(FCell pipe);
 	TArray<direction> GetPipeDirections(FCell pipe);
