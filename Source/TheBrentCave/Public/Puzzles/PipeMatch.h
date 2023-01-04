@@ -4,6 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Components/SpotLightComponent.h"
+#include "Camera/CameraComponent.h"
+#include "Components/BoxComponent.h"
+#include "TimerManager.h"
+#include "TBCCharacter.h"
 #include "Maze/DataTypes.h"
 #include "PipeMatch.generated.h"
 
@@ -37,8 +42,31 @@ public:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<AActor> EndPipe;
 
+	UPROPERTY(EditAnywhere)
+		USpotLightComponent* Spotlight;
+
+	UPROPERTY(EditAnywhere)
+		UCameraComponent* PuzzleCamera;
+
+	UPROPERTY(EditAnywhere)
+		UWidgetComponent* InteractComponent;
+
+	UPROPERTY(EditAnywhere)
+		UBoxComponent* Hitbox;
+
+	UPROPERTY()
+		ATBCCharacter* HitBoxPlayer;
+
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<AActor> breakPipeActor;
+
 	UPROPERTY(EditAnywhere, Category = "Puzzle Data")
-		int PuzzleSize;
+		int MaxPuzzleSize;
+
+	UPROPERTY(EditAnywhere, Category = "Puzzle Data")
+		int MinPuzzleSize;
+
+	int PuzzleSize;
 
 	float PieceSpacing;
 
@@ -51,10 +79,18 @@ public:
 
 	enum direction { UP, DOWN, LEFT, RIGHT, NONE};
 
+	UFUNCTION()
+		void OnOverlapStart(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+		void OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
 protected:
 	bool inPuzzle;
+	bool inOverlap;
 
 	TArray<TArray<AActor*>> PipePieces;
+	TArray<AActor*> CornerPipes;
 
 	UPROPERTY()
 		TArray<FCell> pipePath;
@@ -69,6 +105,8 @@ protected:
 	FCell selectedPipe;
 	UMaterialInterface* tempMat;
 	UMaterialInstanceDynamic* PipeMat;
+
+	FTimerHandle breakPuzzle;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -104,4 +142,9 @@ protected:
 	void DiscoverPathInputs();
 	
 	bool CheckForWin();
+
+	void EnterPuzzle();
+	void ExitPuzzle();
+
+	void WinPuzzle();
 };
