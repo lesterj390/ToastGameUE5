@@ -38,6 +38,8 @@ ANumberPuzzle::ANumberPuzzle()
 	InteractComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Interact Widget"));
 	InteractComponent->SetupAttachment(Pivot);
 
+	HintComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Hint Widget"));
+	HintComponent->SetupAttachment(Pivot);
 
 	//Setup Box Collision.
 	BoxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Interact Collision"));
@@ -51,6 +53,7 @@ ANumberPuzzle::ANumberPuzzle()
 	ShapeComponent->SetVisibility(false);
 	VertComponent->SetVisibility(false);
 	HoriComponent->SetVisibility(false);
+	HintComponent->SetVisibility(false);
 	NumberInputComponent->SetVisibility(false);
 	InteractComponent->SetVisibility(false);
 
@@ -114,6 +117,15 @@ void ANumberPuzzle::BeginPlay()
 
 	}
 
+	FSoftClassPath hintClassRef(TEXT("/Game/_Main/Puzzles/Number/Blueprint/HintWidget.HintWidget_C"));
+
+	if (UClass* widgetClass = hintClassRef.TryLoadClass<UUserWidget>()) {
+
+		HintComponent->SetWidgetClass(widgetClass);
+		HintWidget = HintComponent->GetWidget();
+
+	}
+
 	BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &ANumberPuzzle::OnOverlapStart);
 	BoxCollision->OnComponentEndOverlap.AddDynamic(this, &ANumberPuzzle::OnOverlapEnd);
 
@@ -132,6 +144,7 @@ void ANumberPuzzle::BeginPlay()
 	exitString = UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerInput->GetKeysForAction("Exit")[0].Key.GetFName().ToString();
 
 	randomShapeSetup();
+	GetHint();
 
 	setupInput();
 
@@ -217,6 +230,43 @@ void ANumberPuzzle::randomShapeSetup()
 
 }
 
+void ANumberPuzzle::GetHint()
+{
+	// Select Random Shape
+	int randomShape = FMath::RandRange(0, 3);
+
+	// Set Image
+	UImage* hintImage = (UImage*)(HintWidget->WidgetTree->FindWidget(FName(*FString::Printf(TEXT("HintImage")))));
+	// Get Image References
+	FSoftObjectPath softObjectPath;
+	softObjectPath.SetPath(TEXT("Texture2D'/Game/_Main/Puzzles/Number/Textures/circle.circle'"));
+	UTexture2D* circle = Cast<UTexture2D>(softObjectPath.TryLoad());
+	softObjectPath.SetPath(TEXT("Texture2D'/Game/_Main/Puzzles/Number/Textures/square.square'"));
+	UTexture2D* square = Cast<UTexture2D>(softObjectPath.TryLoad());
+	softObjectPath.SetPath(TEXT("Texture2D'/Game/_Main/Puzzles/Number/Textures/triangle.triangle'"));
+	UTexture2D* triangle = Cast<UTexture2D>(softObjectPath.TryLoad());
+	softObjectPath.SetPath(TEXT("Texture2D'/Game/_Main/Puzzles/Number/Textures/diamond.diamond'"));
+	UTexture2D* diamond = Cast<UTexture2D>(softObjectPath.TryLoad());
+	// Apply Image
+	if (randomShape == 0) {
+		hintImage->SetBrushFromTexture(circle);
+	}
+	else if (randomShape == 1) {
+		hintImage->SetBrushFromTexture(square);
+	}
+	else if (randomShape == 2) {
+		hintImage->SetBrushFromTexture(triangle);
+	}
+	else if (randomShape == 3) {
+		hintImage->SetBrushFromTexture(diamond);
+	}
+
+	// Set Text
+	UTextBlock* TextControl = (UTextBlock*)(HintWidget->WidgetTree->FindWidget(FName(*FString::Printf(TEXT("HintText")))));
+	FString Number = FString::Printf(TEXT("%d"), shapeVal[randomShape]);
+	TextControl->SetText(FText::FromString(Number));
+}
+
 void ANumberPuzzle::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ATBCCharacter * OtherTBCCharacter = Cast<ATBCCharacter>(OtherActor);
@@ -283,6 +333,7 @@ void ANumberPuzzle::enterPuzzle()
 			ShapeComponent->SetVisibility(true);
 			VertComponent->SetVisibility(true);
 			HoriComponent->SetVisibility(true);
+			HintComponent->SetVisibility(true);
 			NumberInputComponent->SetVisibility(true);
 			InteractComponent->SetVisibility(false);
 
@@ -317,6 +368,7 @@ void ANumberPuzzle::exitPuzzle()
 			ShapeComponent->SetVisibility(false);
 			VertComponent->SetVisibility(false);
 			HoriComponent->SetVisibility(false);
+			HintComponent->SetVisibility(false);
 			NumberInputComponent->SetVisibility(false);
 			InteractComponent->SetVisibility(true);
 

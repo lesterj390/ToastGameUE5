@@ -79,6 +79,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		UWidgetComponent* InteractComponent;
 
+	UPROPERTY(EditAnywhere)
+		UWidgetComponent* HintComponent;
+
 	UPROPERTY()
 		UUserWidget* ShapeWidget;
 
@@ -97,6 +100,9 @@ public:
 	UPROPERTY()
 		UUserWidget* InteractWidget;
 
+	UPROPERTY()
+		UUserWidget* HintWidget;
+
 	UFUNCTION()
 		void OnOverlapStart(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -111,6 +117,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "ExitPuzzle")
 	void exitPuzzle();
+
+	void GetHint();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool inPuzzle;
