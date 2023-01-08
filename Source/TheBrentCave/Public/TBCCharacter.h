@@ -188,6 +188,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		bool isHiding;
 
+	UPROPERTY()
+		bool bInPuzzle;
+
 	UFUNCTION()
 		void RemoveExitWall();
 
@@ -247,6 +250,8 @@ protected:
 	bool bIsSprinting;
 
 	bool bStartedSprint;
+
+	bool bSanityStateChanged;
 
 	void StartSprint();
 

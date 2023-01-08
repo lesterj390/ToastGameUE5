@@ -225,7 +225,7 @@ void UPlayerStatsComponent::RegenerateSanity()
 	else {
 		GetWorld()->GetTimerManager().ClearTimer(SanityHandle);
 		//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, FString::Printf(TEXT("Completely Sane")));
-		ConsumeSanity();
+		//ConsumeSanity();
 	}
 	
 

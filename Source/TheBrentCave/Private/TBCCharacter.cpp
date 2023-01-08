@@ -778,6 +778,17 @@ void ATBCCharacter::Tick(float DeltaTime)
 
 		UpdateInvBar();
 	}
+
+	// Checking if I'm in a puzzle
+	UClass* viewClass = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetViewTarget()->GetClass();
+	if (viewClass->IsChildOf(ATBCCharacter::StaticClass()) || isHiding) {
+		bInPuzzle = false;
+	}
+	else {
+		bInPuzzle = true;
+	}
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("InPuzzle: %d"), bInPuzzle));
+
 }
 
 /**
@@ -934,7 +945,9 @@ void ATBCCharacter::EndSprint()
 
 void ATBCCharacter::StartRelax()
 {
-	bIsRelaxing = true;
+	if (bInPuzzle == false) {
+		bIsRelaxing = true;
+	}
 }
 
 
@@ -952,6 +965,7 @@ void ATBCCharacter::EndRelax()
 
 void ATBCCharacter::SanityCheck()
 {
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("%f"), PlayerStats->GetSanity()));
 	if (PlayerStats->GetSanity() <= 10)
 	{
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Sanity <= 10")));
@@ -965,10 +979,7 @@ void ATBCCharacter::SanityCheck()
 		}
 		// disable stamina
 		// toast random spawn chance
-		if ((int)FMath::RandRange(1, 80) == 40)
-		{
-			InsanityCameraShake(FMath::RandRange(1.5f, 2.2f));
-		}
+		InsanityCameraShake(FMath::RandRange(1.5f, 2.2f));
 	}
 	else if (PlayerStats->GetSanity() <= 25)
 	{
@@ -983,10 +994,7 @@ void ATBCCharacter::SanityCheck()
 		{
 			SummonBreadcrumb();
 		}
-		if ((int)FMath::RandRange(1, 100) == 50)
-		{
-			InsanityCameraShake(FMath::RandRange(1.3f, 1.8f));
-		}
+		InsanityCameraShake(FMath::RandRange(1.3f, 1.8f));
 	}
 	else if (PlayerStats->GetSanity() <= 50)
 	{
@@ -999,10 +1007,7 @@ void ATBCCharacter::SanityCheck()
 		{
 			SummonBreadcrumb();
 		}
-		if ((int)FMath::RandRange(1, 120) == 60)
-		{
-			InsanityCameraShake(FMath::RandRange(1.0f, 1.5f));
-		}
+		InsanityCameraShake(1);
 	}
 	else if (PlayerStats->GetSanity() <= 75)
 	{
@@ -1010,6 +1015,7 @@ void ATBCCharacter::SanityCheck()
 		{
 			SummonBreadcrumb();
 		}
+		InsanityCameraShake(-1);
 	}
 	else
 	{
@@ -1020,6 +1026,7 @@ void ATBCCharacter::SanityCheck()
 		{
 			Crumb->Destroy();
 		}
+		InsanityCameraShake(-1);
 	}
 }
 
@@ -1101,32 +1108,25 @@ void ATBCCharacter::throwGlowstick()
 
 
 void ATBCCharacter::InsanityCameraShake(float scale)
-{	
-	if (scale > 0)
-	{
-
+{
+	if (CameraShakeInstance == nullptr && !bInPuzzle) {
 		CameraShakeInstance = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->StartCameraShake(CameraShake, scale);
-
-		FTimerDelegate cameraShakeDelegate;
-		cameraShakeDelegate.BindUFunction(this, FName("InsanityCameraShake"), 0.0f);
-		GetWorldTimerManager().SetTimer(cameraShakeHandle, cameraShakeDelegate, (FMath::RandRange(2, 5)), false);
-
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Start")));
 	}
-	else if (scale == 0)
-	{
-		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->StartCameraFade(0, 1, 0.75, FColor::Black, false, true);
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Fade")));
-
-		FTimerDelegate cameraShakeDelegate;
-		cameraShakeDelegate.BindUFunction(this, FName("InsanityCameraShake"), -1.0f);
-		GetWorldTimerManager().SetTimer(cameraShakeHandle, cameraShakeDelegate, (0.75), false);
-	}
-	else if (scale == -1)
-	{
-		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->StartCameraFade(1, 0, 1.5, FColor::Black, false, true);
-		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->StopCameraShake(CameraShakeInstance, true);
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("End")));
+	else {
+		if (scale == -1) {
+			UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->StopCameraShake(CameraShakeInstance);
+			CameraShakeInstance = nullptr;
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("No more shake")));
+		}
+		// Stop shaking while in puzzle
+		else if (bInPuzzle) {
+			InsanityCameraShake(-1);
+		}
+		else {
+			// Update camera shake scale
+			FCameraShakeUpdateResult result;
+			CameraShakeInstance->ApplyScale(scale, result);
+		}
 	}
 }
 
