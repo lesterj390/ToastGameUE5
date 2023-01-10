@@ -60,6 +60,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<AActor> breakPipeActor;
 
+	UPROPERTY(EditAnywhere)
+		USoundCue* RotateSound;
+
 	UPROPERTY(EditAnywhere, Category = "Puzzle Data")
 		int MaxPuzzleSize;
 

@@ -146,6 +146,9 @@ void ADoorKey::insertKey()
 			Player->KeyCount--;
 			puzzleAm--;
 
+			UAudioComponent* SoundComponent = UGameplayStatics::CreateSound2D(GetWorld(), InsertKeySound);
+			SoundComponent->Play(0.0);
+
 			updateWidget();
 
 			if (puzzleAm == 0)

@@ -99,6 +99,13 @@ void AKeyReward::BeginPlay()
 
 	}
 
+	for (int i = 0; i < SoundArray.Num(); i++) {
+		KeySound = SoundArray[i];
+
+		UAudioComponent* SoundComponent = UGameplayStatics::CreateSound2D(GetWorld(), KeySound);
+		SoundComponent->Play(0.0);
+	}
+
 }
 
 void AKeyReward::SetupInputComponent()

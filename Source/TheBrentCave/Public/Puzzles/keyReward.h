@@ -46,6 +46,12 @@ public:
 	UPROPERTY(VisibleAnywhere)
 		UParticleSystemComponent* SmokeBurst;
 
+	UPROPERTY()
+		USoundCue* KeySound;
+
+	UPROPERTY(EditAnywhere)
+		TArray<USoundCue*> SoundArray;
+
 	UFUNCTION()
 		void OnOverlapStart(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 

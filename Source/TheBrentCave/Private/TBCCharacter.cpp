@@ -102,12 +102,14 @@ ATBCCharacter::ATBCCharacter()
 		WhisperSound = whisperCueObject.Object;
 	}
 
+	/*
 	static ConstructorHelpers::FObjectFinder<USoundCue> backgroundCueObject(TEXT("SoundCue'/Game/ThirdPersonCPP/Audio/BackgroundNoise/backgroundNoise_Cue.backgroundNoise_Cue'"));
 
 	if (backgroundCueObject.Succeeded())
 	{
 		BackgroundSound = backgroundCueObject.Object;
 	}
+	*/
 
 	static ConstructorHelpers::FObjectFinder<USoundCue> flashlightCueObject(TEXT("SoundCue'/Game/ThirdPersonCPP/Audio/Flashlight/FlashlightToggle_Cue.FlashlightToggle_Cue'"));
 
@@ -708,8 +710,12 @@ void ATBCCharacter::BeginPlay()
 		PuzzleCount = grid->PuzzleActorArray.Num();
 	}
 
-	UAudioComponent* BackgroundComponent = UGameplayStatics::CreateSound2D(GetWorld(), BackgroundSound);
-	BackgroundComponent->Play(0.0);
+	for (int i = 0; i < AmbienceArray.Num(); i++) {
+		BackgroundSound = AmbienceArray[i];
+
+		UAudioComponent* BackgroundComponent = UGameplayStatics::CreateSound2D(GetWorld(), BackgroundSound);
+		BackgroundComponent->Play(0.0);
+	}
 
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	

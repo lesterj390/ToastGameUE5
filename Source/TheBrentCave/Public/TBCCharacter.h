@@ -168,6 +168,9 @@ public:
 		USoundCue* BackgroundSound;
 
 	UPROPERTY(EditAnywhere)
+		TArray<USoundCue*> AmbienceArray;
+
+	UPROPERTY(EditAnywhere)
 		USceneComponent* SoundPivot;
 
 	UPROPERTY(EditAnywhere, Category = "Spawning")

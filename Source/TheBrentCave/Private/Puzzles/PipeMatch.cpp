@@ -521,6 +521,10 @@ void APipeMatch::RotateSelectedPipe()
 
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Old Pitch = %d"), GetRotation(selectedPipe)));
 	chosenPipe->AddActorLocalRotation(FRotator(-90, 0, 0));
+
+	// Play Pipe Rotation Sound
+	UAudioComponent* SoundComponent = UGameplayStatics::CreateSound2D(GetWorld(), RotateSound);
+	SoundComponent->Play(0.0);
 }
 
 /*
