@@ -227,6 +227,12 @@ public:
 
 	bool RadarOn;
 
+	UPROPERTY(EditAnywhere)
+		USoundCue* SprintingAudio;
+
+	UPROPERTY()
+		UAudioComponent* SprintingAudioComponent;
+
 protected:
 
 	/** Resets HMD orientation in VR. */

@@ -717,6 +717,9 @@ void ATBCCharacter::BeginPlay()
 		BackgroundComponent->Play(0.0);
 	}
 
+	// Define sprinting audio as component
+	SprintingAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SprintingAudio);
+
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	
 
@@ -931,6 +934,9 @@ void ATBCCharacter::StartSprint()
 		bIsSprinting = true;
 		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 		GetWorldTimerManager().SetTimer(CheckForCooldownTimer, this, &ATBCCharacter::CheckForCooldown, 1.0f, true);
+
+		SprintingAudioComponent->Play(0.0);
+		SprintingAudioComponent->FadeIn(0.5, 1.0, 0.0, EAudioFaderCurve::Linear);
 	}
 	else {
 		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
@@ -945,6 +951,8 @@ void ATBCCharacter::EndSprint()
 		PlayerStats->RegenerateStamina();
 		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 		bStartedSprint = false;
+
+		SprintingAudioComponent->FadeOut(0.5, 0.0, EAudioFaderCurve::Linear);
 	}
 }
 
