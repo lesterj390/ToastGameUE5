@@ -65,6 +65,9 @@ protected:
 		USoundCue* OnComboSound;
 
 	UPROPERTY(EditAnywhere)
+		USoundCue* TickSound;
+
+	UPROPERTY(EditAnywhere)
 		TSubclassOf<AActor> BreakLockActor;
 
 	bool ComboRecentlyPlayed;
@@ -74,6 +77,7 @@ protected:
 
 	FTimerHandle ResetCooldown;
 	FTimerHandle BreakPuzzleTimer;
+	FTimerHandle TickTimer;
 
 	void SetupTimelines();
 
@@ -108,6 +112,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Puzzle Data")
 		int LockLength;
 
+	UPROPERTY(EditAnywhere, Category = "Puzzle Data")
+		float TickNoiseDelay;
+
 	int LockLevel;
 
 	TArray<int> LockCode;
@@ -119,6 +126,8 @@ protected:
 	void WinPuzzle();
 
 	bool resettingLock;
+
+	void TickNoise();
 
 public:	
 	// Called every frame

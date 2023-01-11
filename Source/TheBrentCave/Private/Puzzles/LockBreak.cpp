@@ -94,13 +94,15 @@ void ALockBreak::UpdateTimelineProgress(float Value)
 	LockDialMesh->SetRelativeRotation((FRotator(angle, 90.0f, 0.0f)));
 
 	if (LockLevel <= LockLength) {
-		if (DialLocation >= LockCode[LockLevel - 1] && DialLocation <= LockCode[LockLevel - 1] + PickRange && !ComboRecentlyPlayed) {
-			ComboRecentlyPlayed = true;
+		if (DialLocation >= LockCode[LockLevel - 1] && DialLocation <= LockCode[LockLevel - 1] + PickRange) {
+			if (!ComboRecentlyPlayed) {
+				ComboRecentlyPlayed = true;
 
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, "On Combo");
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, "On Combo");
 
-			UAudioComponent* SoundComponent = UGameplayStatics::CreateSound2D(GetWorld(), OnComboSound);
-			SoundComponent->Play(0.0);
+				UAudioComponent* SoundComponent = UGameplayStatics::CreateSound2D(GetWorld(), OnComboSound);
+				SoundComponent->Play(0.0);
+			}
 		}
 		else {
 			ComboRecentlyPlayed = false;
@@ -179,13 +181,28 @@ void ALockBreak::ExitPuzzle()
 		GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(HitBoxPlayer, 0.5f);
 
 		ResetLock();
+
+		// Stop Ticking Sound
+		GetWorldTimerManager().ClearTimer(TickTimer);
 	}
+}
+
+// Makes a tick noise 
+void ALockBreak::TickNoise()
+{
+	// Creates the 2d sound component for the tick noise
+	UAudioComponent* SoundComponent = UGameplayStatics::CreateSound2D(GetWorld(), TickSound);
+	// Plays tick noise
+	SoundComponent->Play(0.0);
 }
 
 void ALockBreak::ResetLock()
 {
 	ResetDialTimeline.Stop();
 	DialTimeline.Stop();
+
+	// Stop fast ticking
+	GetWorldTimerManager().ClearTimer(TickTimer);
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, "Function ResetLock was called.");
 
@@ -206,6 +223,7 @@ void ALockBreak::StartPuzzle()
 {
 	DialTimeline.PlayFromStart();
 	DialTimeline.SetLooping(true);
+	GetWorldTimerManager().SetTimer(TickTimer, this, &ALockBreak::TickNoise, TickNoiseDelay, true);
 }
 
 void ALockBreak::GenerateLockCode()
@@ -237,6 +255,9 @@ void ALockBreak::LockPickCheck()
 			ResetDialTimeline.Stop();
 
 			ResetDialTimeline.PlayFromStart();
+			// Stop normal ticking and start faster ticking
+			GetWorldTimerManager().ClearTimer(TickTimer);
+			GetWorldTimerManager().SetTimer(TickTimer, this, &ALockBreak::TickNoise, TickNoiseDelay/2, true);
 		}
 
 		if (LockLevel > LockLength) {
