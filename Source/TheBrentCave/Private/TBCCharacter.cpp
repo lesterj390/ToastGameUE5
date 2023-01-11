@@ -1117,12 +1117,12 @@ void ATBCCharacter::throwGlowstick()
 		GlowstickAmount--;
 
 		throwReturn = GetWorld()->SpawnActor<AActor>(GlowstickActor, glowstickThrowPoint->GetComponentLocation(), FRotator(glowstickThrowPoint->GetComponentRotation()));
-		AGlowstick* Glowstick = Cast<AGlowstick>(throwReturn);
+		//AGlowstick* Glowstick = Cast<AGlowstick>(throwReturn);
 
-		glowstickDirection = GetActorLocation() - Glowstick->GetActorLocation();
-		glowstickDirection = glowstickDirection * 50;
+		//glowstickDirection = GetActorLocation() - Glowstick->GetActorLocation();
+		// = glowstickDirection * 50;
 
-		Glowstick->CapsuleCollision->SetPhysicsLinearVelocity(glowstickDirection);
+		//Glowstick->CapsuleCollision->SetPhysicsLinearVelocity(glowstickDirection);
 
 		if (GlowstickAmount == 0) {
 			ScrolledUp();
