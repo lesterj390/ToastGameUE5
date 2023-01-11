@@ -271,7 +271,7 @@ void ALockBreak::LockPickCheck()
 void ALockBreak::WinPuzzle()
 {
 	// Spawn Destroy Puzzle Actor
-	AActor* breakLockBreak = GetWorld()->SpawnActor<AActor>(BreakLockActor, GetActorLocation(), GetActorRotation());
+	AActor* breakLockBreak = GetWorld()->SpawnActor<AActor>(BreakLockActor, ChestBottomMesh->GetComponentLocation(), GetActorRotation());
 
 	// Destroy this
 	Destroy();
