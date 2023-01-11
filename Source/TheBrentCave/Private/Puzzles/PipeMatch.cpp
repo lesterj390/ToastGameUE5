@@ -835,6 +835,8 @@ void APipeMatch::EnterPuzzle()
 		Spotlight->SetVisibility(true);
 
 		HitBoxPlayer->SetActorHiddenInGame(true);
+		HitBoxPlayer->SetActorEnableCollision(false);
+		EnableInput(GetWorld()->GetFirstPlayerController());
 
 		GetSelected();
 	}
@@ -848,6 +850,7 @@ void APipeMatch::ExitPuzzle()
 
 		Spotlight->SetVisibility(false);
 		HitBoxPlayer->SetActorHiddenInGame(false);
+		HitBoxPlayer->SetActorEnableCollision(true);
 		InteractComponent->SetVisibility(true);
 
 		GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(HitBoxPlayer, 0.5f);
