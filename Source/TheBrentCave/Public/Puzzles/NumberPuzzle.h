@@ -82,6 +82,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		UWidgetComponent* HintComponent;
 
+	UPROPERTY(EditAnywhere)
+		TMap<FString, UTexture2D*> ShapeTextures;
+
 	UPROPERTY()
 		UUserWidget* ShapeWidget;
 

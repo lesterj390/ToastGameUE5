@@ -490,18 +490,18 @@ void ATBCCharacter::ScrolledUp()
 
 		if (selectedItem == 0) {
 			FString Path = FString("/Game/_Main/UI/SelectedItem/FlashlightRing.FlashlightRing");
-			UTexture2D* FlashlightTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
+			//UTexture2D* FlashlightTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
 
-			StatsWidget->SelectedItem->SetBrushFromTexture(FlashlightTexture);
+			StatsWidget->SelectedItem->SetBrushFromTexture(StatsWidget->FlashlightTexture);
 
 			InventroyProgressBar = BatteryPower / 100;
 		}
 		else if (selectedItem == 1) {
 			if (GlowstickAmount > 0) {
 				FString Path = FString("/Game/_Main/UI/SelectedItem/GlowstickRing.GlowstickRing");
-				UTexture2D* GlowstickTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
+				//UTexture2D* GlowstickTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
 
-				StatsWidget->SelectedItem->SetBrushFromTexture(GlowstickTexture);
+				StatsWidget->SelectedItem->SetBrushFromTexture(StatsWidget->GlowstickTexture);
 
 				//InventroyProgressBar = GlowstickAmount / MaxGlowstickAmount;
 				UpdateInvBar();
@@ -514,9 +514,9 @@ void ATBCCharacter::ScrolledUp()
 		else if (selectedItem == 2) {
 			if (FoodAmount > 0) {
 				FString Path = FString("/Game/_Main/UI/SelectedItem/FoodRing.FoodRing");
-				UTexture2D* BreadTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
+				//UTexture2D* BreadTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
 
-				StatsWidget->SelectedItem->SetBrushFromTexture(BreadTexture);
+				StatsWidget->SelectedItem->SetBrushFromTexture(StatsWidget->BreadTexture);
 
 				//InventroyProgressBar = FoodAmount / MaxFoodAmount;
 				UpdateInvBar();
@@ -529,9 +529,9 @@ void ATBCCharacter::ScrolledUp()
 		else if (selectedItem == 3) {
 			if (KeyCount > 0) {
 				FString Path = FString("/Game/_Main/UI/SelectedItem/KeyRing.KeyRing");
-				UTexture2D* KeyTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
+				//UTexture2D* KeyTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
 
-				StatsWidget->SelectedItem->SetBrushFromTexture(KeyTexture);
+				StatsWidget->SelectedItem->SetBrushFromTexture(StatsWidget->KeyTexture);
 
 				//InventroyProgressBar = KeyCount / PuzzleCount;
 				UpdateInvBar();
@@ -544,9 +544,9 @@ void ATBCCharacter::ScrolledUp()
 		else if (selectedItem == 4) {
 			if (BatteryAmount > 0) {
 				FString Path = FString("/Game/_Main/UI/SelectedItem/BatteryRing.BatteryRing");
-				UTexture2D* BatteryTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
+				//UTexture2D* BatteryTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
 
-				StatsWidget->SelectedItem->SetBrushFromTexture(BatteryTexture);
+				StatsWidget->SelectedItem->SetBrushFromTexture(StatsWidget->BatteryTexture);
 
 				if (hasRadar) {
 					StatsWidget->BatteryBox->SetVisibility(ESlateVisibility::Visible);
@@ -563,9 +563,9 @@ void ATBCCharacter::ScrolledUp()
 		else if (selectedItem == 5) {
 			if (hasRadar) {
 				FString Path = FString("/Game/_Main/UI/SelectedItem/RadarRing.RadarRing");
-				UTexture2D* RadarTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
+				//UTexture2D* RadarTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
 
-				StatsWidget->SelectedItem->SetBrushFromTexture(RadarTexture);
+				StatsWidget->SelectedItem->SetBrushFromTexture(StatsWidget->RadarTexture);
 			}
 			else {
 				//selectedItem++;

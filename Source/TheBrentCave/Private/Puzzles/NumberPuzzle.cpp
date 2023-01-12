@@ -174,15 +174,15 @@ void ANumberPuzzle::randomShapeSetup()
 	for (int i = 0; i < 16; i++) {
 
 		UImage* imageType = (UImage*)(ShapeWidget->WidgetTree->FindWidget(FName(*FString::Printf(TEXT("shape%d"), i + 1))));
-		FSoftObjectPath softObjectPath;
-		softObjectPath.SetPath(TEXT("Texture2D'/Game/_Main/Puzzles/Number/Textures/circle.circle'"));
-		UTexture2D* circle = Cast<UTexture2D>(softObjectPath.TryLoad());
-		softObjectPath.SetPath(TEXT("Texture2D'/Game/_Main/Puzzles/Number/Textures/square.square'"));
-		UTexture2D* square = Cast<UTexture2D>(softObjectPath.TryLoad());
-		softObjectPath.SetPath(TEXT("Texture2D'/Game/_Main/Puzzles/Number/Textures/triangle.triangle'"));
-		UTexture2D* triangle = Cast<UTexture2D>(softObjectPath.TryLoad());
-		softObjectPath.SetPath(TEXT("Texture2D'/Game/_Main/Puzzles/Number/Textures/diamond.diamond'"));
-		UTexture2D* diamond = Cast<UTexture2D>(softObjectPath.TryLoad());
+		//FSoftObjectPath softObjectPath;
+		//softObjectPath.SetPath(TEXT("Texture2D'/Game/_Main/Puzzles/Number/Textures/circle.circle'"));
+		UTexture2D* circle = *ShapeTextures.Find(FString("Circle"));
+		//softObjectPath.SetPath(TEXT("Texture2D'/Game/_Main/Puzzles/Number/Textures/square.square'"));
+		UTexture2D* square = *ShapeTextures.Find(FString("Square"));
+		//softObjectPath.SetPath(TEXT("Texture2D'/Game/_Main/Puzzles/Number/Textures/triangle.triangle'"));
+		UTexture2D* triangle = *ShapeTextures.Find(FString("Triangle"));
+		//softObjectPath.SetPath(TEXT("Texture2D'/Game/_Main/Puzzles/Number/Textures/diamond.diamond'"));
+		UTexture2D* diamond = *ShapeTextures.Find(FString("Diamond"));
 
 		if (imageType) {
 			int currentShape = (FMath::RandRange(1, 4));

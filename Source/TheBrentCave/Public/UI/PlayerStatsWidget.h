@@ -32,6 +32,24 @@ public:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 		UVerticalBox* BatteryBox;
 
+	UPROPERTY(EditAnywhere, Category = "InventoryItems")
+		UTexture2D* FlashlightTexture;
+
+	UPROPERTY(EditAnywhere, Category = "InventoryItems")
+		UTexture2D* GlowstickTexture;
+
+	UPROPERTY(EditAnywhere, Category = "InventoryItems")
+		UTexture2D* BreadTexture;
+
+	UPROPERTY(EditAnywhere, Category = "InventoryItems")
+		UTexture2D* KeyTexture;
+
+	UPROPERTY(EditAnywhere, Category = "InventoryItems")
+		UTexture2D* BatteryTexture;
+
+	UPROPERTY(EditAnywhere, Category = "InventoryItems")
+		UTexture2D* RadarTexture;
+
 
 public:
 	UPlayerStatsWidget(const FObjectInitializer& ObjectInitializer);
