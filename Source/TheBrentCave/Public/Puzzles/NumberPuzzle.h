@@ -15,7 +15,7 @@
 #include "Styling/SlateBrush.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SpotLightComponent.h"
-#include "AIController.h"
+//#include "AIController.h"
 #include "Components/BoxComponent.h"
 #include "TBCCharacter.h"
 #include "NumberPuzzle.generated.h"
