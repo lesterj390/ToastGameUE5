@@ -42,8 +42,8 @@ void UWordSearchWidget::SetupWidget(int WidgetResParam, int MinPuzzleSizeP, int 
 		UImage* Image = WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(), (FName(*FString::Printf(TEXT("SelectedItem %d, %d"), PosRow, PosCol))));
 		Canvas->AddChild(Image);
 
-		FString ImagePath = FString("/Game/_Main/Puzzles/WordSearch/Texture/SelectedWord.SelectedWord");
-		UTexture2D* SelectionTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *ImagePath));
+		//FString ImagePath = FString("/Game/_Main/Puzzles/WordSearch/Texture/SelectedWord.SelectedWord");
+		//UTexture2D* SelectionTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *ImagePath));
 
 		Image->SetBrushFromTexture(SelectionTexture);
 	
@@ -198,8 +198,8 @@ void UWordSearchWidget::CheckRotation()
 			Canvas->AddChild(CheckImage);
 			CheckImageArray.Add(CheckImage);
 
-			FString CheckImagePath = FString("/Game/_Main/Puzzles/WordSearch/Texture/SelectedWord.SelectedWord");
-			UTexture2D* SelectionTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *CheckImagePath));
+			//FString CheckImagePath = FString("/Game/_Main/Puzzles/WordSearch/Texture/SelectedWord.SelectedWord");
+			//UTexture2D* SelectionTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *CheckImagePath));
 
 			CheckImage->SetBrushFromTexture(SelectionTexture);
 
@@ -220,8 +220,8 @@ void UWordSearchWidget::CheckRotation()
 			Canvas->AddChild(CheckImage);
 			CheckImageArray.Add(CheckImage);
 
-			FString CheckImagePath = FString("/Game/_Main/Puzzles/WordSearch/Texture/SelectedWord.SelectedWord");
-			UTexture2D* SelectionTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *CheckImagePath));
+			//FString CheckImagePath = FString("/Game/_Main/Puzzles/WordSearch/Texture/SelectedWord.SelectedWord");
+			//UTexture2D* SelectionTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *CheckImagePath));
 
 			CheckImage->SetBrushFromTexture(SelectionTexture);
 
@@ -241,8 +241,8 @@ void UWordSearchWidget::CheckRotation()
 			Canvas->AddChild(CheckImage);
 			CheckImageArray.Add(CheckImage);
 
-			FString CheckImagePath = FString("/Game/_Main/Puzzles/WordSearch/Texture/SelectedWord.SelectedWord");
-			UTexture2D* SelectionTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *CheckImagePath));
+			//FString CheckImagePath = FString("/Game/_Main/Puzzles/WordSearch/Texture/SelectedWord.SelectedWord");
+			//UTexture2D* SelectionTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *CheckImagePath));
 
 			CheckImage->SetBrushFromTexture(SelectionTexture);
 
@@ -263,8 +263,8 @@ void UWordSearchWidget::CheckRotation()
 			Canvas->AddChild(CheckImage);
 			CheckImageArray.Add(CheckImage);
 
-			FString CheckImagePath = FString("/Game/_Main/Puzzles/WordSearch/Texture/SelectedWord.SelectedWord");
-			UTexture2D* SelectionTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *CheckImagePath));
+			//FString CheckImagePath = FString("/Game/_Main/Puzzles/WordSearch/Texture/SelectedWord.SelectedWord");
+			//UTexture2D* SelectionTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *CheckImagePath));
 
 			CheckImage->SetBrushFromTexture(SelectionTexture);
 

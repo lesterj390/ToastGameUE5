@@ -63,6 +63,9 @@ public:
 	UPROPERTY()
 		UCanvasPanelSlot* imageSlot;
 
+	UPROPERTY(EditAnywhere)
+		UTexture2D* SelectionTexture;
+
 	FString word;
 
 	int RowSpawn;
