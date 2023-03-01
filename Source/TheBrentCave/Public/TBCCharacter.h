@@ -9,6 +9,7 @@
 #include "Grid.h"
 #include "Components/SpotLightComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GISetup.h"
 #include "Blueprint/UserWidget.h"
 #include "PlayerStatsComponent.h"
 #include "Components/AudioComponent.h"
@@ -232,6 +233,8 @@ public:
 
 	UPROPERTY()
 		UAudioComponent* SprintingAudioComponent;
+
+	UGISetup* MyGameInstance;
 
 protected:
 

@@ -53,6 +53,13 @@ public:
 		UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 			bool TestingGame;
 
+		// Settings
+		UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+			float PlayerFOV;
+
+		UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+			float PuzzleFOV;
+
 protected:
 
 };
