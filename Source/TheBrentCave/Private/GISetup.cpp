@@ -11,4 +11,7 @@ UGISetup::UGISetup() {
 	TestingGame = true;
 	Map = 0;
 
+	PlayerFOV = 90;
+	PuzzleFOV = 90;
+
 }

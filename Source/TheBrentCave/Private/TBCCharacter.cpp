@@ -700,6 +700,8 @@ void ATBCCharacter::BeginPlay()
 
 	Super::BeginPlay();
 
+	MyGameInstance = Cast<UGISetup>(UGameplayStatics::GetGameInstance(GetWorld()));
+
 	BatteryPower = MaxBatteryCharge;
 	RadarBattery = MaxRadarBattery;
 
@@ -792,9 +794,15 @@ void ATBCCharacter::Tick(float DeltaTime)
 	UClass* viewClass = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetViewTarget()->GetClass();
 	if (viewClass->IsChildOf(ATBCCharacter::StaticClass()) || isHiding) {
 		bInPuzzle = false;
+
+		APlayerCameraManager* CurrentCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
+		CurrentCamera->SetFOV(MyGameInstance->PlayerFOV);
 	}
 	else {
 		bInPuzzle = true;
+
+		APlayerCameraManager* CurrentCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
+		CurrentCamera->SetFOV(MyGameInstance->PuzzleFOV);
 	}
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("InPuzzle: %d"), bInPuzzle));
 
