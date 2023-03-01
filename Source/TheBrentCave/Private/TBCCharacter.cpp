@@ -234,16 +234,6 @@ void ATBCCharacter::OnResetVR()
 }
 
 
-//void ATBCCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
-//{
-//		Jump();
-//}
-//
-//void ATBCCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
-//{
-//		StopJumping();
-//}
-
 void ATBCCharacter::TurnAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
@@ -290,13 +280,17 @@ void ATBCCharacter::MoveForward(float Value)
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("%f"), GetCharacterMovement()->MaxWalkSpeed));
 
 	}
-
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("bIsSprinting: %d, bStartedSprint: %d, walkSpeed: %.2f"), bIsSprinting, bStartedSprint, GetCharacterMovement()->MaxWalkSpeed));
 	
 	if (Value == 0.0f && rightVal == 0.0f) {
 		//Ended sprint
 		if (bStartedSprint) {
 			PlayerStats->RegenerateStamina();
 			bStartedSprint = false;
+
+			if (SprintingAudioComponent) {
+				SprintingAudioComponent->FadeOut(0.5, 0.0, EAudioFaderCurve::Linear);
+			}
 		}
 
 		//Started relax
@@ -312,6 +306,18 @@ void ATBCCharacter::MoveForward(float Value)
 		if (bIsSprinting && !bStartedSprint) {
 			PlayerStats->ConsumeStamina();
 			bStartedSprint = true;
+
+			if (SprintingAudioComponent) {
+				SprintingAudioComponent->Play(0.0);
+				SprintingAudioComponent->FadeIn(0.5, 1.0, 0.0, EAudioFaderCurve::Linear);
+			}
+			else {
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Error Finding Reference to SprintingAudioComponent")));
+
+				SprintingAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SprintingAudio);
+				SprintingAudioComponent->Play(0.0);
+				SprintingAudioComponent->FadeIn(0.5, 1.0, 0.0, EAudioFaderCurve::Linear);
+			}
 		}
 
 		//Ended relax
@@ -408,72 +414,6 @@ void ATBCCharacter::UseItem()
 
 }
 
-//void ATBCCharacter::ChooseItem()
-//{
-//
-//	if (UPlayerStatsWidget* StatsWidget = Cast<UPlayerStatsWidget>(Cast<ATBC_HUD>(GetWorld()->GetFirstPlayerController()->MyHUD)->PlayerStatsWidget)) {
-//
-//		if (selectedItem == 0) {
-//			if (GlowstickAmount > 0) {
-//				FString Path = FString("/Game/_Main/UI/SelectedItem/GlowstickRing.GlowstickRing");
-//				UTexture2D* GlowstickTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
-//
-//				StatsWidget->SelectedItem->SetBrushFromTexture(GlowstickTexture);
-//			}
-//			else {
-//				selectedItem++;
-//			}
-//		}
-//		else if (selectedItem == 1) {
-//			if (FoodAmount > 0) {
-//				FString Path = FString("/Game/_Main/UI/SelectedItem/FoodRing.FoodRing");
-//				UTexture2D* BreadTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
-//
-//				StatsWidget->SelectedItem->SetBrushFromTexture(BreadTexture);
-//			}
-//			else {
-//				selectedItem++;
-//			}
-//		} else if (selectedItem == 2) {
-//			if (KeyCount > 0) {
-//				FString Path = FString("/Game/_Main/UI/SelectedItem/KeyRing.KeyRing");
-//				UTexture2D* KeyTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
-//
-//				StatsWidget->SelectedItem->SetBrushFromTexture(KeyTexture);
-//			}
-//			else {
-//				selectedItem++;
-//			}
-//		}
-//		else if (selectedItem == 3) {
-//			if (BatteryAmount > 0) {
-//				FString Path = FString("/Game/_Main/UI/SelectedItem/BatteryRing.BatteryRing");
-//				UTexture2D* BatteryTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
-//
-//				StatsWidget->SelectedItem->SetBrushFromTexture(BatteryTexture);
-//			}
-//			else {
-//				selectedItem++;
-//			}
-//		}
-//		else if (selectedItem < 0) {
-//
-//			selectedItem = 1;
-//
-//			ChooseItem();
-//
-//		}
-//		else if (selectedItem > 3) {
-//
-//			selectedItem = 0;
-//
-//			ChooseItem();
-//
-//		}
-//
-//	}
-//
-//}
 
 void ATBCCharacter::ScrolledUp()
 {
@@ -883,7 +823,7 @@ void ATBCCharacter::CheckForCooldown()
 {
 	if (PlayerStats->CanSprint() == false)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+		EndSprint();
 		GetWorldTimerManager().ClearTimer(CheckForCooldownTimer);
 	}
 }
@@ -943,17 +883,6 @@ void ATBCCharacter::StartSprint()
 		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 		GetWorldTimerManager().SetTimer(CheckForCooldownTimer, this, &ATBCCharacter::CheckForCooldown, 1.0f, true);
 
-		if (SprintingAudioComponent) {
-			SprintingAudioComponent->Play(0.0);
-			SprintingAudioComponent->FadeIn(0.5, 1.0, 0.0, EAudioFaderCurve::Linear);
-		}
-		else {
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Error Finding Reference to SprintingAudioComponent")));
-
-			SprintingAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SprintingAudio);
-			SprintingAudioComponent->Play(0.0);
-			SprintingAudioComponent->FadeIn(0.5, 1.0, 0.0, EAudioFaderCurve::Linear);
-		}
 	}
 	else {
 		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
@@ -963,8 +892,7 @@ void ATBCCharacter::StartSprint()
 
 void ATBCCharacter::EndSprint()
 {
-	bIsSprinting = false;
-	if (bStartedSprint) {
+	if (bIsSprinting) {
 		PlayerStats->RegenerateStamina();
 		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 		bStartedSprint = false;
@@ -973,6 +901,7 @@ void ATBCCharacter::EndSprint()
 			SprintingAudioComponent->FadeOut(0.5, 0.0, EAudioFaderCurve::Linear);
 		}
 	}
+	bIsSprinting = false;
 }
 
 
