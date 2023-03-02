@@ -61,10 +61,7 @@ public:
 	//void ClearTimer();
 
 public:
-	const int IDLE = 0;
-	const int REGENERATING = 1;
-	const int CONSUMING = 2;
-	const int COOLDOWN = 3;
+	static enum StaminaStates {IDLE, REGENERATING, CONSUMING, COOLDOWN};
 
 protected:
 

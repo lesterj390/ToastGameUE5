@@ -50,15 +50,22 @@ ATBCCharacter::ATBCCharacter()
 	FollowCamera->SetupAttachment(GetMesh(), TEXT("head")); // Attach the camera to the mesh head
 	FollowCamera->bUsePawnControlRotation = true; // Camera does not rotate relative to arm
 
-	//CurrentDoor = NULL;
-
-	// Finding HideWidget
+	// Finding InteractWidgetSubclass
 	static ConstructorHelpers::FClassFinder<UUserWidget> InteractWidgetFinder(TEXT("/Game/_Main/UI/InteractionWidget"));
 	if (!ensure (InteractWidgetFinder.Class != nullptr)) return;
 
 	InteractWidgetSubclass = InteractWidgetFinder.Class;
 	// Creating InteractWidget
 	InteractWidget = CreateWidget<UUserWidget>(GetWorld(), InteractWidgetSubclass);
+
+
+	// Finding HintWidgetSubclass
+	static ConstructorHelpers::FClassFinder<UUserWidget> HintWidgetFinder(TEXT("/Game/_Main/UI/HintWidget"));
+	if (!ensure(HintWidgetFinder.Class != nullptr)) return;
+
+	HintWidgetSubclass = HintWidgetFinder.Class;
+
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
@@ -174,6 +181,9 @@ void ATBCCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Relax", IE_Pressed, this, &ATBCCharacter::StartRelax);
 	PlayerInputComponent->BindAction("Relax", IE_Released, this, &ATBCCharacter::EndRelax);
 
+	//Binding for hints
+	PlayerInputComponent->BindAction("Hint", IE_Pressed, this, &ATBCCharacter::ToggleHint);
+
 	//Button for throwing using item
 	PlayerInputComponent->BindAction("Use", IE_Pressed, this, &ATBCCharacter::UseItem);
 
@@ -234,16 +244,6 @@ void ATBCCharacter::OnResetVR()
 }
 
 
-//void ATBCCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
-//{
-//		Jump();
-//}
-//
-//void ATBCCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
-//{
-//		StopJumping();
-//}
-
 void ATBCCharacter::TurnAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
@@ -290,13 +290,16 @@ void ATBCCharacter::MoveForward(float Value)
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("%f"), GetCharacterMovement()->MaxWalkSpeed));
 
 	}
-
 	
 	if (Value == 0.0f && rightVal == 0.0f) {
 		//Ended sprint
 		if (bStartedSprint) {
 			PlayerStats->RegenerateStamina();
 			bStartedSprint = false;
+
+			if (SprintingAudioComponent) {
+				SprintingAudioComponent->FadeOut(0.5, 0.0, EAudioFaderCurve::Linear);
+			}
 		}
 
 		//Started relax
@@ -312,6 +315,18 @@ void ATBCCharacter::MoveForward(float Value)
 		if (bIsSprinting && !bStartedSprint) {
 			PlayerStats->ConsumeStamina();
 			bStartedSprint = true;
+
+			if (SprintingAudioComponent) {
+				SprintingAudioComponent->Play(0.0);
+				SprintingAudioComponent->FadeIn(0.5, 1.0, 0.0, EAudioFaderCurve::Linear);
+			}
+			else {
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Error Finding Reference to SprintingAudioComponent")));
+
+				SprintingAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SprintingAudio);
+				SprintingAudioComponent->Play(0.0);
+				SprintingAudioComponent->FadeIn(0.5, 1.0, 0.0, EAudioFaderCurve::Linear);
+			}
 		}
 
 		//Ended relax
@@ -408,72 +423,6 @@ void ATBCCharacter::UseItem()
 
 }
 
-//void ATBCCharacter::ChooseItem()
-//{
-//
-//	if (UPlayerStatsWidget* StatsWidget = Cast<UPlayerStatsWidget>(Cast<ATBC_HUD>(GetWorld()->GetFirstPlayerController()->MyHUD)->PlayerStatsWidget)) {
-//
-//		if (selectedItem == 0) {
-//			if (GlowstickAmount > 0) {
-//				FString Path = FString("/Game/_Main/UI/SelectedItem/GlowstickRing.GlowstickRing");
-//				UTexture2D* GlowstickTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
-//
-//				StatsWidget->SelectedItem->SetBrushFromTexture(GlowstickTexture);
-//			}
-//			else {
-//				selectedItem++;
-//			}
-//		}
-//		else if (selectedItem == 1) {
-//			if (FoodAmount > 0) {
-//				FString Path = FString("/Game/_Main/UI/SelectedItem/FoodRing.FoodRing");
-//				UTexture2D* BreadTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
-//
-//				StatsWidget->SelectedItem->SetBrushFromTexture(BreadTexture);
-//			}
-//			else {
-//				selectedItem++;
-//			}
-//		} else if (selectedItem == 2) {
-//			if (KeyCount > 0) {
-//				FString Path = FString("/Game/_Main/UI/SelectedItem/KeyRing.KeyRing");
-//				UTexture2D* KeyTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
-//
-//				StatsWidget->SelectedItem->SetBrushFromTexture(KeyTexture);
-//			}
-//			else {
-//				selectedItem++;
-//			}
-//		}
-//		else if (selectedItem == 3) {
-//			if (BatteryAmount > 0) {
-//				FString Path = FString("/Game/_Main/UI/SelectedItem/BatteryRing.BatteryRing");
-//				UTexture2D* BatteryTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
-//
-//				StatsWidget->SelectedItem->SetBrushFromTexture(BatteryTexture);
-//			}
-//			else {
-//				selectedItem++;
-//			}
-//		}
-//		else if (selectedItem < 0) {
-//
-//			selectedItem = 1;
-//
-//			ChooseItem();
-//
-//		}
-//		else if (selectedItem > 3) {
-//
-//			selectedItem = 0;
-//
-//			ChooseItem();
-//
-//		}
-//
-//	}
-//
-//}
 
 void ATBCCharacter::ScrolledUp()
 {
@@ -877,13 +826,11 @@ void ATBCCharacter::flashlightToggle()
 
 
 
-
-
 void ATBCCharacter::CheckForCooldown()
 {
 	if (PlayerStats->CanSprint() == false)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+		EndSprint();
 		GetWorldTimerManager().ClearTimer(CheckForCooldownTimer);
 	}
 }
@@ -917,21 +864,57 @@ void ATBCCharacter::InsanityWhisper(int multiplier)
 }
 
 
-/**
-* This function creates a delay in the execution of code
-that doesn't interfere with the threading of other code
-* Author: Lester Chavez
-*/
-void ATBCCharacter::Wait(float seconds)
+void ATBCCharacter::ToggleHint() 
 {
-	// Get the current time
-	float startTime = FPlatformTime::Seconds();
+	UClass* viewClass = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetViewTarget()->GetClass();
+	FString className = viewClass->GetPathName();
+	className = FPaths::GetBaseFilename(className);
+	
+	TArray<FString> stringWords;
+	FString* hintStringReference = HintStrings.Find(className);
+	FString hintString;
 
-	// Keep looping until the specified number of seconds has elapsed
-	while (FPlatformTime::Seconds() - startTime < seconds)
+	if (hintStringReference == nullptr) 
 	{
-		// Yield the game thread so other tasks can be processed
-		FPlatformProcess::Sleep(0.01f);
+		hintString = FString("No hints found for this. Sorry!");
+	}
+	else 
+	{
+		hintString = *hintStringReference;
+		
+	}
+
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	TArray<FInputActionKeyMapping> ActionMappings = PlayerController->PlayerInput->ActionMappings;
+	FString bindingName = "";
+	FString keyName = "";
+	FString lastBindingName = "";
+	for (FInputActionKeyMapping actionBinding : ActionMappings) {
+		lastBindingName = bindingName;
+		bindingName = actionBinding.ActionName.ToString();
+		keyName = actionBinding.Key.GetDisplayName().ToString();
+
+		if (bindingName == lastBindingName) {
+			// Skip duplicate keys
+			continue;
+		}
+
+		hintString = hintString.Replace(*bindingName, *keyName);
+	}
+
+
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Current Class: %s"), *className));
+	if (HintWidget && HintWidget->IsInViewport()) {
+		HintWidget->RemoveFromParent();
+	}
+	else
+	{
+		HintWidget = CreateWidget<UUserWidget>(GetWorld(), HintWidgetSubclass);
+		HintWidget->AddToViewport();
+		UTextBlock* HintTextBlock = (UTextBlock*)(HintWidget->WidgetTree->FindWidget(FName(TEXT("HintTextBlock"))));
+		if (HintTextBlock != nullptr) {
+			HintTextBlock->SetText(FText::FromString(hintString));
+		}
 	}
 }
 
@@ -943,17 +926,6 @@ void ATBCCharacter::StartSprint()
 		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 		GetWorldTimerManager().SetTimer(CheckForCooldownTimer, this, &ATBCCharacter::CheckForCooldown, 1.0f, true);
 
-		if (SprintingAudioComponent) {
-			SprintingAudioComponent->Play(0.0);
-			SprintingAudioComponent->FadeIn(0.5, 1.0, 0.0, EAudioFaderCurve::Linear);
-		}
-		else {
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Error Finding Reference to SprintingAudioComponent")));
-
-			SprintingAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SprintingAudio);
-			SprintingAudioComponent->Play(0.0);
-			SprintingAudioComponent->FadeIn(0.5, 1.0, 0.0, EAudioFaderCurve::Linear);
-		}
 	}
 	else {
 		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
@@ -963,8 +935,7 @@ void ATBCCharacter::StartSprint()
 
 void ATBCCharacter::EndSprint()
 {
-	bIsSprinting = false;
-	if (bStartedSprint) {
+	if (bIsSprinting) {
 		PlayerStats->RegenerateStamina();
 		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 		bStartedSprint = false;
@@ -973,6 +944,7 @@ void ATBCCharacter::EndSprint()
 			SprintingAudioComponent->FadeOut(0.5, 0.0, EAudioFaderCurve::Linear);
 		}
 	}
+	bIsSprinting = false;
 }
 
 
