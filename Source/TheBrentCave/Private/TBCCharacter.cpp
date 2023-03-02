@@ -50,15 +50,22 @@ ATBCCharacter::ATBCCharacter()
 	FollowCamera->SetupAttachment(GetMesh(), TEXT("head")); // Attach the camera to the mesh head
 	FollowCamera->bUsePawnControlRotation = true; // Camera does not rotate relative to arm
 
-	//CurrentDoor = NULL;
-
-	// Finding HideWidget
+	// Finding InteractWidgetSubclass
 	static ConstructorHelpers::FClassFinder<UUserWidget> InteractWidgetFinder(TEXT("/Game/_Main/UI/InteractionWidget"));
 	if (!ensure (InteractWidgetFinder.Class != nullptr)) return;
 
 	InteractWidgetSubclass = InteractWidgetFinder.Class;
 	// Creating InteractWidget
 	InteractWidget = CreateWidget<UUserWidget>(GetWorld(), InteractWidgetSubclass);
+
+
+	// Finding HintWidgetSubclass
+	static ConstructorHelpers::FClassFinder<UUserWidget> HintWidgetFinder(TEXT("/Game/_Main/UI/HintWidget"));
+	if (!ensure(HintWidgetFinder.Class != nullptr)) return;
+
+	HintWidgetSubclass = HintWidgetFinder.Class;
+
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
@@ -174,6 +181,9 @@ void ATBCCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Relax", IE_Pressed, this, &ATBCCharacter::StartRelax);
 	PlayerInputComponent->BindAction("Relax", IE_Released, this, &ATBCCharacter::EndRelax);
 
+	//Binding for hints
+	PlayerInputComponent->BindAction("Hint", IE_Pressed, this, &ATBCCharacter::ToggleHint);
+
 	//Button for throwing using item
 	PlayerInputComponent->BindAction("Use", IE_Pressed, this, &ATBCCharacter::UseItem);
 
@@ -280,7 +290,6 @@ void ATBCCharacter::MoveForward(float Value)
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("%f"), GetCharacterMovement()->MaxWalkSpeed));
 
 	}
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("bIsSprinting: %d, bStartedSprint: %d, walkSpeed: %.2f"), bIsSprinting, bStartedSprint, GetCharacterMovement()->MaxWalkSpeed));
 	
 	if (Value == 0.0f && rightVal == 0.0f) {
 		//Ended sprint
@@ -817,8 +826,6 @@ void ATBCCharacter::flashlightToggle()
 
 
 
-
-
 void ATBCCharacter::CheckForCooldown()
 {
 	if (PlayerStats->CanSprint() == false)
@@ -857,21 +864,57 @@ void ATBCCharacter::InsanityWhisper(int multiplier)
 }
 
 
-/**
-* This function creates a delay in the execution of code
-that doesn't interfere with the threading of other code
-* Author: Lester Chavez
-*/
-void ATBCCharacter::Wait(float seconds)
+void ATBCCharacter::ToggleHint() 
 {
-	// Get the current time
-	float startTime = FPlatformTime::Seconds();
+	UClass* viewClass = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetViewTarget()->GetClass();
+	FString className = viewClass->GetPathName();
+	className = FPaths::GetBaseFilename(className);
+	
+	TArray<FString> stringWords;
+	FString* hintStringReference = HintStrings.Find(className);
+	FString hintString;
 
-	// Keep looping until the specified number of seconds has elapsed
-	while (FPlatformTime::Seconds() - startTime < seconds)
+	if (hintStringReference == nullptr) 
 	{
-		// Yield the game thread so other tasks can be processed
-		FPlatformProcess::Sleep(0.01f);
+		hintString = FString("No hints found for this. Sorry!");
+	}
+	else 
+	{
+		hintString = *hintStringReference;
+		
+	}
+
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	TArray<FInputActionKeyMapping> ActionMappings = PlayerController->PlayerInput->ActionMappings;
+	FString bindingName = "";
+	FString keyName = "";
+	FString lastBindingName = "";
+	for (FInputActionKeyMapping actionBinding : ActionMappings) {
+		lastBindingName = bindingName;
+		bindingName = actionBinding.ActionName.ToString();
+		keyName = actionBinding.Key.GetDisplayName().ToString();
+
+		if (bindingName == lastBindingName) {
+			// Skip duplicate keys
+			continue;
+		}
+
+		hintString = hintString.Replace(*bindingName, *keyName);
+	}
+
+
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Current Class: %s"), *className));
+	if (HintWidget && HintWidget->IsInViewport()) {
+		HintWidget->RemoveFromParent();
+	}
+	else
+	{
+		HintWidget = CreateWidget<UUserWidget>(GetWorld(), HintWidgetSubclass);
+		HintWidget->AddToViewport();
+		UTextBlock* HintTextBlock = (UTextBlock*)(HintWidget->WidgetTree->FindWidget(FName(TEXT("HintTextBlock"))));
+		if (HintTextBlock != nullptr) {
+			HintTextBlock->SetText(FText::FromString(hintString));
+		}
 	}
 }
 

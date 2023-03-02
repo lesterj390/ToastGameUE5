@@ -19,6 +19,7 @@
 #include "Components/PrimitiveComponent.h"
 #include "Glowstick.h"
 #include "Math/UnrealMathVectorCommon.h"
+#include "Components/TextBlock.h"
 #include "UI/TBC_HUD.h"
 #include "Engine/EngineTypes.h"
 #include "TBCCharacter.generated.h"
@@ -50,6 +51,15 @@ public:
 
 	//UPROPERTY(EditAnywhere)
 	//	class ALocker* CurrentDoor;
+
+	UPROPERTY()
+		TSubclassOf<UUserWidget> HintWidgetSubclass;
+
+	UPROPERTY()
+		UUserWidget* HintWidget;
+
+	UPROPERTY(EditAnywhere)
+		TMap<FString, FString> HintStrings;
 
 	UPROPERTY()
 		TSubclassOf<UUserWidget> InteractWidgetSubclass;
@@ -351,7 +361,7 @@ protected:
 	void ScrolledUp();
 	void ScrolledDown();
 
-	void Wait(float seconds);
+	void ToggleHint();
 
 protected:
 	// APawn interface

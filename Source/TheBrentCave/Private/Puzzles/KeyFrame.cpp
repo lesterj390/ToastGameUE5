@@ -36,7 +36,6 @@ AKeyFrame::AKeyFrame()
 	InteractComponent->SetupAttachment(RootComponent);
 
 	InteractComponent->SetVisibility(false);
-
 }
 
 
