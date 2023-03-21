@@ -24,6 +24,9 @@
 #include "Engine/EngineTypes.h"
 #include "TBCCharacter.generated.h"
 
+UENUM()
+enum InventoryItem {None = -1, Flashlight, Glowstick, Food, Key, Battery, Radar };
+
 UCLASS(config=Game)
 class ATBCCharacter : public ACharacter
 {
@@ -33,6 +36,7 @@ class ATBCCharacter : public ACharacter
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	//class USpringArmComponent* CameraBoom;
 
+	
 	
 public:
 	ATBCCharacter();
@@ -60,6 +64,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		TMap<FString, FString> HintStrings;
+
+	UPROPERTY(EditAnywhere)
+		TMap<TEnumAsByte<InventoryItem>, FString> InventoryHintStrings;
 
 	UPROPERTY()
 		TSubclassOf<UUserWidget> InteractWidgetSubclass;
@@ -122,7 +129,7 @@ public:
 		int MaxBatteryAmount;
 
 	UPROPERTY(EditAnywhere)
-		USpotLightComponent* Flashlight;
+		USpotLightComponent* FlashlightComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool hasRadar;
@@ -186,7 +193,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Spawning")
 		TSubclassOf<AActor> BreadcrumbActor;
-
+	
 	UPROPERTY(EditAnywhere, Category = "Spawning")
 		TSubclassOf<AActor> GlowstickActor;
 
@@ -274,6 +281,10 @@ protected:
 	bool bStartedSprint;
 
 	bool bSanityStateChanged;
+
+	UClass* currentCameraClass;
+
+	UClass* lastCameraClass;
 
 	void StartSprint();
 
