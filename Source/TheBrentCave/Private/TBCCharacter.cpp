@@ -81,8 +81,8 @@ ATBCCharacter::ATBCCharacter()
 	SpringArm->SetupAttachment(GetMesh(), TEXT("head"));
 
 	// Setup flashlight
-	Flashlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
-	Flashlight->SetupAttachment(SpringArm);
+	FlashlightComponent = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
+	FlashlightComponent->SetupAttachment(SpringArm);
 
 	// Setup flashlight cone
 	//FlashlightCone = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FlashlightCone"));
@@ -204,7 +204,7 @@ void ATBCCharacter::UpdateRadarDistance()
 	if (FoundActors.Num() > 0) {
 		ToastRef = FoundActors[0];
 
-		if (selectedItem == 5 && GetDistanceTo(ToastRef) < 10000 && RadarOn && RadarBattery > 0) {
+		if (selectedItem == Radar && GetDistanceTo(ToastRef) < 10000 && RadarOn && RadarBattery > 0) {
 
 			float DistanceToToast = GetDistanceTo(ToastRef) / 10000;
 			
@@ -219,7 +219,7 @@ void ATBCCharacter::UpdateRadarDistance()
 			GetWorldTimerManager().ClearTimer(RaderSignalTimer);
 			GetWorldTimerManager().SetTimer(RaderSignalTimer, this, &ATBCCharacter::UpdateRadarDistance, RadarDistance, false);
 		}
-		else if (selectedItem == 5 && GetDistanceTo(ToastRef) > 10000 && RadarOn && RadarBattery > 0) {
+		else if (selectedItem == Radar && GetDistanceTo(ToastRef) > 10000 && RadarOn && RadarBattery > 0) {
 
 			GetWorldTimerManager().ClearTimer(RaderSignalTimer);
 			GetWorldTimerManager().SetTimer(RaderSignalTimer, this, &ATBCCharacter::UpdateRadarDistance, 0.5, false);
@@ -263,8 +263,8 @@ void ATBCCharacter::AddControllerYawInput(float Val)
 {
 	Super::AddControllerYawInput(Val);
 
-	if (Flashlight) {
-		Flashlight->SetWorldRotation(GetControlRotation());
+	if (FlashlightComponent) {
+		FlashlightComponent->SetWorldRotation(GetControlRotation());
 		
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("%f"), Val));
 	}
@@ -360,14 +360,17 @@ void ATBCCharacter::MoveRight(float Value)
 
 void ATBCCharacter::UseItem()
 {
-	if (selectedItem == 1) {
+	if (selectedItem == Flashlight) {
+		flashlightToggle();
+	}
+	else if (selectedItem == Glowstick) {
 
 		throwGlowstick();
 
 		UpdateInvBar();
 
 	}
-	else if (selectedItem == 2) {
+	else if (selectedItem == Food) {
 
 		if (FoodAmount > 0) {
 			EatCrumbReturn = GetWorld()->SpawnActor<AActor>(EatCrumbActor, GetActorLocation(), FRotator(GetActorRotation()));
@@ -383,7 +386,7 @@ void ATBCCharacter::UseItem()
 		}
 
 	}
-	else if (selectedItem == 4) {
+	else if (selectedItem == Battery) {
 
 		if (BatteryAmount > 0 && !hasRadar) {
 
@@ -406,7 +409,7 @@ void ATBCCharacter::UseItem()
 		}
 
 	}
-	else if (selectedItem == 5) {
+	else if (selectedItem == Radar) {
 
 		if (RadarBattery > 0 && !RadarOn) {
 			RadarOn = true;
@@ -418,9 +421,7 @@ void ATBCCharacter::UseItem()
 		else if (RadarOn) {
 			RadarOn = false;
 		}
-
 	}
-
 }
 
 
@@ -433,11 +434,11 @@ void ATBCCharacter::ScrolledUp()
 
 	if (UPlayerStatsWidget* StatsWidget = Cast<UPlayerStatsWidget>(Cast<ATBC_HUD>(GetWorld()->GetFirstPlayerController()->MyHUD)->PlayerStatsWidget)) {
 
-		if (selectedItem != 4) {
+		if (selectedItem != Battery) {
 			StatsWidget->BatteryBox->SetVisibility(ESlateVisibility::Hidden);
 		}
 
-		if (selectedItem == 0) {
+		if (selectedItem == Flashlight) {
 			FString Path = FString("/Game/_Main/UI/SelectedItem/FlashlightRing.FlashlightRing");
 			//UTexture2D* FlashlightTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
 
@@ -445,7 +446,7 @@ void ATBCCharacter::ScrolledUp()
 
 			InventroyProgressBar = BatteryPower / 100;
 		}
-		else if (selectedItem == 1) {
+		else if (selectedItem == Glowstick) {
 			if (GlowstickAmount > 0) {
 				FString Path = FString("/Game/_Main/UI/SelectedItem/GlowstickRing.GlowstickRing");
 				//UTexture2D* GlowstickTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
@@ -460,7 +461,7 @@ void ATBCCharacter::ScrolledUp()
 				ScrolledUp();
 			}
 		}
-		else if (selectedItem == 2) {
+		else if (selectedItem == Food) {
 			if (FoodAmount > 0) {
 				FString Path = FString("/Game/_Main/UI/SelectedItem/FoodRing.FoodRing");
 				//UTexture2D* BreadTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
@@ -475,7 +476,7 @@ void ATBCCharacter::ScrolledUp()
 				ScrolledUp();
 			}
 		}
-		else if (selectedItem == 3) {
+		else if (selectedItem == Key) {
 			if (KeyCount > 0) {
 				FString Path = FString("/Game/_Main/UI/SelectedItem/KeyRing.KeyRing");
 				//UTexture2D* KeyTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
@@ -490,7 +491,7 @@ void ATBCCharacter::ScrolledUp()
 				ScrolledUp();
 			}
 		}
-		else if (selectedItem == 4) {
+		else if (selectedItem == Battery) {
 			if (BatteryAmount > 0) {
 				FString Path = FString("/Game/_Main/UI/SelectedItem/BatteryRing.BatteryRing");
 				//UTexture2D* BatteryTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
@@ -509,7 +510,7 @@ void ATBCCharacter::ScrolledUp()
 				ScrolledUp();
 			}
 		}
-		else if (selectedItem == 5) {
+		else if (selectedItem == Radar) {
 			if (hasRadar) {
 				FString Path = FString("/Game/_Main/UI/SelectedItem/RadarRing.RadarRing");
 				//UTexture2D* RadarTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
@@ -521,7 +522,7 @@ void ATBCCharacter::ScrolledUp()
 				ScrolledUp();
 			}
 		}
-		else if (selectedItem > 5) {
+		else if (selectedItem > Radar) {
 
 			selectedItem = -1;
 			ScrolledUp();
@@ -547,7 +548,7 @@ void ATBCCharacter::ScrolledDown()
 			StatsWidget->BatteryBox->SetVisibility(ESlateVisibility::Hidden);
 		}
 
-		if (selectedItem == 0) {
+		if (selectedItem == Flashlight) {
 			FString Path = FString("/Game/_Main/UI/SelectedItem/FlashlightRing.FlashlightRing");
 			UTexture2D* FlashlightTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
 
@@ -555,7 +556,7 @@ void ATBCCharacter::ScrolledDown()
 
 			InventroyProgressBar = BatteryPower / 100;
 		}
-		else if (selectedItem == 1) {
+		else if (selectedItem == Glowstick) {
 			if (GlowstickAmount > 0) {
 				FString Path = FString("/Game/_Main/UI/SelectedItem/GlowstickRing.GlowstickRing");
 				UTexture2D* GlowstickTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
@@ -570,7 +571,7 @@ void ATBCCharacter::ScrolledDown()
 				ScrolledDown();
 			}
 		}
-		else if (selectedItem == 2) {
+		else if (selectedItem == Food) {
 			if (FoodAmount > 0) {
 				FString Path = FString("/Game/_Main/UI/SelectedItem/FoodRing.FoodRing");
 				UTexture2D* BreadTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
@@ -585,7 +586,7 @@ void ATBCCharacter::ScrolledDown()
 				ScrolledDown();
 			}
 		}
-		else if (selectedItem == 3) {
+		else if (selectedItem == Key) {
 			if (KeyCount > 0) {
 				FString Path = FString("/Game/_Main/UI/SelectedItem/KeyRing.KeyRing");
 				UTexture2D* KeyTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
@@ -600,7 +601,7 @@ void ATBCCharacter::ScrolledDown()
 				ScrolledDown();
 			}
 		}
-		else if (selectedItem == 4) {
+		else if (selectedItem == Battery) {
 			if (BatteryAmount > 0) {
 				FString Path = FString("/Game/_Main/UI/SelectedItem/BatteryRing.BatteryRing");
 				UTexture2D* BatteryTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
@@ -619,7 +620,7 @@ void ATBCCharacter::ScrolledDown()
 				ScrolledDown();
 			}
 		}
-		else if (selectedItem == 5) {
+		else if (selectedItem == Radar) {
 			if (hasRadar) {
 				FString Path = FString("/Game/_Main/UI/SelectedItem/RadarRing.RadarRing");
 				UTexture2D* RadarTexture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
@@ -641,7 +642,6 @@ void ATBCCharacter::ScrolledDown()
 		UpdateInvBar();
 
 	}
-
 }
 
 void ATBCCharacter::BeginPlay()
@@ -674,7 +674,7 @@ void ATBCCharacter::BeginPlay()
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	
 
-	DefaultIntensity = Flashlight->Intensity;
+	DefaultIntensity = FlashlightComponent->Intensity;
 
 
 	//Spawning Character in the middle of the Maze
@@ -723,7 +723,7 @@ void ATBCCharacter::BeginPlay()
 	defaultLightFlickerMin = LightFlickerMin;
 	defaultLightFlickerMax = LightFlickerMax;
 	flashlightOn = false;
-	Flashlight->SetVisibility(false);
+	FlashlightComponent->SetVisibility(false);
 	flashlightToggle();
 
 	GetWorldTimerManager().SetTimer(sanityHandle, this, &ATBCCharacter::SanityCheck, .25, true);
@@ -755,6 +755,17 @@ void ATBCCharacter::Tick(float DeltaTime)
 	}
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("InPuzzle: %d"), bInPuzzle));
 
+	// This code detects whether I've left or entered a puzzle / locker
+	// It's used to remove the hint widget from the screen
+	lastCameraClass = currentCameraClass;
+	currentCameraClass = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetViewTarget()->GetClass();
+
+	if (!currentCameraClass->IsChildOf(lastCameraClass)) {
+		// If the hint widget is currently displayed
+		if (HintWidget && HintWidget->IsInViewport()) {
+			ToggleHint();
+		}
+	}
 }
 
 /**
@@ -783,11 +794,11 @@ void ATBCCharacter::displayFlicker(int flickerCount)
 	else {
 		// If the flicker count is even, dim the flashlight
 		if (flickerCount % 2 == 0) {
-			Flashlight->SetIntensity(FMath::RandRange(0.0f, DefaultIntensity / 2));
+			FlashlightComponent->SetIntensity(FMath::RandRange(0.0f, DefaultIntensity / 2));
 		}
 		// If the flicker count is odd, set the flashlight back to full brightness
 		else {
-			Flashlight->SetIntensity(DefaultIntensity);
+			FlashlightComponent->SetIntensity(DefaultIntensity);
 		}
 
 		// Creates a timer delegate to call this function again with a parameter
@@ -807,13 +818,13 @@ void ATBCCharacter::flashlightToggle()
 
 	if (flashlightOn == true) {
 
-		Flashlight->ToggleVisibility(false);
+		FlashlightComponent->ToggleVisibility(false);
 		flashlightOn = false;
 		GetWorld()->GetTimerManager().ClearTimer(flickerHandle);
 	}
 	else if (!flashlightOn && BatteryPower > 0) {
 
-		Flashlight->ToggleVisibility(true);
+		FlashlightComponent->ToggleVisibility(true);
 		flashlightOn = true;
 
 		ReduceBattery();
@@ -823,7 +834,6 @@ void ATBCCharacter::flashlightToggle()
 
 	}
 }
-
 
 
 void ATBCCharacter::CheckForCooldown()
@@ -871,39 +881,50 @@ void ATBCCharacter::ToggleHint()
 	className = FPaths::GetBaseFilename(className);
 	
 	TArray<FString> stringWords;
-	FString* hintStringReference = HintStrings.Find(className);
+	FString* hintStringReference;
 	FString hintString;
 
-	if (hintStringReference == nullptr) 
+	// Looking up the Inventory Hint Strings or Hint Strings map to find respective hint
+	if (viewClass->IsChildOf(ATBCCharacter::StaticClass())) { // Inventory hints
+		hintStringReference = InventoryHintStrings.Find((TEnumAsByte<InventoryItem>)selectedItem);
+	}
+	else { // Normal hints
+		hintStringReference = HintStrings.Find(className);
+	}
+
+	// Finding hint if found
+	if (hintStringReference == nullptr) // No hint found
 	{
 		hintString = FString("No hints found for this. Sorry!");
 	}
-	else 
+	else // Hint found
 	{
 		hintString = *hintStringReference;
-		
-	}
 
-	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	TArray<FInputActionKeyMapping> ActionMappings = PlayerController->PlayerInput->ActionMappings;
-	FString bindingName = "";
-	FString keyName = "";
-	FString lastBindingName = "";
-	for (FInputActionKeyMapping actionBinding : ActionMappings) {
-		lastBindingName = bindingName;
-		bindingName = actionBinding.ActionName.ToString();
-		keyName = actionBinding.Key.GetDisplayName().ToString();
+		// Replacing Action Names in hint with their respective key
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
+		TArray<FInputActionKeyMapping> ActionMappings = PlayerController->PlayerInput->ActionMappings;
+		FString bindingName = "";
+		FString keyName = "";
+		FString lastBindingName = "";
+		for (FInputActionKeyMapping actionBinding : ActionMappings) {
+			lastBindingName = bindingName;
+			bindingName = actionBinding.ActionName.ToString();
+			keyName = actionBinding.Key.GetDisplayName().ToString();
 
-		if (bindingName == lastBindingName) {
-			// Skip duplicate keys
-			continue;
+			if (bindingName == lastBindingName) {
+				// Skip duplicate keys
+				continue;
+			}
+
+			hintString = hintString.Replace(*bindingName, *keyName, ESearchCase::CaseSensitive);
 		}
-
-		hintString = hintString.Replace(*bindingName, *keyName);
+		// Remove escape character
+		hintString = hintString.Replace(TEXT("\\"), TEXT(""));
 	}
 
 
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Current Class: %s"), *className));
+	// Toggling between displaying and removing the hint widget
 	if (HintWidget && HintWidget->IsInViewport()) {
 		HintWidget->RemoveFromParent();
 	}
@@ -1151,12 +1172,12 @@ void ATBCCharacter::ReduceBattery()
 
 		if (BatteryPower == 0) {
 			if (flashlightOn) {
-				Flashlight->ToggleVisibility(false);
+				FlashlightComponent->ToggleVisibility(false);
 				flashlightOn = false;
 			}
 		}
 
-		if (selectedItem == 0) {
+		if (selectedItem == Flashlight) {
 			InventroyProgressBar = BatteryPower / 100;
 		}
 
@@ -1167,7 +1188,7 @@ void ATBCCharacter::ReduceBattery()
 void ATBCCharacter::ReduceRadarBattery()
 {
 
-	if (selectedItem == 5 && RadarBattery > 0 && RadarOn) {
+	if (selectedItem == Radar && RadarBattery > 0 && RadarOn) {
 		RadarBattery -= RadarUpdateRate;
 
 		UpdateInvBar();
@@ -1179,7 +1200,7 @@ void ATBCCharacter::ReduceRadarBattery()
 
 void ATBCCharacter::BatteryInFlashlight()
 {
-	if (selectedItem == 4) {
+	if (selectedItem == Battery) {
 		BatteryAmount--;
 		BatteryPower = MaxBatteryCharge;
 
@@ -1200,7 +1221,7 @@ void ATBCCharacter::BatteryInFlashlight()
 
 void ATBCCharacter::BatteryInRadar()
 {
-	if (selectedItem == 4) {
+	if (selectedItem == Battery) {
 		BatteryAmount--;
 		RadarBattery = MaxRadarBattery;
 
@@ -1219,19 +1240,19 @@ void ATBCCharacter::BatteryInRadar()
 void ATBCCharacter::UpdateInvBar()
 {
 
-	if (selectedItem == 1) {
+	if (selectedItem == Glowstick) {
 		InventroyProgressBar = (float)GlowstickAmount / MaxGlowstickAmount;
 	}
-	else if (selectedItem == 2) {
+	else if (selectedItem == Food) {
 		InventroyProgressBar = (float)FoodAmount / MaxFoodAmount;
 	}
-	else if (selectedItem == 3) {
+	else if (selectedItem == Key) {
 		InventroyProgressBar = (float)KeyCount / PuzzleCount;
 	}
-	else if (selectedItem == 4) {
+	else if (selectedItem == Battery) {
 		InventroyProgressBar = (float)BatteryAmount / MaxBatteryAmount;
 	}
-	else if (selectedItem == 5) {
+	else if (selectedItem == Radar) {
 		InventroyProgressBar = (float)RadarBattery / MaxRadarBattery;
 	}
 
