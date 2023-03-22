@@ -533,6 +533,10 @@ void ATBCCharacter::ScrolledUp()
 
 	}
 
+	if (HintWidget && HintWidget->IsInViewport()) {
+		ToggleHint();
+	}
+
 }
 
 void ATBCCharacter::ScrolledDown()
@@ -642,6 +646,11 @@ void ATBCCharacter::ScrolledDown()
 		UpdateInvBar();
 
 	}
+
+	if (HintWidget && HintWidget->IsInViewport()) {
+		ToggleHint();
+	}
+
 }
 
 void ATBCCharacter::BeginPlay()
