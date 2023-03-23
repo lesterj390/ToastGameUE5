@@ -659,6 +659,9 @@ void ATBCCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	MyGameInstance = Cast<UGISetup>(UGameplayStatics::GetGameInstance(GetWorld()));
+	//MySavedSettings = Cast<USavedSettings>(UGameplayStatics::CreateSaveGameObject(USavedSettings::StaticClass()));
+	//MySavedSettings = Cast<USavedSettings>(UGameplayStatics::LoadGameFromSlot(FString::Printf("SaveSettings"), 0));
+	//USaveGame* SaveGame = UGameplayStatics::LoadGameFromSlot(FString::Printf("SaveSettings"), 0);
 
 	BatteryPower = MaxBatteryCharge;
 	RadarBattery = MaxRadarBattery;

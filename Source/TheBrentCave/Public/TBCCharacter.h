@@ -10,6 +10,7 @@
 #include "Components/SpotLightComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GISetup.h"
+#include "SavedSettings.h"
 #include "Blueprint/UserWidget.h"
 #include "PlayerStatsComponent.h"
 #include "Components/AudioComponent.h"
@@ -252,6 +253,7 @@ public:
 		UAudioComponent* SprintingAudioComponent;
 
 	UGISetup* MyGameInstance;
+	USavedSettings* MySavedSettings;
 
 protected:
 
