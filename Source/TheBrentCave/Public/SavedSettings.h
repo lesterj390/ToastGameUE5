@@ -22,4 +22,21 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float PuzzleFOV;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float MasterVolume;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float AmbienceMusicVolume;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float SoundEffectsVolume;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float VoicesVolume;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float WhispersVolume;
+
+
 };
