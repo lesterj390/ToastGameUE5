@@ -312,20 +312,23 @@ void ATBCCharacter::MoveForward(float Value)
 	}
 	else {
 		//Started sprint
-		if (bIsSprinting && !bStartedSprint) {
-			PlayerStats->ConsumeStamina();
-			bStartedSprint = true;
+		UClass* viewClass = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetViewTarget()->GetClass();
+		if (viewClass->IsChildOf(ATBCCharacter::StaticClass())) {
+			if (bIsSprinting && !bStartedSprint) {
+				PlayerStats->ConsumeStamina();
+				bStartedSprint = true;
 
-			if (SprintingAudioComponent) {
-				SprintingAudioComponent->Play(0.0);
-				SprintingAudioComponent->FadeIn(0.5, 1.0, 0.0, EAudioFaderCurve::Linear);
-			}
-			else {
-				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Error Finding Reference to SprintingAudioComponent")));
+				if (SprintingAudioComponent) {
+					SprintingAudioComponent->Play(0.0);
+					SprintingAudioComponent->FadeIn(0.5, 1.0, 0.0, EAudioFaderCurve::Linear);
+				}
+				else {
+					//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Error Finding Reference to SprintingAudioComponent")));
 
-				SprintingAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SprintingAudio);
-				SprintingAudioComponent->Play(0.0);
-				SprintingAudioComponent->FadeIn(0.5, 1.0, 0.0, EAudioFaderCurve::Linear);
+					SprintingAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SprintingAudio);
+					SprintingAudioComponent->Play(0.0);
+					SprintingAudioComponent->FadeIn(0.5, 1.0, 0.0, EAudioFaderCurve::Linear);
+				}
 			}
 		}
 
