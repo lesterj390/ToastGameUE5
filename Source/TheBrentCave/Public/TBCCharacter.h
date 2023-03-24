@@ -255,6 +255,9 @@ public:
 	UGISetup* MyGameInstance;
 	USavedSettings* MySavedSettings;
 
+	UPROPERTY(EditAnywhere)
+		USoundCue* FootstepRef;
+
 protected:
 
 	/** Resets HMD orientation in VR. */
@@ -375,6 +378,8 @@ protected:
 	void ScrolledDown();
 
 	void ToggleHint();
+
+	void ToggleFootstepAudio();
 
 protected:
 	// APawn interface

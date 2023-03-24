@@ -773,6 +773,11 @@ void ATBCCharacter::Tick(float DeltaTime)
 	currentCameraClass = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetViewTarget()->GetClass();
 
 	if (!currentCameraClass->IsChildOf(lastCameraClass)) {
+		// Turns on or off footstep audio depending on if the player is leaving or entering a hiding place or puzzle
+		if (FootstepRef) {
+			ToggleFootstepAudio();
+		}
+
 		// If the hint widget is currently displayed
 		if (HintWidget && HintWidget->IsInViewport()) {
 			ToggleHint();
@@ -948,6 +953,20 @@ void ATBCCharacter::ToggleHint()
 		if (HintTextBlock != nullptr) {
 			HintTextBlock->SetText(FText::FromString(hintString));
 		}
+	}
+}
+
+void ATBCCharacter::ToggleFootstepAudio()
+{
+	UClass* viewClass = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetViewTarget()->GetClass();
+	FString className = viewClass->GetPathName();
+	className = FPaths::GetBaseFilename(className);
+
+	if (viewClass->IsChildOf(ATBCCharacter::StaticClass())) { // Player is in character camera
+		FootstepRef->VolumeMultiplier = 0.5f;
+	}
+	else { // Player is outside of body
+		FootstepRef->VolumeMultiplier = 0.0f;
 	}
 }
 
