@@ -142,9 +142,142 @@ ATBCCharacter::ATBCCharacter()
 
 }
 
+
+void ATBCCharacter::BeginPlay()
+{
+
+	Super::BeginPlay();
+
+	MyGameInstance = Cast<UGISetup>(UGameplayStatics::GetGameInstance(GetWorld()));
+	//MySavedSettings = Cast<USavedSettings>(UGameplayStatics::CreateSaveGameObject(USavedSettings::StaticClass()));
+	//MySavedSettings = Cast<USavedSettings>(UGameplayStatics::LoadGameFromSlot(FString::Printf("SaveSettings"), 0));
+	//USaveGame* SaveGame = UGameplayStatics::LoadGameFromSlot(FString::Printf("SaveSettings"), 0);
+
+	BatteryPower = MaxBatteryCharge;
+	RadarBattery = MaxRadarBattery;
+
+	AActor* FoundGrid = UGameplayStatics::GetActorOfClass(GetWorld(), AGrid::StaticClass());
+	grid = Cast<AGrid>(FoundGrid);
+
+	if (grid) {
+		PuzzleCount = grid->PuzzleActorArray.Num();
+	}
+
+	for (int i = 0; i < AmbienceArray.Num(); i++) {
+		BackgroundSound = AmbienceArray[i];
+
+		UAudioComponent* BackgroundComponent = UGameplayStatics::CreateSound2D(GetWorld(), BackgroundSound);
+		BackgroundComponent->Play(0.0);
+	}
+
+	// Define sprinting audio as component
+	SprintingAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SprintingAudio);
+
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+
+
+	DefaultIntensity = FlashlightComponent->Intensity;
+
+
+	//Spawning Character in the middle of the Maze
+	AActor* myActor = UGameplayStatics::GetActorOfClass(GetWorld(), AGrid::StaticClass());
+	if (myActor != NULL) {
+		auto myGrid = Cast<AGrid>(myActor);
+
+		MazeCenter = myGrid->GetActorLocation();
+		MazeCenter.Y += (myGrid->Rows) / 2 * 1000 * myGrid->GetActorScale3D().Y;
+		MazeCenter.X += (myGrid->Columns) / 2 * 1000 * myGrid->GetActorScale3D().X;
+		MazeCenter.Z = GetActorLocation().Z;
+
+		SetActorLocation(MazeCenter);
+
+		// Adding Player Tag Number
+		myGrid->spawnedPlayers++;
+		Tags.Add(*FString::Printf(TEXT("Player%d"), myGrid->spawnedPlayers));
+	}
+
+
+	//UE_LOG(LogTemp, Warning, TEXT("Found widget : %s"), *InteractWidgetSubclass->GetName());
+
+	//Setting up interaction widget
+	if (InteractWidget)
+	{
+		InteractWidget->AddToViewport();
+		InteractWidget->GetWidgetFromName("interactprompt")->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	//Setting up player stats
+
+	// Sprinting
+	PlayerStats->SetRegenerationRate(StaminaRegenerationRate);
+	PlayerStats->SetConsumptionRate(StaminaConsumptionRate);
+	PlayerStats->SetCooldown(StaminaCooldown);
+	PlayerStats->SetUpdateRate(UpdateRate);
+	LastStaminaState = PlayerStats->GetStaminaState();
+	// Sanity
+	PlayerStats->SetSanityDuration(SanityDuration);
+	PlayerStats->SetSanityRegenerationDuration(SanityRegenerationDuration);
+
+	//Setting up sanity consumption
+	PlayerStats->ConsumeSanity();
+
+	//Setting up flashlight
+	defaultLightFlickerMin = LightFlickerMin;
+	defaultLightFlickerMax = LightFlickerMax;
+	flashlightOn = false;
+	FlashlightComponent->SetVisibility(false);
+	flashlightToggle();
+
+	GetWorldTimerManager().SetTimer(sanityHandle, this, &ATBCCharacter::SanityCheck, .25, true);
+	GetWorldTimerManager().SetTimer(BatteryDrain, this, &ATBCCharacter::ReduceBattery, BatteryReductionSpeed, true);
+}
+
+
+void ATBCCharacter::Tick(float DeltaTime)
+{
+	if (pickedUpItem == true) {
+		pickedUpItem = false;
+
+		UpdateInvBar();
+	}
+
+	// Checking if I'm in a puzzle
+	UClass* viewClass = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetViewTarget()->GetClass();
+	if (viewClass->IsChildOf(ATBCCharacter::StaticClass()) || isHiding) {
+		bInPuzzle = false;
+
+		APlayerCameraManager* CurrentCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
+		CurrentCamera->SetFOV(MyGameInstance->PlayerFOV);
+	}
+	else {
+		bInPuzzle = true;
+
+		APlayerCameraManager* CurrentCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
+		CurrentCamera->SetFOV(MyGameInstance->PuzzleFOV);
+	}
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("InPuzzle: %d"), bInPuzzle));
+
+	// This code detects whether I've left or entered a puzzle / locker
+	// It's used to remove the hint widget from the screen
+	lastCameraClass = currentCameraClass;
+	currentCameraClass = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetViewTarget()->GetClass();
+
+	if (!currentCameraClass->IsChildOf(lastCameraClass)) {
+		// Turns on or off footstep audio depending on if the player is leaving or entering a hiding place or puzzle
+		if (FootstepRef) {
+			ToggleFootstepAudio();
+		}
+
+		// If the hint widget is currently displayed
+		if (HintWidget && HintWidget->IsInViewport()) {
+			ToggleHint();
+		}
+	}
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 // Input
-
 void ATBCCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Set up gameplay key bindings
@@ -656,137 +789,6 @@ void ATBCCharacter::ScrolledDown()
 
 }
 
-void ATBCCharacter::BeginPlay()
-{
-
-	Super::BeginPlay();
-
-	MyGameInstance = Cast<UGISetup>(UGameplayStatics::GetGameInstance(GetWorld()));
-	//MySavedSettings = Cast<USavedSettings>(UGameplayStatics::CreateSaveGameObject(USavedSettings::StaticClass()));
-	//MySavedSettings = Cast<USavedSettings>(UGameplayStatics::LoadGameFromSlot(FString::Printf("SaveSettings"), 0));
-	//USaveGame* SaveGame = UGameplayStatics::LoadGameFromSlot(FString::Printf("SaveSettings"), 0);
-
-	BatteryPower = MaxBatteryCharge;
-	RadarBattery = MaxRadarBattery;
-
-	AActor* FoundGrid = UGameplayStatics::GetActorOfClass(GetWorld(), AGrid::StaticClass());
-	grid = Cast<AGrid>(FoundGrid);
-
-	if (grid) {
-		PuzzleCount = grid->PuzzleActorArray.Num();
-	}
-
-	for (int i = 0; i < AmbienceArray.Num(); i++) {
-		BackgroundSound = AmbienceArray[i];
-
-		UAudioComponent* BackgroundComponent = UGameplayStatics::CreateSound2D(GetWorld(), BackgroundSound);
-		BackgroundComponent->Play(0.0);
-	}
-
-	// Define sprinting audio as component
-	SprintingAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SprintingAudio);
-
-	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
-	
-
-	DefaultIntensity = FlashlightComponent->Intensity;
-
-
-	//Spawning Character in the middle of the Maze
-	AActor* myActor = UGameplayStatics::GetActorOfClass(GetWorld(), AGrid::StaticClass());
-	if (myActor != NULL) {
-		auto myGrid = Cast<AGrid>(myActor);
-
-		MazeCenter = myGrid->GetActorLocation();
-		MazeCenter.Y += (myGrid->Rows) / 2 * 1000 * myGrid->GetActorScale3D().Y;
-		MazeCenter.X += (myGrid->Columns) / 2 * 1000 * myGrid->GetActorScale3D().X;
-		MazeCenter.Z = GetActorLocation().Z;
-
-		SetActorLocation(MazeCenter);
-
-		// Adding Player Tag Number
-		myGrid->spawnedPlayers++;
-		Tags.Add(*FString::Printf(TEXT("Player%d"), myGrid->spawnedPlayers));
-	}
-
-
-	//UE_LOG(LogTemp, Warning, TEXT("Found widget : %s"), *InteractWidgetSubclass->GetName());
-
-	//Setting up interaction widget
-	if (InteractWidget)
-	{
-		InteractWidget->AddToViewport();
-		InteractWidget->GetWidgetFromName("interactprompt")->SetVisibility(ESlateVisibility::Hidden);
-	}
-
-	//Setting up player stats
-
-	// Sprinting
-	PlayerStats->SetRegenerationRate(StaminaRegenerationRate);	
-	PlayerStats->SetConsumptionRate(StaminaConsumptionRate);
-	PlayerStats->SetCooldown(StaminaCooldown);
-	PlayerStats->SetUpdateRate(UpdateRate);
-	LastStaminaState = PlayerStats->GetStaminaState();
-	// Sanity
-	PlayerStats->SetSanityDuration(SanityDuration);
-	PlayerStats->SetSanityRegenerationDuration(SanityRegenerationDuration);
-
-	//Setting up sanity consumption
-	PlayerStats->ConsumeSanity();
-
-	//Setting up flashlight
-	defaultLightFlickerMin = LightFlickerMin;
-	defaultLightFlickerMax = LightFlickerMax;
-	flashlightOn = false;
-	FlashlightComponent->SetVisibility(false);
-	flashlightToggle();
-
-	GetWorldTimerManager().SetTimer(sanityHandle, this, &ATBCCharacter::SanityCheck, .25, true);
-	GetWorldTimerManager().SetTimer(BatteryDrain, this, &ATBCCharacter::ReduceBattery, BatteryReductionSpeed, true);
-}
-
-
-void ATBCCharacter::Tick(float DeltaTime) 
-{	
-	if (pickedUpItem == true) {
-		pickedUpItem = false;
-
-		UpdateInvBar();
-	}
-
-	// Checking if I'm in a puzzle
-	UClass* viewClass = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetViewTarget()->GetClass();
-	if (viewClass->IsChildOf(ATBCCharacter::StaticClass()) || isHiding) {
-		bInPuzzle = false;
-
-		APlayerCameraManager* CurrentCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
-		CurrentCamera->SetFOV(MyGameInstance->PlayerFOV);
-	}
-	else {
-		bInPuzzle = true;
-
-		APlayerCameraManager* CurrentCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
-		CurrentCamera->SetFOV(MyGameInstance->PuzzleFOV);
-	}
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("InPuzzle: %d"), bInPuzzle));
-
-	// This code detects whether I've left or entered a puzzle / locker
-	// It's used to remove the hint widget from the screen
-	lastCameraClass = currentCameraClass;
-	currentCameraClass = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetViewTarget()->GetClass();
-
-	if (!currentCameraClass->IsChildOf(lastCameraClass)) {
-		// Turns on or off footstep audio depending on if the player is leaving or entering a hiding place or puzzle
-		if (FootstepRef) {
-			ToggleFootstepAudio();
-		}
-
-		// If the hint widget is currently displayed
-		if (HintWidget && HintWidget->IsInViewport()) {
-			ToggleHint();
-		}
-	}
-}
 
 /**
 * If the function is called non recursively, it starts a recursive loop of calling itself.

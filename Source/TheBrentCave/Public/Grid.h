@@ -31,10 +31,13 @@ public:
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* mesh;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
+		int32 Dimensions;
+
+	UPROPERTY(BlueprintReadWrite)
 		int32 Rows;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 		int32 Columns;
 
 	UPROPERTY(EditAnywhere, Category = "Spawning")

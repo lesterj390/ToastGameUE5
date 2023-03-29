@@ -22,6 +22,9 @@ void AGrid::BeginPlay()
 {	
 	Super::BeginPlay();
 
+	Rows = Dimensions;
+	Columns = Dimensions;
+
 	getSetupInfo();
 
 	spawnedPlayers = 0;
@@ -40,7 +43,7 @@ AActor* AGrid::SpawnActor(TSubclassOf<AActor> Actor, FVector Loc, FRotator Rot, 
 	SpawnedActorRef->SetActorScale3D(GetActorScale3D());
 
 	SpawnedActorRef->Tags.Add(CellTag);
-	//SpawnedActorRef->SetFolderPath(Path);
+	SpawnedActorRef->SetFolderPath(Path);
 
 	// Up
 	if (Rot == FRotator(0, 0, 0)) {
