@@ -75,6 +75,15 @@ public:
 		UPROPERTY(EditAnywhere, BlueprintReadWrite)
 			float WhispersVolume;
 
+		UPROPERTY(EditAnywhere, BlueprintReadWrite)
+			float Sensitivity;
+
+		UPROPERTY(EditAnywhere, BlueprintReadWrite)
+			bool VInvert;
+
+		UPROPERTY(EditAnywhere, BlueprintReadWrite)
+			bool HInvert;
+
 protected:
 
 };

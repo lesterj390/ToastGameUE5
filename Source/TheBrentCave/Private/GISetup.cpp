@@ -18,4 +18,7 @@ UGISetup::UGISetup() {
 	SoundEffectsVolume = 1;
 	VoicesVolume = 1;
 	WhispersVolume = 1;
+	Sensitivity = 1;
+	VInvert = false;
+	HInvert = false;
 }
