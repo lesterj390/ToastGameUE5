@@ -295,6 +295,8 @@ protected:
 
 	void EndSprint();
 
+	void ApplySettings();
+
 	class UPlayerStatsComponent* PlayerStats;
 
 	FTimerHandle CheckForCooldownTimer;

@@ -149,9 +149,6 @@ void ATBCCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	MyGameInstance = Cast<UGISetup>(UGameplayStatics::GetGameInstance(GetWorld()));
-	//MySavedSettings = Cast<USavedSettings>(UGameplayStatics::CreateSaveGameObject(USavedSettings::StaticClass()));
-	//MySavedSettings = Cast<USavedSettings>(UGameplayStatics::LoadGameFromSlot(FString::Printf("SaveSettings"), 0));
-	//USaveGame* SaveGame = UGameplayStatics::LoadGameFromSlot(FString::Printf("SaveSettings"), 0);
 
 	BatteryPower = MaxBatteryCharge;
 	RadarBattery = MaxRadarBattery;
@@ -233,6 +230,31 @@ void ATBCCharacter::BeginPlay()
 }
 
 
+void ATBCCharacter::ApplySettings()
+{
+	APlayerCameraManager* CurrentCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
+	if (bInPuzzle) {
+		CurrentCamera->SetFOV(MyGameInstance->PuzzleFOV);
+	}
+	else {
+		CurrentCamera->SetFOV(MyGameInstance->PlayerFOV);
+	}
+
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	
+	PlayerController->PlayerInput->SetMouseSensitivity(MyGameInstance->Sensitivity);
+
+	if (MyGameInstance->HInvert != PlayerController->PlayerInput->GetInvertAxis("Turn")) {
+		PlayerController->PlayerInput->InvertAxis("Turn");
+	}
+	if (MyGameInstance->VInvert != PlayerController->PlayerInput->GetInvertAxis("LookUp")) {
+		PlayerController->PlayerInput->InvertAxis("LookUp");
+	}
+
+	//PlayerController->PlayerInput->InvertAxis(FName("Turn"));
+}
+
+
 void ATBCCharacter::Tick(float DeltaTime)
 {
 	if (pickedUpItem == true) {
@@ -245,16 +267,13 @@ void ATBCCharacter::Tick(float DeltaTime)
 	UClass* viewClass = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetViewTarget()->GetClass();
 	if (viewClass->IsChildOf(ATBCCharacter::StaticClass()) || isHiding) {
 		bInPuzzle = false;
-
-		APlayerCameraManager* CurrentCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
-		CurrentCamera->SetFOV(MyGameInstance->PlayerFOV);
 	}
 	else {
 		bInPuzzle = true;
-
-		APlayerCameraManager* CurrentCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
-		CurrentCamera->SetFOV(MyGameInstance->PuzzleFOV);
 	}
+
+	ApplySettings();
+
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("InPuzzle: %d"), bInPuzzle));
 
 	// This code detects whether I've left or entered a puzzle / locker
@@ -931,7 +950,7 @@ void ATBCCharacter::ToggleHint()
 		FString lastBindingName = "";
 		for (FInputActionKeyMapping actionBinding : ActionMappings) {
 			lastBindingName = bindingName;
-			bindingName = actionBinding.ActionName.ToString();
+			bindingName = "\\" + actionBinding.ActionName.ToString();
 			keyName = actionBinding.Key.GetDisplayName().ToString();
 
 			if (bindingName == lastBindingName) {
@@ -941,10 +960,7 @@ void ATBCCharacter::ToggleHint()
 
 			hintString = hintString.Replace(*bindingName, *keyName, ESearchCase::CaseSensitive);
 		}
-		// Remove escape character
-		hintString = hintString.Replace(TEXT("\\"), TEXT(""));
 	}
-
 
 	// Toggling between displaying and removing the hint widget
 	if (HintWidget && HintWidget->IsInViewport()) {
