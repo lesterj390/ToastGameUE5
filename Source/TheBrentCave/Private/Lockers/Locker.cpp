@@ -154,8 +154,7 @@ void ALocker::SetupInputComponent()
 {
 	InputComponent = NewObject<UInputComponent>(this);
 	InputComponent->RegisterComponent();
-	InputComponent->BindAction("Interact", IE_Pressed, this, &ALocker::EnterLocker);
-	InputComponent->BindAction("Exit", IE_Pressed, this, &ALocker::LeaveLocker);
+	InputComponent->BindAction("Interact", IE_Pressed, this, &ALocker::InteractLocker);
 	DisableInput(GetWorld()->GetFirstPlayerController());
 }
 
@@ -196,7 +195,7 @@ void ALocker::EnterLocker()
 		IsHiding = true;
 
 		if (HitBoxPlayer) {
-			HitBoxPlayer->isHiding = true;
+			HitBoxPlayer->bIsHiding = true;
 			InteractComponent->SetVisibility(false);
 
 			HitBoxPlayer->SetActorEnableCollision(false);
@@ -219,7 +218,7 @@ void ALocker::LeaveLocker()
 		IsHiding = false;
 
 		if (HitBoxPlayer) {
-			HitBoxPlayer->isHiding = false;
+			HitBoxPlayer->bIsHiding = false;
 			InteractComponent->SetVisibility(true);
 
 			DoorTimeline.PlayFromStart();
@@ -234,6 +233,18 @@ void ALocker::LeaveLocker()
 		//DisableInput(GetWorld()->GetFirstPlayerController());
 	}
 }
+
+
+void ALocker::InteractLocker()
+{
+	if (IsHiding) {
+		LeaveLocker();
+	}
+	else {
+		EnterLocker();
+	}
+}
+
 
 void ALocker::SetupDoorCurve()
 {

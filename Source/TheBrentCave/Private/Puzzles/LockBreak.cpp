@@ -131,15 +131,16 @@ void ALockBreak::SetupPlayerInput()
 	InputComponent = NewObject<UInputComponent>(this);
 	InputComponent->RegisterComponent();
 
-	InputComponent->BindAction("Interact", IE_Pressed, this, &ALockBreak::Interact);
-	InputComponent->BindAction("Exit", IE_Pressed, this, &ALockBreak::ExitPuzzle);
+	InputComponent->BindAction("Interact", IE_Pressed, this, &ALockBreak::InteractPuzzle);
+	InputComponent->BindAction("Use", IE_Pressed, this, &ALockBreak::LockPickCheck);
 	DisableInput(GetWorld()->GetFirstPlayerController());
 }
 
-void ALockBreak::Interact()
+
+void ALockBreak::InteractPuzzle()
 {
 	if (inPuzzle) {
-		LockPickCheck();
+		ExitPuzzle();
 	}
 	else {
 		EnterPuzzle();

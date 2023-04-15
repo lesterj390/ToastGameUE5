@@ -212,29 +212,14 @@ void APipeMatch::SetupKeybinds()
 	Hitbox->OnComponentBeginOverlap.AddDynamic(this, &APipeMatch::OnOverlapStart);
 	Hitbox->OnComponentEndOverlap.AddDynamic(this, &APipeMatch::OnOverlapEnd);
 
-	InputComponent->BindAction("Interact", IE_Pressed, this, &APipeMatch::Interact);
-	InputComponent->BindAction("Exit", IE_Pressed, this, &APipeMatch::ExitPuzzle);
+	InputComponent->BindAction("Interact", IE_Pressed, this, &APipeMatch::InteractPuzzle);
+	InputComponent->BindAction("Use", IE_Pressed, this, &APipeMatch::RotateSelectedPipe);
 	DisableInput(GetWorld()->GetFirstPlayerController());
 
 
 	DisableInput(GetWorld()->GetFirstPlayerController());
 }
 
-void APipeMatch::Interact()
-{
-	//GEngine->AddOnScreenDebugMessage(-1, 999.f, FColor::Cyan, FString::Printf(TEXT("Interact function called")));
-
-	if (inPuzzle) {
-		RotateSelectedPipe();
-		if (CheckForWin()) {
-			ExitPuzzle();
-			GetWorldTimerManager().SetTimer(breakPuzzle, this, &APipeMatch::WinPuzzle, 0.6, false);
-		}
-	}
-	else {
-		EnterPuzzle();
-	}
-}
 
 /*
 * Generates the physical pipe pieces based on pipePath
@@ -515,8 +500,13 @@ int APipeMatch::GetRotation(FCell cell)
 	return (int)(360 - oldRotation.Pitch) % 360;
 }
 
+// Rotates the selected pipe and checks for win conditions
 void APipeMatch::RotateSelectedPipe()
 {
+	if (!inPuzzle) {
+		return;
+	}
+
 	AActor* chosenPipe = PipePieces[selectedPipe[0]][selectedPipe[1]];
 
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Old Pitch = %d"), GetRotation(selectedPipe)));
@@ -525,6 +515,11 @@ void APipeMatch::RotateSelectedPipe()
 	// Play Pipe Rotation Sound
 	UAudioComponent* SoundComponent = UGameplayStatics::CreateSound2D(GetWorld(), RotateSound);
 	SoundComponent->Play(0.0);
+
+	if (CheckForWin()) {
+		ExitPuzzle();
+		GetWorldTimerManager().SetTimer(breakPuzzle, this, &APipeMatch::WinPuzzle, 0.6, false);
+	}
 }
 
 /*
@@ -858,6 +853,18 @@ void APipeMatch::ExitPuzzle()
 		GetSelected();
 	}
 }
+
+
+void APipeMatch::InteractPuzzle()
+{
+	if (inPuzzle) {
+		ExitPuzzle();
+	}
+	else {
+		EnterPuzzle();
+	}
+}
+
 
 void APipeMatch::WinPuzzle()
 {

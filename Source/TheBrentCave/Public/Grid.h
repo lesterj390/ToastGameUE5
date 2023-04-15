@@ -50,9 +50,6 @@ public:
 		TSubclassOf<AActor> CeilingActor;
 
 	UPROPERTY(EditAnywhere, Category = "Spawning")
-		TSubclassOf<AActor> PillarActor;
-
-	UPROPERTY(EditAnywhere, Category = "Spawning")
 		TArray <TSubclassOf<AActor>> LockerActor;
 
 	UPROPERTY(EditAnywhere, Category = "Spawning")

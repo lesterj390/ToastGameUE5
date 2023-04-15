@@ -51,7 +51,6 @@ void AMaze::BeginPlay()
 
 		InteractComponent->SetWidgetClass(widgetClass);
 		InteractWidget = InteractComponent->GetWidget();
-		
 	}
 
 
@@ -80,8 +79,7 @@ void AMaze::SetupInputComponent()
 {
 	InputComponent = NewObject<UInputComponent>(this);
 	InputComponent->RegisterComponent();
-	InputComponent->BindAction("Interact", IE_Pressed, this, &AMaze::EnterPuzzle);
-	InputComponent->BindAction("Exit", IE_Pressed, this, &AMaze::LeavePuzzle);
+	InputComponent->BindAction("Interact", IE_Pressed, this, &AMaze::InteractPuzzle);
 	DisableInput(GetWorld()->GetFirstPlayerController());
 }
 
@@ -200,6 +198,17 @@ void AMaze::LeavePuzzle()
 
 		GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(HitBoxPlayer, 0.5f);
 
+	}
+}
+
+
+void AMaze::InteractPuzzle()
+{
+	if (bInPuzzle) {
+		LeavePuzzle();
+	}
+	else {
+		EnterPuzzle();
 	}
 }
 

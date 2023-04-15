@@ -90,7 +90,7 @@ protected:
 	void SetupPuzzle();
 	void SetupPlayerInput();
 
-	void Interact();
+	void InteractPuzzle();
 
 	void EnterPuzzle();
 	void ExitPuzzle();

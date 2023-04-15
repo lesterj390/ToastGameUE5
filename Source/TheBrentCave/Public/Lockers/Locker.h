@@ -77,11 +77,12 @@ public:
 	UFUNCTION()
 		void OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	//UFUNCTION()
-		virtual void EnterLocker();
 
-	//UFUNCTION()
-		virtual void LeaveLocker();
+	virtual void EnterLocker();
+
+	virtual void LeaveLocker();
+
+	virtual void InteractLocker();
 
 
 	UFUNCTION()

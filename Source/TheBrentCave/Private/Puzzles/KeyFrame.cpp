@@ -87,7 +87,6 @@ void AKeyFrame::SetupInputComponent()
 	InputComponent = NewObject<UInputComponent>(this);
 	InputComponent->RegisterComponent();
 	InputComponent->BindAction("Interact", IE_Pressed, this, &AKeyFrame::Interact);
-	InputComponent->BindAction("Exit", IE_Pressed, this, &AKeyFrame::Exit);
 	//InputComponent->BindAction("Reset", IE_Pressed, this, &AKeyFrame::TimerFunction);
 	DisableInput(GetWorld()->GetFirstPlayerController());
 }
@@ -132,7 +131,7 @@ void AKeyFrame::BindIncorrectKeys()
 
 void AKeyFrame::TimerFunction()
 {
-	//Interact();
+	//InteractPuzzle();
 	RemainingKeys = NumberOfKeys;
 	RemainingTime = TimePerKey;
 	RemainingCountdown = CountdownSeconds;

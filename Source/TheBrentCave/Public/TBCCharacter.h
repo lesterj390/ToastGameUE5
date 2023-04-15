@@ -167,7 +167,7 @@ public:
 	FTimerHandle BatteryDrain;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float InventroyProgressBar;
+		float InventoryProgressBar;
 
 	void ReduceBattery();
 	void ReduceRadarBattery();
@@ -208,7 +208,7 @@ public:
 		TSubclassOf<AActor> EatCrumbActor;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		bool isHiding;
+		bool bIsHiding;
 
 	UPROPERTY()
 		bool bInPuzzle;

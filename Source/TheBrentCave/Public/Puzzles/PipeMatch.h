@@ -126,7 +126,6 @@ protected:
 	AActor* CreatePipe(int row, int col, TSubclassOf<AActor> pipeType, bool randomRotation);
 
 	void SetupKeybinds();
-	void Interact();
 
 	void GetSelected();
 	void GetInput();
@@ -147,7 +146,10 @@ protected:
 	bool CheckForWin();
 
 	void EnterPuzzle();
+	
 	void ExitPuzzle();
+	
+	void InteractPuzzle();
 
 	void WinPuzzle();
 };
