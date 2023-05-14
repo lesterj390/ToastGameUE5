@@ -3,6 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/SpotLightComponent.h"
+#include "Camera/CameraComponent.h"
+#include "Components/BoxComponent.h"
+#include "TBCCharacter.h"
 #include "GameFramework/Actor.h"
 #include "SlidePuzzle.generated.h"
 
@@ -29,9 +33,10 @@ protected:
 		TSubclassOf<AActor> PuzzlePiece;
 
 	TArray<TArray<AActor*>> PuzzlePieces;
+	TArray<int> selectedPiece;
 
 	UPROPERTY()
-		UMaterialInterface* PuzzleMat;
+		UMaterialInstanceDynamic* PuzzleMat;
 
 	UPROPERTY(EditAnywhere)
 		TArray<UTexture2D*> PuzzleImageArray;
@@ -39,14 +44,64 @@ protected:
 	UPROPERTY()
 		UTexture* PuzzleImage;
 
+	UPROPERTY(EditAnywhere)
+		USpotLightComponent* Spotlight;
+
+	UPROPERTY(EditAnywhere)
+		UCameraComponent* PuzzleCamera;
+
+	UPROPERTY(EditAnywhere)
+		UWidgetComponent* InteractComponent;
+
+	UPROPERTY(EditAnywhere)
+		UBoxComponent* Hitbox;
+
+	UPROPERTY()
+		ATBCCharacter* HitBoxPlayer;
+
+	UPROPERTY(EditAnywhere)
+		USoundCue* SlideSound;
+
 	void GeneratePieces();
 
 	UFUNCTION()
 		void SetPieceTexture(int row, int col);
 
+	void ShufflePieces();
+	void GetValidMovements(int row, int col);
+
 	float PieceSpacing;
 
 	FVector startPieceLocation;
+
+	TArray<int> randomMissing;
+
+	bool inOverlap;
+	bool inPuzzle;
+
+	UFUNCTION()
+		void OnOverlapStart(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+		void OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	void EnterPuzzle();
+	void ExitPuzzle();
+
+	void SetupInput();
+	void Interact();
+	void GetInput();
+
+	void DisplaySelectedPiece();
+
+	void MovePiece(bool shuffle = false);
+
+	bool CheckForWin();
+
+	UMaterialInterface* tempMat;
+	UMaterialInstanceDynamic* PieceMat;
+
+	enum Directions {UP, DOWN, LEFT, RIGHT};
 
 public:	
 	// Called every frame
