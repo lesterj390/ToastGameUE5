@@ -138,79 +138,30 @@ void AMemoryGame::setupInput()
 	InputComponent = NewObject<UInputComponent>(this);
 	InputComponent->RegisterComponent();
 
-	InputComponent->BindAction("Interact", IE_Pressed, this, &AMemoryGame::enterPuzzle);
-	InputComponent->BindAction("Exit", IE_Pressed, this, &AMemoryGame::exitPuzzle);
+	InputComponent->BindAction("Interact", IE_Pressed, this, &AMemoryGame::InteractPuzzle);
+	InputComponent->BindAction("Use", IE_Pressed, this, &AMemoryGame::SelectButton);
 	DisableInput(GetWorld()->GetFirstPlayerController());
 }
 
-void AMemoryGame::enterPuzzle()
+void AMemoryGame::EnterPuzzle()
 {
 	if (inOverlap == true) {
-		if (inMemory == true) {
+		GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(this, 0.5f);
+		PuzzleLight->SetVisibility(true);
+		HitBoxPlayer->SetActorHiddenInGame(true);
+		InteractComponent->SetVisibility(false);
+		HitBoxPlayer->SetActorEnableCollision(false);
+		EnableInput(GetWorld()->GetFirstPlayerController());
+		inOverlap = true;
 
-			if (currentPart < pattern.Num() && selected == pattern[currentPart]) {
-
-				//Correct Button Press.
-
-				currentIndex = 0;
-
-				if (currentPart + 1 >= displayAm) {
-
-					displayAm++;
-					currentPart = 0;
-					displayNextIndex();
-
-				}
-				else {
-
-					currentPart++;
-
-					if (pressedAudioComponent && pressedSound) {
-
-						pressedAudioComponent->Play(0.f);
-
-					}
-
-				}
-
-			}
-			else {
-
-				//Incorrect Button Press.
-
-				if (pressedAudioComponent && pressedSound) {
-
-					pressedAudioComponent->Play(0.f);
-
-				}
-
-				selected = 5;
-
-				GetWorldTimerManager().SetTimer(timerWrong, this, &AMemoryGame::wrongTimer, ResetTimer, false);
-
-			}
-
-		}
-		else {
-
-			GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(this, 0.5f);
-			PuzzleLight->SetVisibility(true);
-			HitBoxPlayer->SetActorHiddenInGame(true);
-			InteractComponent->SetVisibility(false);
-			HitBoxPlayer->SetActorEnableCollision(false);
-			EnableInput(GetWorld()->GetFirstPlayerController());
-			inOverlap = true;
-
-			inMemory = true;
-			showingCombo = true;
-			//selected = 1;
-			wrongTimer();
-
-		}
+		inMemory = true;
+		showingCombo = true;
+		//selected = 1;
+		wrongTimer();
 	}
 }
 
-void AMemoryGame::exitPuzzle()
+void AMemoryGame::ExitPuzzle()
 {
 	if (inOverlap == true || inOverlap == false) {
 
@@ -240,6 +191,53 @@ void AMemoryGame::exitPuzzle()
 			GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(HitBoxPlayer, 0.5f);
 
 		}
+	}
+}
+
+void AMemoryGame::InteractPuzzle()
+{
+	if (inMemory) {
+		ExitPuzzle();
+	}
+	else {
+		EnterPuzzle();
+	}
+}
+
+
+void AMemoryGame::SelectButton() {
+	if (inMemory == true) {
+		if (currentPart < pattern.Num() && selected == pattern[currentPart]) {
+			//Correct Button Press.
+			currentIndex = 0;
+			if (currentPart + 1 >= displayAm) {
+				displayAm++;
+				currentPart = 0;
+				displayNextIndex();
+			}
+			else {
+				currentPart++;
+				if (pressedAudioComponent && pressedSound) {
+					pressedAudioComponent->Play(0.f);
+
+				}
+
+			}
+
+		}
+		else {
+			//Incorrect Button Press.
+			if (pressedAudioComponent && pressedSound) {
+				pressedAudioComponent->Play(0.f);
+
+			}
+
+			selected = 5;
+
+			GetWorldTimerManager().SetTimer(timerWrong, this, &AMemoryGame::wrongTimer, ResetTimer, false);
+
+		}
+
 	}
 }
 
@@ -473,7 +471,7 @@ void AMemoryGame::Tick(float DeltaTime)
 
 			//GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(HitBoxPlayer, 0.5f);
 
-			exitPuzzle();
+			ExitPuzzle();
 			GetWorldTimerManager().SetTimer(timerBreak, this, &AMemoryGame::breakTimer, 0.5, false);
 		}
 	}

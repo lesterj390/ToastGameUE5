@@ -36,11 +36,14 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void enterPuzzle();
-	void exitPuzzle();
+	void EnterPuzzle();
+
+	void ExitPuzzle();
+
+	void Select();
 
 	void SetupInput();
-	void Interact();
+	void InteractPuzzle();
 	bool inPuzzle;
 	bool inOverlap;
 

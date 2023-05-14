@@ -197,7 +197,7 @@ void AWordSearch::Tick(float DeltaTime)
 
 }
 
-void AWordSearch::enterPuzzle()
+void AWordSearch::EnterPuzzle()
 {
 
 	if (inOverlap == true && inPuzzle == false) {
@@ -221,7 +221,7 @@ void AWordSearch::enterPuzzle()
 
 }
 
-void AWordSearch::exitPuzzle()
+void AWordSearch::ExitPuzzle()
 {
 
 	if (inOverlap == true && inPuzzle == true) {
@@ -249,28 +249,10 @@ void AWordSearch::exitPuzzle()
 
 }
 
-void AWordSearch::SetupInput()
+
+void AWordSearch::Select()
 {
-
-	Hitbox->OnComponentBeginOverlap.AddDynamic(this, &AWordSearch::OnOverlapStart);
-	Hitbox->OnComponentEndOverlap.AddDynamic(this, &AWordSearch::OnOverlapEnd);
-
-	InputComponent = NewObject<UInputComponent>(this);
-	InputComponent->RegisterComponent();
-
-	InputComponent->BindAction("Interact", IE_Pressed, this, &AWordSearch::Interact);
-	InputComponent->BindAction("Exit", IE_Pressed, this, &AWordSearch::exitPuzzle);
-	DisableInput(GetWorld()->GetFirstPlayerController());
-
-}
-
-void AWordSearch::Interact()
-{
-
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Interacted")));
-
 	if (inPuzzle == true) {
-
 		if (canMoveSelection == true) {
 			canMoveSelection = false;
 			selectedRotation = 1;
@@ -296,10 +278,34 @@ void AWordSearch::Interact()
 		}
 
 	}
+}
+
+
+void AWordSearch::SetupInput()
+{
+
+	Hitbox->OnComponentBeginOverlap.AddDynamic(this, &AWordSearch::OnOverlapStart);
+	Hitbox->OnComponentEndOverlap.AddDynamic(this, &AWordSearch::OnOverlapEnd);
+
+	InputComponent = NewObject<UInputComponent>(this);
+	InputComponent->RegisterComponent();
+
+	InputComponent->BindAction("Interact", IE_Pressed, this, &AWordSearch::InteractPuzzle);
+	InputComponent->BindAction("Use", IE_Pressed, this, &AWordSearch::Select);
+	DisableInput(GetWorld()->GetFirstPlayerController());
+
+}
+
+void AWordSearch::InteractPuzzle()
+{
+
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Interacted")));
+
+	if (inPuzzle == true) {
+		ExitPuzzle();
+	}
 	else {
-
-		enterPuzzle();
-
+		EnterPuzzle();
 	}
 
 }
@@ -341,7 +347,6 @@ void AWordSearch::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* Othe
 		InteractComponent->SetVisibility(false);
 		//HitBoxPlayer->InteractWidget->GetWidgetFromName("interactprompt")->SetVisibility(ESlateVisibility::Hidden);
 	}
-
 }
 
 void AWordSearch::GenerateWordBank()
@@ -385,7 +390,7 @@ void AWordSearch::SetWord()
 void AWordSearch::WinPuzzle()
 {
 
-	exitPuzzle();
+	ExitPuzzle();
 	GetWorldTimerManager().SetTimer(breakPuzzle, this, &AWordSearch::DestroyPuzzle, 0.6, false);
 
 }

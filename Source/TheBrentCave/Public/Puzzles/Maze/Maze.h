@@ -120,6 +120,8 @@ protected:
 
 	void LeavePuzzle();
 
+	void InteractPuzzle();
+
 	UFUNCTION()
 		void ToggleMovementKeyBinds();
 

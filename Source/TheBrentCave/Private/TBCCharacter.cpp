@@ -134,7 +134,7 @@ ATBCCharacter::ATBCCharacter()
 
 	hasRadar = false;
 
-	isHiding = false;
+	bIsHiding = false;
 
 	selectedItem = 0;
 
@@ -265,7 +265,7 @@ void ATBCCharacter::Tick(float DeltaTime)
 
 	// Checking if I'm in a puzzle
 	UClass* viewClass = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetViewTarget()->GetClass();
-	if (viewClass->IsChildOf(ATBCCharacter::StaticClass()) || isHiding) {
+	if (viewClass->IsChildOf(ATBCCharacter::StaticClass()) || bIsHiding) {
 		bInPuzzle = false;
 	}
 	else {
@@ -515,15 +515,18 @@ void ATBCCharacter::MoveRight(float Value)
 
 void ATBCCharacter::UseItem()
 {
+	// If I'm not in the POV of TBCCharacter, don't use
+	if (bInPuzzle || bIsHiding) {
+		return;
+	}
+
 	if (selectedItem == Flashlight) {
 		flashlightToggle();
 	}
 	else if (selectedItem == Glowstick) {
-
 		throwGlowstick();
 
 		UpdateInvBar();
-
 	}
 	else if (selectedItem == Food) {
 
@@ -599,7 +602,7 @@ void ATBCCharacter::ScrolledUp()
 
 			StatsWidget->SelectedItem->SetBrushFromTexture(StatsWidget->FlashlightTexture);
 
-			InventroyProgressBar = BatteryPower / 100;
+			InventoryProgressBar = BatteryPower / 100;
 		}
 		else if (selectedItem == Glowstick) {
 			if (GlowstickAmount > 0) {
@@ -608,7 +611,7 @@ void ATBCCharacter::ScrolledUp()
 
 				StatsWidget->SelectedItem->SetBrushFromTexture(StatsWidget->GlowstickTexture);
 
-				//InventroyProgressBar = GlowstickAmount / MaxGlowstickAmount;
+				//InventoryProgressBar = GlowstickAmount / MaxGlowstickAmount;
 				UpdateInvBar();
 			}
 			else {
@@ -623,7 +626,7 @@ void ATBCCharacter::ScrolledUp()
 
 				StatsWidget->SelectedItem->SetBrushFromTexture(StatsWidget->BreadTexture);
 
-				//InventroyProgressBar = FoodAmount / MaxFoodAmount;
+				//InventoryProgressBar = FoodAmount / MaxFoodAmount;
 				UpdateInvBar();
 			}
 			else {
@@ -638,7 +641,7 @@ void ATBCCharacter::ScrolledUp()
 
 				StatsWidget->SelectedItem->SetBrushFromTexture(StatsWidget->KeyTexture);
 
-				//InventroyProgressBar = KeyCount / PuzzleCount;
+				//InventoryProgressBar = KeyCount / PuzzleCount;
 				UpdateInvBar();
 			}
 			else {
@@ -657,7 +660,7 @@ void ATBCCharacter::ScrolledUp()
 					StatsWidget->BatteryBox->SetVisibility(ESlateVisibility::Visible);
 				}
 
-				//InventroyProgressBar = BatteryAmount / MaxBatteryAmount;
+				//InventoryProgressBar = BatteryAmount / MaxBatteryAmount;
 				UpdateInvBar();
 			}
 			else {
@@ -713,7 +716,7 @@ void ATBCCharacter::ScrolledDown()
 
 			StatsWidget->SelectedItem->SetBrushFromTexture(FlashlightTexture);
 
-			InventroyProgressBar = BatteryPower / 100;
+			InventoryProgressBar = BatteryPower / 100;
 		}
 		else if (selectedItem == Glowstick) {
 			if (GlowstickAmount > 0) {
@@ -722,7 +725,7 @@ void ATBCCharacter::ScrolledDown()
 
 				StatsWidget->SelectedItem->SetBrushFromTexture(GlowstickTexture);
 
-				//InventroyProgressBar = GlowstickAmount / MaxGlowstickAmount;
+				//InventoryProgressBar = GlowstickAmount / MaxGlowstickAmount;
 				UpdateInvBar();
 			}
 			else {
@@ -737,7 +740,7 @@ void ATBCCharacter::ScrolledDown()
 
 				StatsWidget->SelectedItem->SetBrushFromTexture(BreadTexture);
 
-				//InventroyProgressBar = FoodAmount / MaxFoodAmount;
+				//InventoryProgressBar = FoodAmount / MaxFoodAmount;
 				UpdateInvBar();
 			}
 			else {
@@ -752,7 +755,7 @@ void ATBCCharacter::ScrolledDown()
 
 				StatsWidget->SelectedItem->SetBrushFromTexture(KeyTexture);
 
-				//InventroyProgressBar = KeyCount / PuzzleCount;
+				//InventoryProgressBar = KeyCount / PuzzleCount;
 				UpdateInvBar();
 			}
 			else {
@@ -771,7 +774,7 @@ void ATBCCharacter::ScrolledDown()
 					StatsWidget->BatteryBox->SetVisibility(ESlateVisibility::Visible);
 				}
 
-				//InventroyProgressBar = BatteryAmount / MaxBatteryAmount;
+				//InventoryProgressBar = BatteryAmount / MaxBatteryAmount;
 				UpdateInvBar();
 			}
 			else {
@@ -1230,7 +1233,7 @@ void ATBCCharacter::ReduceBattery()
 		}
 
 		if (selectedItem == Flashlight) {
-			InventroyProgressBar = BatteryPower / 100;
+			InventoryProgressBar = BatteryPower / 100;
 		}
 
 		GetWorldTimerManager().SetTimer(BatteryDrain, this, &ATBCCharacter::ReduceBattery, BatteryReductionSpeed, true);
@@ -1293,19 +1296,19 @@ void ATBCCharacter::UpdateInvBar()
 {
 
 	if (selectedItem == Glowstick) {
-		InventroyProgressBar = (float)GlowstickAmount / MaxGlowstickAmount;
+		InventoryProgressBar = (float)GlowstickAmount / MaxGlowstickAmount;
 	}
 	else if (selectedItem == Food) {
-		InventroyProgressBar = (float)FoodAmount / MaxFoodAmount;
+		InventoryProgressBar = (float)FoodAmount / MaxFoodAmount;
 	}
 	else if (selectedItem == Key) {
-		InventroyProgressBar = (float)KeyCount / PuzzleCount;
+		InventoryProgressBar = (float)KeyCount / PuzzleCount;
 	}
 	else if (selectedItem == Battery) {
-		InventroyProgressBar = (float)BatteryAmount / MaxBatteryAmount;
+		InventoryProgressBar = (float)BatteryAmount / MaxBatteryAmount;
 	}
 	else if (selectedItem == Radar) {
-		InventroyProgressBar = (float)RadarBattery / MaxRadarBattery;
+		InventoryProgressBar = (float)RadarBattery / MaxRadarBattery;
 	}
 
 }

@@ -21,6 +21,7 @@ void ACoffin::BeginPlay()
 }
 
 
+
 void ACoffin::EnterLocker()
 {
 	//Super::EnterLocker();
@@ -31,7 +32,7 @@ void ACoffin::EnterLocker()
 		if (HitBoxPlayer) {
 			GetWorldTimerManager().ClearAllTimersForObject(this);
 
-			HitBoxPlayer->isHiding = true;
+			HitBoxPlayer->bIsHiding = true;
 			InteractComponent->SetVisibility(false);
 
 			HitBoxPlayer->SetActorEnableCollision(false);
@@ -60,7 +61,7 @@ void ACoffin::LeaveLocker()
 		if (HitBoxPlayer) {
 			GetWorldTimerManager().ClearAllTimersForObject(this);
 
-			HitBoxPlayer->isHiding = false;
+			HitBoxPlayer->bIsHiding = false;
 			InteractComponent->SetVisibility(true);
 
 			DoorTimeline.PlayFromStart();
@@ -71,21 +72,29 @@ void ACoffin::LeaveLocker()
 			GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(HitBoxPlayer, 0.6f);
 			InputComponent->AxisBindings.Empty();
 
-			// Swap Binding
-			InputComponent->RemoveActionBinding("Interact", IE_Pressed);
-			InputComponent->BindAction("Interact", IE_Pressed, this, &ACoffin::EnterLocker);
-
-			InputComponent->RemoveActionBinding("Interact", IE_Released);
+			// Disable peak binding
+			InputComponent->RemoveActionBinding("Use", IE_Pressed);
+			InputComponent->RemoveActionBinding("Use", IE_Released);
 
 			if (PeakWidget && PeakWidget->IsInViewport())
 			{
 				PeakWidget->RemoveFromParent();
-				//CollectGarbage(RF_NoFlags, true);
 			}
 
 			GetWorldTimerManager().SetTimer(PeakHandle, this, &ACoffin::EnableCollision, 0.7f, false, 0.7f);
 		}
 		////DisableInput(GetWorld()->GetFirstPlayerController());
+	}
+}
+
+
+void ACoffin::InteractLocker()
+{
+	if (IsHiding) {
+		LeaveLocker();
+	}
+	else {
+		EnterLocker();
 	}
 }
 
@@ -107,14 +116,10 @@ void ACoffin::EndPeak()
 
 void ACoffin::EnablePeak()
 {
-	// Swap Binding
-
 	if (IsHiding)
 	{
-		InputComponent->RemoveActionBinding("Interact", IE_Pressed);
-		InputComponent->BindAction("Interact", IE_Pressed, this, &ACoffin::StartPeak);
-
-		InputComponent->BindAction("Interact", IE_Released, this, &ACoffin::EndPeak);
+		InputComponent->BindAction("Use", IE_Pressed, this, &ACoffin::StartPeak);
+		InputComponent->BindAction("Use", IE_Released, this, &ACoffin::EndPeak);
 
 		if (PeakWidgetClass)
 		{

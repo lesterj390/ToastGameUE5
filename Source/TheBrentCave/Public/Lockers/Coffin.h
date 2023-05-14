@@ -34,10 +34,13 @@ protected:
 
 	UUserWidget* PeakWidget;
 
+
 public:
 	virtual void EnterLocker() override;
 
 	virtual void LeaveLocker() override;
+
+	virtual void InteractLocker() override;
 
 protected:
 	UFUNCTION()

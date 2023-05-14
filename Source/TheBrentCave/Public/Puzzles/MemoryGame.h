@@ -68,8 +68,13 @@ public:
 
 	void setupInput();
 
-	void enterPuzzle();
-	void exitPuzzle();
+	void EnterPuzzle();
+
+	void ExitPuzzle();
+
+	void InteractPuzzle();
+
+	void SelectButton();
 
 	bool inMemory;
 

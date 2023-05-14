@@ -116,10 +116,12 @@ public:
 
 	void setupInput();
 
-	void enterPuzzle();
+	void EnterPuzzle();
 
 	UFUNCTION(BlueprintCallable, Category = "ExitPuzzle")
-	void exitPuzzle();
+	void ExitPuzzle();
+
+	void InteractPuzzle();
 
 	void GetHint();
 

@@ -141,7 +141,7 @@ void ANumberPuzzle::BeginPlay()
 		HoriWidget->AddToViewport();
 	}*/
 
-	exitString = UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerInput->GetKeysForAction("Exit")[0].Key.GetFName().ToString();
+	exitString = UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerInput->GetKeysForAction("Interact")[0].Key.GetFName().ToString();
 
 	randomShapeSetup();
 	GetHint();
@@ -311,14 +311,11 @@ void ANumberPuzzle::setupInput()
 	InputComponent = NewObject<UInputComponent>(this);
 	InputComponent->RegisterComponent();
 
-	InputComponent->BindAction("Interact", IE_Pressed, this, &ANumberPuzzle::enterPuzzle);
+	InputComponent->BindAction("Interact", IE_Pressed, this, &ANumberPuzzle::InteractPuzzle);
 	EnableInput(GetWorld()->GetFirstPlayerController());
-	InputComponent->BindAction("Exit", IE_Pressed, this, &ANumberPuzzle::exitPuzzle);
-	EnableInput(GetWorld()->GetFirstPlayerController());
-
 }
 
-void ANumberPuzzle::enterPuzzle()
+void ANumberPuzzle::EnterPuzzle()
 {
 
 	if (inOverlap == true && inPuzzle == false) {
@@ -338,17 +335,14 @@ void ANumberPuzzle::enterPuzzle()
 			InteractComponent->SetVisibility(false);
 
 			if (PromptWidget) {
-
 				PromptWidget->AddToViewport();
-
 			}
 		}
-		
 	}
 
 }
 
-void ANumberPuzzle::exitPuzzle()
+void ANumberPuzzle::ExitPuzzle()
 {
 
 	if (inOverlap == true && inPuzzle == true) {
@@ -378,5 +372,15 @@ void ANumberPuzzle::exitPuzzle()
 		//AActor::SetFocus(HitboxPlayer);
 
 	}
+}
 
+
+void ANumberPuzzle::InteractPuzzle()
+{
+	if (inPuzzle) {
+		ExitPuzzle();
+	}
+	else {
+		EnterPuzzle();
+	}
 }
