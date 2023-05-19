@@ -36,6 +36,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void Move(UWordSearchWidget::Direction direction);
+
 	void EnterPuzzle();
 
 	void ExitPuzzle();
@@ -118,8 +120,7 @@ public:
 
 	int selectedRow;
 	int selectedCol;
-	int selectedRotation;
-	int winRotation;
+	UWordSearchWidget::Rotation selectedRotation;
 	bool canMoveSelection;
 
 	void WinPuzzle();

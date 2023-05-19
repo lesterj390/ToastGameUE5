@@ -7,7 +7,7 @@ void UWordSearchWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	newRotation = 1;
+	selectedRotation = R_UP_DIAGONAL;
 
 }
 
@@ -169,12 +169,13 @@ void UWordSearchWidget::ClearImageArray()
 		}
 	}
 
-	newRotation = 1;
+	selectedRotation = R_UP_DIAGONAL;
 
 
 }
 
-void UWordSearchWidget::CheckRotation()
+// Create widget elements to preview selected word
+void UWordSearchWidget::PreviewSelection()
 {
 
 	//Rotations: 0 Straight, 1 Up Diagonal, 2 Down Diagonal, 3 Down
@@ -192,7 +193,7 @@ void UWordSearchWidget::CheckRotation()
 		}
 	}
 
-	if (newRotation == 0) {
+	if (selectedRotation == R_UP_DIAGONAL) {
 		for (int i = 0; i < word.Len() - 1; i++) {
 			UImage* CheckImage = WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(), (FName(*FString::Printf(TEXT("Check %d, %d"), CheckRow, CheckCol))));
 			Canvas->AddChild(CheckImage);
@@ -214,7 +215,7 @@ void UWordSearchWidget::CheckRotation()
 			}
 		}
 	}
-	else if (newRotation == 1) {
+	else if (selectedRotation == R_STRAIGHT) {
 		for (int i = 0; i < word.Len() - 1; i++) {
 			UImage* CheckImage = WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(), (FName(*FString::Printf(TEXT("Check %d, %d"), CheckRow, CheckCol))));
 			Canvas->AddChild(CheckImage);
@@ -235,7 +236,7 @@ void UWordSearchWidget::CheckRotation()
 			}
 		}
 	}
-	else if (newRotation == 2) {
+	else if (selectedRotation == R_DOWN_DIAGONAL) {
 		for (int i = 0; i < word.Len() - 1; i++) {
 			UImage* CheckImage = WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(), (FName(*FString::Printf(TEXT("Check %d, %d"), CheckRow, CheckCol))));
 			Canvas->AddChild(CheckImage);
@@ -257,7 +258,7 @@ void UWordSearchWidget::CheckRotation()
 			}
 		}
 	}
-	else if (newRotation == 3) {
+	else if (selectedRotation == R_DOWN) {
 		for (int i = 0; i < word.Len() - 1; i++) {
 			UImage* CheckImage = WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(), (FName(*FString::Printf(TEXT("Check %d, %d"), CheckRow, CheckCol))));
 			Canvas->AddChild(CheckImage);
