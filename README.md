@@ -7,4 +7,4 @@ Toast game is an independent horror video game created by [lesterj390](https://g
 "Toast" is a game where players must use problem-solving skills to escape a randomly generated maze while being chased by a deadly humanoid piece of toast. The game features challenging puzzles, randomly generated levels, and endless hours of excitement.
 
 ## Steam
-You can find the game on Steam at [this link](https://store.steampowered.com/app/2289610/Toast/) but you won't be able to play it yet as it is in an alpha state. You can request to test the game using Steam's Playtest feature.
+You can find the game on Steam at [this link](https://store.steampowered.com/app/2289610/Toast/).
