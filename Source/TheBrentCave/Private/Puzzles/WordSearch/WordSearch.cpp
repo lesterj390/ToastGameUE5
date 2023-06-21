@@ -42,13 +42,11 @@ AWordSearch::AWordSearch()
 
 		wrongAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("wrongAudioComponent"));
 		wrongAudioComponent->SetupAttachment(RootComponent);
-
 	}
 
 	selectedRow = 0;
 	selectedCol = 0;
-	selectedRotation = 1;
-	winRotation = 0;
+	selectedRotation = UWordSearchWidget::R_UP_DIAGONAL;
 
 	inOverlap = false;
 	inPuzzle = false;
@@ -120,90 +118,56 @@ void AWordSearch::BeginPlay()
 
 }
 
+
+void AWordSearch::Move(UWordSearchWidget::Direction direction)
+{
+	if (inPuzzle) {
+		if (canMoveSelection) {
+			if (direction == UWordSearchWidget::D_UP && selectedRow > 0) {
+				selectedRow--;
+				GridWidget->imageSlot->SetPosition(FVector2D(GridWidget->imageSlot->GetPosition().X, GridWidget->imageSlot->GetPosition().Y + (GridWidget->spacing * -1)));
+			} 
+			else if (direction == UWordSearchWidget::UWordSearchWidget::D_DOWN && selectedRow < GridWidget->PuzzleSize - 1) {
+				selectedRow++;
+				GridWidget->imageSlot->SetPosition(FVector2D(GridWidget->imageSlot->GetPosition().X, GridWidget->imageSlot->GetPosition().Y + GridWidget->spacing));
+			}
+			else if (direction == UWordSearchWidget::D_LEFT && selectedCol > 0) {
+				selectedCol--;
+				GridWidget->imageSlot->SetPosition(FVector2D(GridWidget->imageSlot->GetPosition().X + (GridWidget->spacing * -1), GridWidget->imageSlot->GetPosition().Y));
+			}
+			else if (direction == UWordSearchWidget::D_RIGHT && selectedCol < GridWidget->PuzzleSize - 1) {
+				selectedCol++;
+				GridWidget->imageSlot->SetPosition(FVector2D(GridWidget->imageSlot->GetPosition().X + GridWidget->spacing, GridWidget->imageSlot->GetPosition().Y));
+			}
+		}
+		else {
+			if ((direction == UWordSearchWidget::D_UP || direction == UWordSearchWidget::D_LEFT) && selectedRotation > UWordSearchWidget::R_UP_DIAGONAL) {
+				selectedRotation = (UWordSearchWidget::Rotation)(selectedRotation - 1); // Convert selectRotation to int, subtract 1, convert back to rotation enum 
+				GridWidget->selectedRotation = selectedRotation;
+				GridWidget->PreviewSelection();
+			}
+			else if ((direction == UWordSearchWidget::D_DOWN || direction == UWordSearchWidget::D_RIGHT) && selectedRotation < UWordSearchWidget::R_DOWN) {
+				selectedRotation = (UWordSearchWidget::Rotation)(selectedRotation + 1); // Convert selectRotation to int, add 1, convert back to rotation enum 
+				GridWidget->selectedRotation = selectedRotation;
+				GridWidget->PreviewSelection();
+			}
+		}
+	}
+}
+
+
 // Called every frame
 void AWordSearch::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (inPuzzle == true) {
-
-		if (canMoveSelection == true) {
-
-			if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Up) && selectedRow > 0) {
-				selectedRow--;
-				GridWidget->imageSlot->SetPosition(FVector2D(GridWidget->imageSlot->GetPosition().X, GridWidget->imageSlot->GetPosition().Y + (GridWidget->spacing * -1)));
-			}
-			else if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Right) && selectedCol < GridWidget->PuzzleSize - 1) {
-				selectedCol++;
-				GridWidget->imageSlot->SetPosition(FVector2D(GridWidget->imageSlot->GetPosition().X + GridWidget->spacing, GridWidget->imageSlot->GetPosition().Y));
-			}
-			else if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Down) && selectedRow < GridWidget->PuzzleSize - 1) {
-				selectedRow++;
-				GridWidget->imageSlot->SetPosition(FVector2D(GridWidget->imageSlot->GetPosition().X, GridWidget->imageSlot->GetPosition().Y + GridWidget->spacing));
-			}
-			else if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Left) && selectedCol > 0) {
-				selectedCol--;
-				GridWidget->imageSlot->SetPosition(FVector2D(GridWidget->imageSlot->GetPosition().X + (GridWidget->spacing * -1), GridWidget->imageSlot->GetPosition().Y));
-			}
-
-		}
-		else {
-
-			if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Up) && selectedRotation > 0) {
-				
-				selectedRotation--;
-				GridWidget->newRotation = selectedRotation;
-				GridWidget->CheckRotation();
-
-			}
-			else if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Down) && selectedRotation < 3) {
-				
-				selectedRotation++;
-				GridWidget->newRotation = selectedRotation;
-				GridWidget->CheckRotation();
-
-			}
-			else if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Left) && selectedCol > 0) {
-				canMoveSelection = true;
-				GridWidget->ClearImageArray();
-				selectedCol--;
-				GridWidget->imageSlot->SetPosition(FVector2D(GridWidget->imageSlot->GetPosition().X + (GridWidget->spacing * -1), GridWidget->imageSlot->GetPosition().Y));
-			}
-			else if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Right) && selectedCol < GridWidget->PuzzleSize - 1) {
-				canMoveSelection = true;
-				GridWidget->ClearImageArray();
-				selectedCol++;
-				GridWidget->imageSlot->SetPosition(FVector2D(GridWidget->imageSlot->GetPosition().X + GridWidget->spacing, GridWidget->imageSlot->GetPosition().Y));
-			}
-			
-			//Rotations: 0 Straight, 1 Up Diagonal, 2 Down Diagonal, 3 Down
-
-			if (selectedRotation == 0) {
-				winRotation = 1;
-			}
-			else if (selectedRotation == 1) {
-				winRotation = 0;
-			}
-			else if (selectedRotation == 2) {
-				winRotation = 2;
-			}
-			else if (selectedRotation == 3) {
-				winRotation = 3;
-			}
-
-		}
-
-	}
-
 }
 
 void AWordSearch::EnterPuzzle()
 {
-
 	if (inOverlap == true && inPuzzle == false) {
 		if (HitBoxPlayer)
 		{
-
 			inPuzzle = true;
 
 			GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(this, 0.5f);
@@ -214,11 +178,8 @@ void AWordSearch::EnterPuzzle()
 			WordWidgetComponent->SetVisibility(true);
 			InteractComponent->SetVisibility(false);
 			//InteractComponent->SetVisibility(false);
-
 		}
-
 	}
-
 }
 
 void AWordSearch::ExitPuzzle()
@@ -244,9 +205,7 @@ void AWordSearch::ExitPuzzle()
 
 			GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(HitBoxPlayer, 0.5f);
 		}
-
 	}
-
 }
 
 
@@ -255,28 +214,25 @@ void AWordSearch::Select()
 	if (inPuzzle == true) {
 		if (canMoveSelection == true) {
 			canMoveSelection = false;
-			selectedRotation = 1;
-			winRotation = 0;
+			selectedRotation = UWordSearchWidget::R_UP_DIAGONAL;
+			GridWidget->selectedRotation = selectedRotation;
 
-			GridWidget->CheckRotation();
+			GridWidget->PreviewSelection();
 		}
 		else {
-			if (selectedRow == GridWidget->RowSpawn && selectedCol == GridWidget->ColSpawn && winRotation == GridWidget->WordRotation) {
+			if (selectedRow == GridWidget->RowSpawn && selectedCol == GridWidget->ColSpawn && (int)selectedRotation == GridWidget->WordRotation) {
 				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Win!")));
 				WinPuzzle();
 			}
 			else {
 				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Wrong!")));
-
+				canMoveSelection = true;
+				GridWidget->ClearImageArray();
 				if (wrongAudioComponent && wrongSound) {
-
-					wrongAudioComponent->Play(0.f);
-					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Played Audio")));
-
+					wrongAudioComponent->Play(0.f);					
 				}
 			}
 		}
-
 	}
 }
 
@@ -292,23 +248,39 @@ void AWordSearch::SetupInput()
 
 	InputComponent->BindAction("Interact", IE_Pressed, this, &AWordSearch::InteractPuzzle);
 	InputComponent->BindAction("Use", IE_Pressed, this, &AWordSearch::Select);
-	DisableInput(GetWorld()->GetFirstPlayerController());
 
+	DECLARE_DELEGATE_OneParam(DirectionDelegate, UWordSearchWidget::Direction);
+	FInputKeyBinding upBinding(FInputChord(EKeys::Up), IE_Pressed);
+	upBinding.KeyDelegate.BindDelegate<DirectionDelegate>(this, &AWordSearch::Move, UWordSearchWidget::D_UP);
+	InputComponent->KeyBindings.Add(upBinding);
+
+	FInputKeyBinding downBinding(FInputChord(EKeys::Down), IE_Pressed);
+	downBinding.KeyDelegate.BindDelegate<DirectionDelegate>(this, &AWordSearch::Move, UWordSearchWidget::UWordSearchWidget::D_DOWN);
+	InputComponent->KeyBindings.Add(downBinding);
+
+	FInputKeyBinding leftBinding(FInputChord(EKeys::Left), IE_Pressed);
+	leftBinding.KeyDelegate.BindDelegate<DirectionDelegate>(this, &AWordSearch::Move, UWordSearchWidget::D_LEFT);
+	InputComponent->KeyBindings.Add(leftBinding);
+
+	FInputKeyBinding rightBinding(FInputChord(EKeys::Right), IE_Pressed);
+	rightBinding.KeyDelegate.BindDelegate<DirectionDelegate>(this, &AWordSearch::Move, UWordSearchWidget::D_RIGHT);
+	InputComponent->KeyBindings.Add(rightBinding);
+
+	
+	DisableInput(GetWorld()->GetFirstPlayerController());
 }
+
 
 void AWordSearch::InteractPuzzle()
 {
-
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Interacted")));
-
 	if (inPuzzle == true) {
 		ExitPuzzle();
 	}
 	else {
 		EnterPuzzle();
 	}
-
 }
+
 
 void AWordSearch::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -380,28 +352,22 @@ void AWordSearch::GenerateWordBank()
 
 void AWordSearch::SetWord()
 {
-
 	UTextBlock* TextControl = (UTextBlock*)(WordWidget->WidgetTree->FindWidget(FName(*FString::Printf(TEXT("WordToFind")))));
 	FString Number = FString::Printf(TEXT("%s"), *ChosenWord);
 	TextControl->SetText(FText::FromString("Word to Find: " + Number));
-
 }
 
 void AWordSearch::WinPuzzle()
 {
-
 	ExitPuzzle();
 	GetWorldTimerManager().SetTimer(breakPuzzle, this, &AWordSearch::DestroyPuzzle, 0.6, false);
-
 }
 
 void AWordSearch::DestroyPuzzle()
 {
-
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Destroy function was called")));
 
 	AActor* breakWordSearch = GetWorld()->SpawnActor<AActor>(breakWordActor, puzzleMesh->GetComponentLocation(), GetActorRotation());
 	//breakWordSearch->SetActorScale3D(puzzleMesh->GetRelativeScale3D());
 	Destroy();
-
 }

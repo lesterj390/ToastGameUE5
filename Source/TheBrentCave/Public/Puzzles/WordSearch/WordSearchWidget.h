@@ -78,15 +78,19 @@ public:
 	int PosRow;
 	int PosCol;
 
+	static enum Direction { D_UP, D_DOWN, D_LEFT, D_RIGHT };
+	static enum Rotation { R_UP_DIAGONAL, R_STRAIGHT, R_DOWN_DIAGONAL, R_DOWN };
+
 	void ClearImageArray();
-	void CheckRotation();
-	int newRotation;
+	void PreviewSelection();
+	Rotation selectedRotation;
 	int CheckRow;
 	int CheckCol;
 
+
 protected:
 
-	virtual TSharedRef<SWidget> RebuildWidget() override;
+	virtual TSharedRef<SWidget> RebuildWidget() override;	
 
 private:
 	virtual void NativeConstruct() override;
