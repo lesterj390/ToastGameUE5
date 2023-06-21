@@ -156,7 +156,7 @@ void ASlidePuzzle::SetPieceTexture(int row, int col)
 
 void ASlidePuzzle::ShufflePieces()
 {
-	for (int i = 0; i < 25; i++) {
+	for (int i = 0; i < PuzzleSize * 50; i++) {
 		for (int row = 0; row < PuzzleSize; row++) {
 			for (int col = 0; col < PuzzleSize; col++) {
 				if (PuzzlePieces[row][col] == NULL) {
@@ -166,7 +166,12 @@ void ASlidePuzzle::ShufflePieces()
 		}
 	}
 
-	DisplaySelectedPiece();
+	selectedPiece[0] = 0;
+	selectedPiece[1] = 0;
+
+	if (PuzzlePieces[selectedPiece[0]][selectedPiece[1]] == NULL) {
+		selectedPiece[1]++;
+	}
 }
 
 void ASlidePuzzle::GetValidMovements(int row, int col)
@@ -261,6 +266,8 @@ void ASlidePuzzle::EnterPuzzle()
 
 		EnableInput(GetWorld()->GetFirstPlayerController());
 		inOverlap = true;
+
+		DisplaySelectedPiece();
 	}
 }
 
@@ -309,8 +316,11 @@ void ASlidePuzzle::GetInput()
 		if (selectedPiece[0] > 0) {
 			selectedPiece[0]--;
 
-			if (PuzzlePieces[selectedPiece[0]][selectedPiece[1]] == NULL) {
+			if (PuzzlePieces[selectedPiece[0]][selectedPiece[1]] == NULL && selectedPiece[0] == 0) {
 				selectedPiece[0]++;
+			}
+			else if (PuzzlePieces[selectedPiece[0]][selectedPiece[1]] == NULL) {
+				selectedPiece[0]--;
 			}
 
 			DisplaySelectedPiece();
@@ -320,8 +330,11 @@ void ASlidePuzzle::GetInput()
 		if (selectedPiece[0] < PuzzleSize - 1) {
 			selectedPiece[0]++;
 
-			if (PuzzlePieces[selectedPiece[0]][selectedPiece[1]] == NULL) {
+			if (PuzzlePieces[selectedPiece[0]][selectedPiece[1]] == NULL && selectedPiece[0] == PuzzleSize - 1) {
 				selectedPiece[0]--;
+			}
+			else if (PuzzlePieces[selectedPiece[0]][selectedPiece[1]] == NULL) {
+				selectedPiece[0]++;
 			}
 
 			DisplaySelectedPiece();
@@ -331,8 +344,11 @@ void ASlidePuzzle::GetInput()
 		if (selectedPiece[1] > 0) {
 			selectedPiece[1]--;
 
-			if (PuzzlePieces[selectedPiece[0]][selectedPiece[1]] == NULL) {
+			if (PuzzlePieces[selectedPiece[0]][selectedPiece[1]] == NULL && selectedPiece[1] == 0) {
 				selectedPiece[1]++;
+			}
+			else if (PuzzlePieces[selectedPiece[0]][selectedPiece[1]] == NULL) {
+				selectedPiece[1]--;
 			}
 
 			DisplaySelectedPiece();
@@ -342,8 +358,11 @@ void ASlidePuzzle::GetInput()
 		if (selectedPiece[1] < PuzzleSize - 1) {
 			selectedPiece[1]++;
 
-			if (PuzzlePieces[selectedPiece[0]][selectedPiece[1]] == NULL) {
+			if (PuzzlePieces[selectedPiece[0]][selectedPiece[1]] == NULL && selectedPiece[1] == PuzzleSize - 1) {
 				selectedPiece[1]--;
+			}
+			else if (PuzzlePieces[selectedPiece[0]][selectedPiece[1]] == NULL) {
+				selectedPiece[1]++;
 			}
 
 			DisplaySelectedPiece();
@@ -478,7 +497,8 @@ void ASlidePuzzle::MovePiece(bool shuffle)
 
 	if (inPuzzle) {
 		if (CheckForWin()) {
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Win!")));
+			ExitPuzzle();
+			GetWorldTimerManager().SetTimer(breakPuzzle, this, &ASlidePuzzle::WinPuzzle, 0.6, false);
 		}
 		else {
 			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Wrong!")));
@@ -508,6 +528,23 @@ bool ASlidePuzzle::CheckForWin()
 	}
 
 	return true;
+}
+
+void ASlidePuzzle::WinPuzzle()
+{
+	for (int row = 0; row < PuzzleSize; row++) {
+		for (int col = 0; col < PuzzleSize; col++)
+		{
+			if (PuzzlePieces[row][col] != NULL) {
+				PuzzlePieces[row][col]->Destroy();
+			}
+		}
+	}
+
+	AActor* breakSlidePuzzle = GetWorld()->SpawnActor<AActor>(DestroySlideActor, GetActorLocation(), GetActorRotation());
+	breakSlidePuzzle->SetActorScale3D(FVector(GetActorScale3D()));
+	
+	Destroy();
 }
 
 // Called every frame

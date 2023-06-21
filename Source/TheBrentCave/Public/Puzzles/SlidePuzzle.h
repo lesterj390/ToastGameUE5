@@ -62,6 +62,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 		USoundCue* SlideSound;
 
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<AActor> DestroySlideActor;
+
 	void GeneratePieces();
 
 	UFUNCTION()
@@ -97,6 +100,9 @@ protected:
 	void MovePiece(bool shuffle = false);
 
 	bool CheckForWin();
+	void WinPuzzle();
+
+	FTimerHandle breakPuzzle;
 
 	UMaterialInterface* tempMat;
 	UMaterialInstanceDynamic* PieceMat;
