@@ -47,4 +47,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool HInvert;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool DisplaySuggestions;
 };

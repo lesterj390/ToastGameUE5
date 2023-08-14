@@ -15,4 +15,5 @@ USavedSettings::USavedSettings()
 	Sensitivity = 1;
 	VInvert = false;
 	HInvert = false;
+	DisplaySuggestions = true;
 }

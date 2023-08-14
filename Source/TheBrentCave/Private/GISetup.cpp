@@ -21,4 +21,5 @@ UGISetup::UGISetup() {
 	Sensitivity = 0.07;
 	VInvert = false;
 	HInvert = false;
+	DisplaySuggestions = true;
 }
