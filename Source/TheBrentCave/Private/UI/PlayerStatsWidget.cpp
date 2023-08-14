@@ -26,4 +26,17 @@ void UPlayerStatsWidget::UpdateSanityPercent(float CurrentSanity)
 	SanityMeter->SetColorAndOpacity(FLinearColor(0.1, FMath::Lerp(0.01, 0.1, SanityPercent), FMath::Lerp(0.01, 0.1, SanityPercent), 1));
 }
 
+void UPlayerStatsWidget::ShowHintPrompt()
+{
+	PlayAnimation(PromptMoreInfoAnimation);
+}
+
+void UPlayerStatsWidget::HideHintPrompt()
+{
+	float animTime = GetAnimationCurrentTime(PromptMoreInfoAnimation);
+	if (IsAnimationPlaying(PromptMoreInfoAnimation) && animTime <= 7.0f) {
+		SetAnimationCurrentTime(PromptMoreInfoAnimation, 7.0f);
+	}
+}
+
 

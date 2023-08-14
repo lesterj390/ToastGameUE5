@@ -274,8 +274,6 @@ void ATBCCharacter::Tick(float DeltaTime)
 
 	ApplySettings();
 
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("InPuzzle: %d"), bInPuzzle));
-
 	// This code detects whether I've left or entered a puzzle / locker
 	// It's used to remove the hint widget from the screen
 	lastCameraClass = currentCameraClass;
@@ -290,6 +288,17 @@ void ATBCCharacter::Tick(float DeltaTime)
 		// If the hint widget is currently displayed
 		if (HintWidget && HintWidget->IsInViewport()) {
 			ToggleHint();
+		}
+
+		if (MyGameInstance && !MyGameInstance->DisplaySuggestions) return;
+
+		ATBC_HUD* HUD = Cast<ATBC_HUD>(GetWorld()->GetFirstPlayerController()->MyHUD);
+		UPlayerStatsWidget* PlayerStatsWidget = HUD->PlayerStatsWidget;
+		if (bInPuzzle || bIsHiding) {
+			PlayerStatsWidget->ShowHintPrompt();
+		}
+		else {
+			PlayerStatsWidget->HideHintPrompt();
 		}
 	}
 }

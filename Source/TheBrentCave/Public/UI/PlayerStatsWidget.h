@@ -32,6 +32,9 @@ public:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 		UVerticalBox* BatteryBox;
 
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* PromptMoreInfoAnimation;
+
 	UPROPERTY(EditAnywhere, Category = "InventoryItems")
 		UTexture2D* FlashlightTexture;
 
@@ -59,6 +62,10 @@ public:
 	void UpdateStaminaPercent(float CurrentStamina);
 
 	void UpdateSanityPercent(float CurrentSanity);
+
+	void ShowHintPrompt();
+
+	void HideHintPrompt();
 
 
 protected:
