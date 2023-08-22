@@ -265,7 +265,7 @@ void ATBCCharacter::Tick(float DeltaTime)
 
 	// Checking if I'm in a puzzle
 	UClass* viewClass = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetViewTarget()->GetClass();
-	if (viewClass->IsChildOf(ATBCCharacter::StaticClass()) || bIsHiding) {
+	if (viewClass->IsChildOf(ATBCCharacter::StaticClass()) || viewClass->IsChildOf(ToastClass) || bIsHiding) {
 		bInPuzzle = false;
 	}
 	else {

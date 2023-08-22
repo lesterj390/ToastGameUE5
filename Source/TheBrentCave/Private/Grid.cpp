@@ -43,7 +43,9 @@ AActor* AGrid::SpawnActor(TSubclassOf<AActor> Actor, FVector Loc, FRotator Rot, 
 	SpawnedActorRef->SetActorScale3D(GetActorScale3D());
 
 	SpawnedActorRef->Tags.Add(CellTag);
-	SpawnedActorRef->SetFolderPath(Path);
+	#if UE_EDITOR
+		SpawnedActorRef->SetFolderPath(Path);
+	#endif
 
 	// Up
 	if (Rot == FRotator(0, 0, 0)) {
@@ -78,7 +80,9 @@ AActor* AGrid::SpawnActor(TSubclassOf<AActor> Actor, FVector Loc, FRotator Rot, 
 
 	AActor* SpawnedActorRef = GetWorld()->SpawnActor<AActor>(Actor, SpawnTransform);
 	SpawnedActorRef->Tags.Add(CellTag);
-	//SpawnedActorRef->SetFolderPath(Path);
+	#if UE_EDITOR
+		SpawnedActorRef->SetFolderPath(Path);
+	#endif
 	SpawnedActorRef->SetActorScale3D(Scale);
 
 	//GEngine->AddOnScreenDebugMessage(-1, 30.f, FColor::Cyan, FString::Printf(TEXT("test %s"), *(SpawnedActorRef->GetActorScale3D().ToString())), false);
