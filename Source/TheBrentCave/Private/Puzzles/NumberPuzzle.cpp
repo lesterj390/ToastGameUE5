@@ -349,7 +349,7 @@ void ANumberPuzzle::ExitPuzzle()
 
 		if (PromptWidget) {
 
-			PromptWidget->RemoveFromViewport();
+			PromptWidget->RemoveFromParent();
 
 		}
 

@@ -72,20 +72,18 @@ void UWordSearchWidget::SetupWidget(int WidgetResParam, int MinPuzzleSizeP, int 
 
 					UCanvasPanelSlot* borderSlot = (UCanvasPanelSlot*)Border->Slot;
 					if (borderSlot) {
-
 						borderSlot->SetSize(FVector2D(spacing, spacing));
 						borderSlot->SetPosition(FVector2D(spacing * col, spacing * row));
 						borderSlot->SetZOrder(1);
-
 					}
 
 					UBorderSlot* letterSlot = (UBorderSlot*)Letter->Slot;
 					if (letterSlot) {
-
-						Letter->Font.Size = spacing - 18;
-						Letter->Font.OutlineSettings.OutlineSize = 4;
-						Letter->Font.OutlineSettings.OutlineColor.Black;
-
+						FSlateFontInfo currentFont = Letter->GetFont();
+						currentFont.Size = spacing - 18;
+						currentFont.OutlineSettings.OutlineSize = 4;
+						currentFont.OutlineSettings.OutlineColor.Black;
+						Letter->SetFont(currentFont);
 					}
 
 				}
@@ -99,9 +97,7 @@ void UWordSearchWidget::SetupWidget(int WidgetResParam, int MinPuzzleSizeP, int 
 
 void UWordSearchWidget::SetWord(FString WordP)
 {
-
 	word = WordP;
-
 }
 
 void UWordSearchWidget::BankWords()
