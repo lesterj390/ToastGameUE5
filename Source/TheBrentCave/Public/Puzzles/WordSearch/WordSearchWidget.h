@@ -70,7 +70,6 @@ public:
 
 	int RowSpawn;
 	int ColSpawn;
-	int WordRotation;
 
 	int NextRow;
 	int NextCol;
@@ -83,6 +82,7 @@ public:
 
 	void ClearImageArray();
 	void PreviewSelection();
+	Rotation WordRotation;
 	Rotation selectedRotation;
 	int CheckRow;
 	int CheckCol;

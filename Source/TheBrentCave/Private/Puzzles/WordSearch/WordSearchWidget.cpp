@@ -103,24 +103,24 @@ void UWordSearchWidget::SetWord(FString WordP)
 void UWordSearchWidget::BankWords()
 {
 
-	WordRotation = FMath::RandRange(0, 3);
+	WordRotation = (Rotation)FMath::RandRange(0, 3);
 
-	if (WordRotation == 0) {
-		//Straight
-		RowSpawn = FMath::RandRange(0, PuzzleSize - 1);
-		ColSpawn = FMath::RandRange(0, (PuzzleSize - word.Len()) - 1);
-	}
-	else if (WordRotation == 1) {
+	if (WordRotation == R_UP_DIAGONAL) {
 		//Up Diagonal
 		RowSpawn = FMath::RandRange(word.Len() - 1, PuzzleSize - 1);
 		ColSpawn = FMath::RandRange(0, (PuzzleSize - word.Len()) - 1);
 	}
-	else if (WordRotation == 2) {
+	else if (WordRotation == R_STRAIGHT) {
+		//Straight
+		RowSpawn = FMath::RandRange(0, PuzzleSize - 1);
+		ColSpawn = FMath::RandRange(0, (PuzzleSize - word.Len()) - 1);
+	}
+	else if (WordRotation == R_DOWN_DIAGONAL) {
 		//Down Diagonal
 		RowSpawn = FMath::RandRange(0, (PuzzleSize - 1) - (word.Len() - 1));
 		ColSpawn = FMath::RandRange(0, (PuzzleSize - word.Len()) - 1);
 	}
-	else if (WordRotation == 3) {
+	else if (WordRotation == R_DOWN) {
 		//Down
 		RowSpawn = FMath::RandRange(0, (PuzzleSize - 1) - (word.Len() - 1));
 		ColSpawn = FMath::RandRange(0, PuzzleSize - 1);
@@ -137,28 +137,25 @@ void UWordSearchWidget::BankWords()
 		WordRef->SetText(FText::FromString(FString::Printf(TEXT("%c"), word[i])));
 		//WordRef->SetColorAndOpacity(FSlateColor(FColor::Red));
 
-		if (WordRotation == 0) {
-			NextCol++;
-		}
-		else if (WordRotation == 1) {
+		if (WordRotation == R_UP_DIAGONAL) {
 			NextRow--;
 			NextCol++;
 		}
-		else if (WordRotation == 2) {
+		else if (WordRotation == R_STRAIGHT) {
+			NextCol++;
+		}
+		else if (WordRotation == R_DOWN_DIAGONAL) {
 			NextRow++;
 			NextCol++;
 		}
-		else if (WordRotation == 3) {
+		else if (WordRotation == R_DOWN) {
 			NextRow++;
-		}
-			
+		}			
 	}
-
 }
 
 void UWordSearchWidget::ClearImageArray()
 {
-
 	if (CheckImageArray.Num() > 0) {
 		for (int i = 0; i < CheckImageArray.Num(); i++) {
 			WidgetTree->RemoveWidget(CheckImageArray[i]);
@@ -166,8 +163,6 @@ void UWordSearchWidget::ClearImageArray()
 	}
 
 	selectedRotation = R_UP_DIAGONAL;
-
-
 }
 
 // Create widget elements to preview selected word
@@ -202,12 +197,10 @@ void UWordSearchWidget::PreviewSelection()
 
 			UCanvasPanelSlot* checkImageSlot = (UCanvasPanelSlot*)CheckImage->Slot;
 			if (checkImageSlot) {
-
 				checkImageSlot->SetSize(FVector2D(spacing, spacing));
 				checkImageSlot->SetPosition(FVector2D(imageSlot->GetPosition().X + (spacing * (i + 1)), imageSlot->GetPosition().Y - (spacing * (i + 1))));
 				CheckRow--;
 				CheckCol++;
-
 			}
 		}
 	}
