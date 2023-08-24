@@ -19,6 +19,9 @@ public:
 	// Sets default values for this actor's properties
 	ASlidePuzzle();
 
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<UUserWidget> CompleteImageWidgetClass;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -108,6 +111,8 @@ protected:
 	UMaterialInstanceDynamic* PieceMat;
 
 	enum Directions {UP, DOWN, LEFT, RIGHT};
+
+	UUserWidget* CompleteImageWidget;
 
 public:	
 	// Called every frame

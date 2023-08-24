@@ -44,6 +44,8 @@ void ASlidePuzzle::BeginPlay()
 	Spotlight->SetVisibility(false);
 	InteractComponent->SetVisibility(false);
 
+	CompleteImageWidget = CreateWidget<UUserWidget>(GetWorld(), CompleteImageWidgetClass);
+
 	SetupInput();
 
 	GeneratePieces();
@@ -366,6 +368,21 @@ void ASlidePuzzle::GetInput()
 			}
 
 			DisplaySelectedPiece();
+		}
+	}
+	else if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Tab)) {
+		if (CompleteImageWidgetClass)
+		{
+			if (CompleteImageWidget && CompleteImageWidget->IsInViewport())
+			{
+				CompleteImageWidget->RemoveFromParent();
+			}
+			else if (CompleteImageWidget) {
+				CompleteImageWidget->AddToViewport();
+
+				UImage* WidgetPuzzleImage = (UImage*)(CompleteImageWidget->WidgetTree->FindWidget(FName("FinalImage")));
+				WidgetPuzzleImage->SetBrushFromTexture(Cast<UTexture2D>(PuzzleImage));
+			}
 		}
 	}
 }
