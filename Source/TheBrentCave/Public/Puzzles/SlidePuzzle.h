@@ -92,6 +92,7 @@ protected:
 		void OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	void EnterPuzzle();
+	void RemovePiecesGlow();
 	void ExitPuzzle();
 
 	void SetupInput();
@@ -112,7 +113,8 @@ protected:
 
 	enum Directions {UP, DOWN, LEFT, RIGHT};
 
-	UUserWidget* CompleteImageWidget;
+	UPROPERTY()
+		UUserWidget* CompleteImageWidget;
 
 public:	
 	// Called every frame

@@ -273,10 +273,35 @@ void ASlidePuzzle::EnterPuzzle()
 	}
 }
 
+// This function sets the glow property of each pieces dynamic material instance to 0
+void ASlidePuzzle::RemovePiecesGlow()
+{
+	for (int row = 0; row < PuzzleSize; row++) {
+		for (int col = 0; col < PuzzleSize; col++) {
+			AActor* CurrentPiece = PuzzlePieces[row][col];
+			if (!CurrentPiece) continue;
+			UStaticMeshComponent* PieceMesh = CurrentPiece->GetComponentByClass<UStaticMeshComponent>();
+			if (!PieceMesh) continue;
+
+			tempMat = PieceMesh->GetMaterial(0);
+			PieceMat = Cast<UMaterialInstanceDynamic>(tempMat);
+			if (!PieceMat) continue;
+
+			PieceMat->SetScalarParameterValue(TEXT("Glow"), 0);
+		}
+	}
+}
+
 void ASlidePuzzle::ExitPuzzle()
 {
-	if (HitBoxPlayer)
-	{
+	if (CompleteImageWidget && CompleteImageWidget->IsInViewport()) {
+		CompleteImageWidget->RemoveFromParent();
+	}
+
+	// Ensuring none of the pieces are glowing after exiting puzzle
+	RemovePiecesGlow();
+
+	if (HitBoxPlayer) {
 		inPuzzle = false;
 
 		Spotlight->SetVisibility(false);
@@ -371,19 +396,17 @@ void ASlidePuzzle::GetInput()
 		}
 	}
 	else if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Tab)) {
-		if (CompleteImageWidgetClass)
-		{
-			if (CompleteImageWidget && CompleteImageWidget->IsInViewport())
-			{
-				CompleteImageWidget->RemoveFromParent();
-			}
-			else if (CompleteImageWidget) {
-				CompleteImageWidget->AddToViewport();
+		if (!CompleteImageWidgetClass) return;
 
-				UImage* WidgetPuzzleImage = (UImage*)(CompleteImageWidget->WidgetTree->FindWidget(FName("FinalImage")));
-				WidgetPuzzleImage->SetBrushFromTexture(Cast<UTexture2D>(PuzzleImage));
-			}
-		}
+		if (CompleteImageWidget && CompleteImageWidget->IsInViewport()) {
+			CompleteImageWidget->RemoveFromParent();
+		} else {
+			CompleteImageWidget = CreateWidget<UUserWidget>(GetWorld(), CompleteImageWidgetClass);
+			CompleteImageWidget->AddToViewport();
+
+			UImage* WidgetPuzzleImage = (UImage*)(CompleteImageWidget->WidgetTree->FindWidget(FName("FinalImage")));
+			WidgetPuzzleImage->SetBrushFromTexture(Cast<UTexture2D>(PuzzleImage));
+		}		
 	}
 }
 
