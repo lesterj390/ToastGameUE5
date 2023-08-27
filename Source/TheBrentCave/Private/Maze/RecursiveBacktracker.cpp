@@ -9,14 +9,9 @@ URecursiveBacktracker::URecursiveBacktracker()
 }
 
 
-void URecursiveBacktracker::TestPrint()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, "Hello World From Recursive");
-}
-
-
 void URecursiveBacktracker::GenerateRemovedWalls(TSubclassOf<AActor> wallActor)
 {
+	RemovedWalls.Empty();
 	firstCell = FCell(FMath::RandRange(0, numberOfRows-1), FMath::RandRange(0, numberOfColumns-1));
 
 	visited.Add(firstCell);
@@ -35,7 +30,11 @@ void URecursiveBacktracker::GenerateRemovedWalls(TSubclassOf<AActor> wallActor)
 			int nextCellIndex = FMath::RandRange(0, cellNeighbours.Num() - 1);
 			nextCell = cellNeighbours[nextCellIndex];
 
-			RemoveWall(FWall(currentCell, nextCell), wallActor);
+			FWall toRemove = FWall(currentCell, nextCell);
+
+			// Adding toRemove to the list of removed walls
+			RemovedWalls.Add(toRemove);
+			RemoveWall(toRemove, wallActor, GetWorld());
 
 			visited.Add(nextCell);
 			stack.Add(nextCell);
@@ -44,15 +43,15 @@ void URecursiveBacktracker::GenerateRemovedWalls(TSubclassOf<AActor> wallActor)
 }
 
 
-void URecursiveBacktracker::GenerateRemovedWidgetWalls(UWidgetTree* WidgetTreeP)
+void URecursiveBacktracker::GenerateRemovedWalls(UWidgetTree* WidgetTree)
 {
+	RemovedWalls.Empty();
 	firstCell = FCell(FMath::RandRange(0, numberOfRows - 1), FMath::RandRange(0, numberOfColumns - 1));
 
 	visited.Add(firstCell);
 	stack.Add(firstCell);
 
-	while (stack.Num() > 0)
-	{
+	while (stack.Num() > 0) {
 		currentCell = stack.Last();
 		//Removes last element from stack
 		stack.RemoveAt(stack.Num() - 1);
@@ -64,18 +63,14 @@ void URecursiveBacktracker::GenerateRemovedWidgetWalls(UWidgetTree* WidgetTreeP)
 			int nextCellIndex = FMath::RandRange(0, cellNeighbours.Num() - 1);
 			nextCell = cellNeighbours[nextCellIndex];
 
-			//RemoveWall(FWall(currentCell, nextCell), wallActor);
+			FWall toRemove = FWall(currentCell, nextCell);
 
-			RemoveWidgetWall(FWall(currentCell, nextCell), WidgetTreeP);
+			// Adding toRemove to the list of removed walls
+			RemovedWalls.Add(toRemove);
+			RemoveWall(toRemove, WidgetTree);
 
 			visited.Add(nextCell);
 			stack.Add(nextCell);
 		}
 	}
-}
-
-
-void URecursiveBacktracker::BeginPlay()
-{
-	Super::BeginPlay();
 }

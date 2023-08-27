@@ -28,7 +28,7 @@ void UMazePuzzleWidget::SetupWidget(int RowsP, int ColumnsP, int WidgetResolutio
 		WidgetTree->RootWidget = Canvas;
 
 		GenerateCellsAndWall();
-		MazeAlgorithm->GenerateRemovedWidgetWalls(WidgetTree);
+		MazeAlgorithm->GenerateRemovedWalls(WidgetTree);
 
 		
 
@@ -47,11 +47,11 @@ void UMazePuzzleWidget::SetupWidget(int RowsP, int ColumnsP, int WidgetResolutio
 	RebuildWidget();
 }
 
-void UMazePuzzleWidget::SetMazeAlgorithm(TSubclassOf<UMazeAlgorithm> MazeAlgorithmClassP)
+void UMazePuzzleWidget::SetMazeAlgorithm(TSubclassOf<UObject> MazeAlgorithmClassP)
 {
 	MazeAlgorithmClass = MazeAlgorithmClassP;
-
-	MazeAlgorithm = NewObject<UMazeAlgorithm>(this, MazeAlgorithmClass);
+	UObject* MazeAlgorithmObject = NewObject<UObject>(this, MazeAlgorithmClass);
+	MazeAlgorithm = TScriptInterface<IMazeAlgorithm>(MazeAlgorithmObject);
 }
 
 

@@ -25,8 +25,8 @@ public:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<UMazePuzzleWidget> MazeWidgetClass;
 
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<UMazeAlgorithm> MazeAlgorithmClass;
+	UPROPERTY(EditAnywhere, meta = (MustImplement = "MazeAlgorithm"))
+		TSubclassOf<UObject> MazeAlgorithmClass;
 
 	UPROPERTY(EditAnywhere, Category = "WidgetPieces")
 		TSubclassOf<UUserWidget> HighlightedCellClass;

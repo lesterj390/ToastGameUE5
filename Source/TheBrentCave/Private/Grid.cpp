@@ -628,11 +628,12 @@ void AGrid::GenerateProps()
 }
 
 
-void AGrid::SetupMazeAlgorithmComponent()
+void AGrid::SetupMazeAlgorithm()
 {
 	if (MazeAlgorithmSubclass) {
-		MazeAlgorithm = NewObject<UMazeAlgorithm>(this, MazeAlgorithmSubclass);
-		MazeAlgorithm->SetDimensions(Rows, Columns);
+		UObject* MazeAlgorithmObject = NewObject<UObject>(this, MazeAlgorithmSubclass);
+		MazeAlgorithm = TScriptInterface<IMazeAlgorithm>(MazeAlgorithmObject);
+		MazeAlgorithm->SetDimensions(Rows, Columns);		
 	}
 }
 
@@ -748,7 +749,7 @@ void AGrid::getSetupInfo()
 void AGrid::beginGeneration()
 {
 
-	SetupMazeAlgorithmComponent();
+	SetupMazeAlgorithm();
 	GenerateWalls();
 
 	if (MazeAlgorithm) {

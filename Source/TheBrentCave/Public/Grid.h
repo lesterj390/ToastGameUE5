@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Maze/MazeAlgorithm.h"
-#include "Maze/RecursiveBacktracker.h"
 #include "Maze/DataTypes.h"
 #include "NavMesh/NavMeshBoundsVolume.h"
 #include "Engine/GameInstance.h"
@@ -89,8 +88,8 @@ public:
 		TSubclassOf<AActor> UActor;
 
 	// Maze Algorithm
-	UPROPERTY(EditAnywhere, Category = "Maze Generation")
-		TSubclassOf<UMazeAlgorithm> MazeAlgorithmSubclass;
+	UPROPERTY(EditAnywhere, Category = "Maze Generation", meta=(MustImplement = "MazeAlgorithm"))
+	TSubclassOf<UObject> MazeAlgorithmSubclass;
 
 	UPROPERTY(EditAnywhere, Category = "AI")
 		TSubclassOf<AActor> NavMeshBoundsVolume;
@@ -114,7 +113,8 @@ public:
 		int spawnedPlayers;
 
 protected:
-	UMazeAlgorithm* MazeAlgorithm;
+	UPROPERTY()
+		TScriptInterface<IMazeAlgorithm> MazeAlgorithm;
 
 protected:
 	// Called when the game starts or when spawned
@@ -151,7 +151,7 @@ protected:
 	UFUNCTION()
 		void GenerateProps();
 
-	void SetupMazeAlgorithmComponent();
+	void SetupMazeAlgorithm();
 
 	void SetupToastWalkableSurface();
 
