@@ -20,7 +20,8 @@ void UMazePuzzleWidget::SetupWidget(int RowsP, int ColumnsP, int WidgetResolutio
 		Columns = ColumnsP;
 		MazeAlgorithm->SetDimensions(Rows, Columns);
 
-		WidgetResolution = WidgetResolutionP;
+		int TopAndBottomBuffer = WidgetResolutionP / RowsP / 4;
+		WidgetResolution = WidgetResolutionP - TopAndBottomBuffer;
 
 		CellSize = (float)WidgetResolution / Rows;
 

@@ -61,7 +61,7 @@ void AMaze::BeginPlay()
 		MazeWidget->SetMazeAlgorithm(MazeAlgorithmClass);
 		MazeWidget->HighlightedCellClass = HighlightedCellClass;
 		MazeWidget->WallClass = WallClass;
-		MazeWidget->SetupWidget(Dimensions, Dimensions, MazeWidgetComponent->GetDrawSize().Y - MazeWidgetComponent->GetDrawSize().Y / Dimensions / 4);
+		MazeWidget->SetupWidget(Dimensions, Dimensions, MazeWidgetComponent->GetDrawSize().Y);
 		MazeWidgetComponent->SetVisibility(false);
 		MazeWidgetComponent->SetWindowVisibility(EWindowVisibility::SelfHitTestInvisible);
 
