@@ -42,10 +42,10 @@ protected:
 		UButton* TestButton;
 
 	UPROPERTY()
-		UMazeAlgorithm* MazeAlgorithm;
+		TScriptInterface<IMazeAlgorithm> MazeAlgorithm;
 
-	UPROPERTY()
-		TSubclassOf<UMazeAlgorithm> MazeAlgorithmClass;
+	UPROPERTY(meta = (MustImplement = "MazeAlgorithm"))
+		TSubclassOf<UObject> MazeAlgorithmClass;
 
 	UPROPERTY()
 		UCanvasPanel* Canvas;
@@ -62,7 +62,7 @@ public:
 		void SetupWidget(int Rows, int Columns, int WidgetResolution);
 
 	UFUNCTION()
-		void SetMazeAlgorithm(TSubclassOf<UMazeAlgorithm> MazeAlgorithmClassP);
+		void SetMazeAlgorithm(TSubclassOf<UObject> MazeAlgorithmClassP);
 
 	UFUNCTION()
 		void SummonHighlightedCell(FCell CellLocation, int Direction);

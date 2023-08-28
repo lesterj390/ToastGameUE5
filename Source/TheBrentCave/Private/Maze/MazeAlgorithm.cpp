@@ -1,33 +1,17 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Don't steal out game please :( we worked hard on it!
 
 
 #include "Maze/MazeAlgorithm.h"
 
-// Sets default values for this component's properties
-UMazeAlgorithm::UMazeAlgorithm()
-{
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	//PrimaryComponentTick.bCanEverTick = true;
+// Add default functionality here for any IMazeAlgorithm functions that are not pure virtual.
 
-	
+void IMazeAlgorithm::SetDimensions(int NumberOfRows, int NumberOfColumns)
+{
+	numberOfRows = NumberOfRows;
+	numberOfColumns = NumberOfColumns;
 }
 
-
-void UMazeAlgorithm::TestPrint()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, "Hello World From Parent");
-}
-
-
-void UMazeAlgorithm::SetDimensions(int numberOfRowsP, int numberOfColumnsP)
-{
-	numberOfRows = numberOfRowsP;
-	numberOfColumns = numberOfColumnsP;
-}
-
-
-TArray<FCell> UMazeAlgorithm::GetUnvisitedNeighbours(FCell cell)
+TArray<FCell> IMazeAlgorithm::GetUnvisitedNeighbours(FCell cell)
 {
 	int row = cell[0];
 	int column = cell[1];
@@ -41,7 +25,7 @@ TArray<FCell> UMazeAlgorithm::GetUnvisitedNeighbours(FCell cell)
 			neighbours.Add(FCell(row - 1, column));
 		}
 	}
-	
+
 	//Down
 	if (row < numberOfRows - 1)
 	{
@@ -69,60 +53,28 @@ TArray<FCell> UMazeAlgorithm::GetUnvisitedNeighbours(FCell cell)
 	return neighbours;
 }
 
-
-void UMazeAlgorithm::RemoveWall(FWall wallToRemove, TSubclassOf<AActor> wallActor)
+void IMazeAlgorithm::RemoveWall(FWall wallToRemove, TSubclassOf<AActor> wallActor, const UObject* worldContextObject)
 {
 	TArray<AActor*> FoundActors;
 	FString wallString = wallToRemove.ToString();
-	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), wallActor, *wallString, FoundActors);
+	UGameplayStatics::GetAllActorsOfClassWithTag(worldContextObject, wallActor, *wallString, FoundActors);
 
 	if (FoundActors.Num() > 0) {
 		FoundActors[0]->Destroy();
 	}
 	else {
-		UE_LOG(LogTemp, Warning, TEXT("%s could not be found"), *wallString);
+		UE_LOG(LogTemp, Warning, TEXT("Maze Generation Error: Wall %s could not be found and removed."), *wallString);
 	}
 }
 
-
-void UMazeAlgorithm::RemoveWidgetWall(FWall wallToRemove, UWidgetTree* WidgetTreeP)
+void IMazeAlgorithm::RemoveWall(FWall wallToRemove, UWidgetTree* WidgetTree)
 {
-	UWidget* WallToRemove = WidgetTreeP->FindWidget(*(wallToRemove.ToString()));
+	FString wallString = wallToRemove.ToString();
+	UWidget* WallToRemove = WidgetTree->FindWidget(*wallString);
 	if (WallToRemove) {
-		WidgetTreeP->RemoveWidget(WallToRemove);
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, "WallRemoved");
+		WidgetTree->RemoveWidget(WallToRemove);
 	}
 	else {
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, "Coudln't find wall");
+		UE_LOG(LogTemp, Warning, TEXT("Maze Generation Error: Wall %s could not be found and removed."), *wallString);
 	}
 }
-
-
-void UMazeAlgorithm::GenerateRemovedWalls(TSubclassOf<AActor> wallActor)
-{
-	//Placeholder fuction so it can be seen in Grid
-}
-
-
-void UMazeAlgorithm::GenerateRemovedWidgetWalls(UWidgetTree* WidgetTreeP)
-{
-	//Placeholder fuction
-}
-
-
-// Called when the game starts
-void UMazeAlgorithm::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-
-// Called every frame
-//void UMazeAlgorithm::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-//{
-//	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-//
-//	// ...
-//}
-

@@ -1,9 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Don't steal out game please :( we worked hard on it!
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "UObject/Interface.h"
 #include "Maze/DataTypes.h"
 #include "Kismet/GameplayStatics.h"
 #include "Math/UnrealMathUtility.h"
@@ -11,29 +11,39 @@
 #include "Components/Border.h"
 #include "MazeAlgorithm.generated.h"
 
+// This class does not need to be modified.
+UINTERFACE(MinimalAPI)
+class UMazeAlgorithm : public UInterface
+{
+	GENERATED_BODY()
+};
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class THEBRENTCAVE_API UMazeAlgorithm : public UActorComponent
+/**
+ * 
+ */
+class THEBRENTCAVE_API IMazeAlgorithm
 {
 	GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
-	UMazeAlgorithm();
 
-	virtual void TestPrint();
-
-	void SetDimensions(int numberOfRowsP, int numberOfColumnsP);
+	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
+public:
+	void SetDimensions(int NumberOfRows, int NumberOfColumns);
 
 	TArray<FCell> GetUnvisitedNeighbours(FCell cell);
 
-	void RemoveWall(FWall wallToRemove, TSubclassOf<AActor> wallActor);
+	virtual void RemoveWall(FWall wallToRemove, TSubclassOf<AActor> wallActor, const UObject* worldContextObject);
 
-	void RemoveWidgetWall(FWall wallToRemove, UWidgetTree* WidgetTreeP);
+	virtual void RemoveWall(FWall wallToRemove, UWidgetTree* WidgetTree);
 
-	virtual void GenerateRemovedWalls(TSubclassOf<AActor> wallActor);
+	virtual void GenerateRemovedWalls(TSubclassOf<AActor> wallActor) = 0;
 
-	virtual void GenerateRemovedWidgetWalls(UWidgetTree* WidgetTreeP);
+	virtual void GenerateRemovedWalls(UWidgetTree* WidgetTreeP) = 0;
+
+protected:
+
+public:
+	TArray<FWall> RemovedWalls;
 
 protected:
 	TArray<FCell> visited;
@@ -45,13 +55,4 @@ protected:
 	int numberOfRows;
 
 	int numberOfColumns;
-
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
-	// Called every frame
-	//virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-		
 };
