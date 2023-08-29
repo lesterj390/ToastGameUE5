@@ -1,78 +1,526 @@
-I am going to the store.
-She is singing a song.
-He is playing soccer.
-They are having a barbecue.
-We are going on a hike.
-The cat is sleeping on the couch.
-The dog is chasing its tail.
-The birds are chirping in the trees.
-The sun is shining brightly.
-The rain is falling softly.
-I am reading a book.
-She is cooking dinner.
-He is driving to work.
-They are watching TV.
-We are having a conversation.
-The flowers are blooming in the garden.
-The leaves are changing color.
-The grass is growing tall.
-The sky is clear and blue.
-The clouds are white and fluffy.
-I am writing an email.
-She is doing her homework.
-He is working on a project.
-They are having a meeting.
-We are planning a vacation.
-The fish are swimming in the pond.
-The turtles are basking in the sun.
-The bees are buzzing around the flowers.
-The butterflies are fluttering about.
-The ants are busy gathering food.
-I am taking a nap.
-She is taking a shower.
-He is brushing his teeth.
-They are getting dressed.
-We are making breakfast.
-The babies are giggling and playing.
-The children are running and laughing.
-The teenagers are texting and chatting.
-The adults are working and commuting.
-The seniors are relaxing and enjoying their retirement.
-I am listening to music.
-She is talking on the phone.
-He is surfing the internet.
-They are playing video games.
-We are listening to a podcast.
-The clock is ticking.
-The phone is ringing.
-The doorbell is buzzing.
-The oven timer is beeping.
-The washing machine is whirring.
-I am eating a sandwich.
-She is drinking a cup of coffee.
-He is eating a slice of pizza.
-They are eating a bowl of soup.
-We are eating a salad.
-The fruit is ripe and juicy.
-The vegetables are fresh and crunchy.
-The bread is warm and crusty.
-The cheese is creamy and delicious.
-The milk is cold and refreshing.
-I am wearing a shirt and jeans.
-She is wearing a dress and heels.
-He is wearing a suit and tie.
-They are wearing shorts and sandals.
-We are wearing sweaters and boots.
-The sun is hot and bright.
-The air is warm and humid.
-The wind is cool and crisp.
-The snow is cold and wet.
-The ice is slick and slippery.
-I am watching a movie.
-She is attending a concert.
-He is going to a play.
-They are visiting a museum.
-We are going to a sports game.
-The traffic is heavy and slow.
-The streets are crowded and busy.
-The roads are clear and smooth.
+Abyss
+Agony
+Alien
+Alone
+Amok
+Anguish
+Apparition
+Ashen
+Banshee
+Beast
+Betrayal
+Bitter
+Black
+Blood
+Bone
+Broomstick
+Buried
+Cadaver
+Catacomb
+Cauldron
+Cemetery
+Chains
+Chilling
+Cobweb
+Corpse
+Coven
+Creepy
+Crypt
+Cursed
+Darkness
+Death
+Decay
+Demon
+Despair
+Devil
+Disembodied
+Doom
+Dread
+Eerie
+Enchant
+Evil
+Exorcism
+Fear
+Fiend
+Fog
+Forbidden
+Fright
+Gallows
+Ghost
+Ghoul
+Gravestone
+Grim
+Grisly
+Halloween
+Haunted
+Headless
+Hell
+Howl
+Hysteria
+Imprisoned
+Inferno
+Insane
+Invisible
+Isolation
+Lurking
+Macabre
+Mad
+Malign
+Mansion
+Mummy
+Nightmarish
+Occult
+Omen
+Paranormal
+Phantom
+Possessed
+Pumpkin
+Revenant
+Rotting
+Scream
+Shadow
+Shiver
+Sinister
+Skeleton
+Sorrow
+Soul
+Specter
+Spider
+Spirit
+Spooky
+Storm
+Supernatural
+Suspense
+Terror
+Tombstone
+Torture
+Trapped
+Undead
+Unearthly
+Vampire
+Voodoo
+Wicked
+Witch
+Wolf
+Zombie
+Abandoned
+Abyssal
+Agonizing
+Alarming
+Alligator
+Ancient
+Ashes
+Banshee
+Bat
+Beastly
+Betray
+Bizarre
+Bleak
+Blight
+Bog
+Bones
+Bubbling
+Cadence
+Catastrophe
+Cauldron
+Cavern
+Chainsaw
+Chalice
+Charred
+Clandestine
+Cloaked
+Coffin
+Conjure
+Corroded
+Coven
+Crawl
+Crimson
+Cryptic
+Curse
+Damp
+Darkness
+Daunting
+Deceit
+Delirium
+Demoniac
+Desolate
+Desperation
+Diabolical
+Disfigure
+Distorted
+Doppelganger
+Drenched
+Echo
+Eerie
+Enigma
+Epitaph
+Esoteric
+Exile
+Fearful
+Fetid
+Frenzy
+Funeral
+Gallows
+Ghastly
+Gloom
+Gory
+Gravely
+Gruesome
+Harrowing
+Haunting
+Hysterical
+Illusion
+Impending
+Incantation
+Infested
+Insidious
+Invisible
+Labyrinth
+Lament
+Lethal
+Lurid
+Malevolent
+Maze
+Miasma
+Midnight
+Mournful
+Nightmare
+Nocturnal
+Numb
+Obscure
+Ominous
+Orphan
+Petrify
+Plague
+Poltergeist
+Possession
+Pumpkin
+Revenant
+Rotting
+Scream
+Shadow
+Shiver
+Sinister
+Skeleton
+Sorrow
+Soul
+Specter
+Spider
+Spirit
+Spooky
+Storm
+Supernatural
+Suspense
+Terror
+Tombstone
+Torture
+Trapped
+Undead
+Unearthly
+Vampire
+Voodoo
+Wicked
+Witch
+Wolf
+Zombie
+Aberration
+Abhorrence
+Abyss
+Agonized
+Apprehension
+Baleful
+Banshee
+Bat
+Beastly
+Bloodcurdling
+Cadaverous
+Cataclysm
+Cauldron
+Charnel
+Chimera
+Clawing
+Clandestinity
+Consuming
+Corrupt
+Coven
+Crawl
+Crimson
+Cryptic
+Curse
+Damp
+Darkness
+Daunting
+Deception
+Delusion
+Demonology
+Desolation
+Desperation
+Devilry
+Disembowel
+Doom-laden
+Eldritch
+Ensnare
+Excruciating
+Exorcist
+Fear-monger
+Feral
+Fiery
+Frenetic
+Gargoyle
+Ghoul
+Gruesomeness
+Halloween
+Harbinger
+Homicidal
+Hypnotic
+Incendiary
+Incantation
+Infernal
+Inquisition
+Jack-o'-lantern
+Labyrinthine
+Lamentation
+Lethality
+Maceration
+Malevolence
+Maniacal
+Mordant
+Mummify
+Necromancy
+Nightshade
+Nocturnal
+Ossuary
+Paranoia
+Pestilence
+Phantasm
+Possession
+Purgatory
+Rancid
+Reanimation
+Reckless
+301.
+
+ Resurrection
+Rotundity
+Sacrifice
+Sardonicism
+Satanic
+Searing
+Sepulchral
+Shrouded
+Skulls
+Snarling
+Sorcery
+Spectral
+Succubus
+Tentacled
+Thunderstricken
+Torturous
+Toxicity
+Unhallowed
+Vanquishment
+Venomousness
+Vexation
+Voodooism
+Wailing
+Warlock
+Werewolf
+Whispers
+Wretchedness
+Zombification
+Aberrant
+Abhorrent
+Abomination
+Abyss
+Agony
+Apparition
+Baleful
+Banshee
+Beastly
+Bloodthirsty
+Cadaver
+Cataclysmic
+Cauldron
+Chilling
+Cloister
+Consuming
+Corrupt
+Coven
+Cryptic
+Damned
+Darksome
+Deceitful
+Delusion
+Demoniac
+Desolate
+Desperation
+Diabolic
+Disembodied
+Doomsday
+Eldritch
+Enigmatic
+Excruciating
+Exorcist
+Fearful
+Fiendish
+Frenzied
+Ghastly
+Ghoulish
+Grimace
+Grisly
+Halloween
+Harrowing
+Hellish
+Homicidal
+Hypnotize
+Incendiary
+Incantation
+Inferno
+Inquisitor
+Jack-o'-lantern
+Labyrinth
+Lament
+Lethal
+Macabre
+Malevolent
+Maniac
+Mordant
+Mummified
+Necromancer
+Nightshade
+Nocturne
+Ossuary
+Paranormal
+Pestilent
+Phantasm
+Possession
+Purgatorial
+Rancorous
+Reanimation
+Recklessness
+Resurrection
+Rotundity
+Sacrificial
+Sardonicism
+Satanic
+Searing
+Sepulchral
+Shrouded
+Skulls
+Snarling
+Sorcery
+Spectral
+Succubus
+Tentacled
+Thunderstricken
+Torturous
+Toxicity
+Unhallowed
+Vanquishment
+Venomousness
+Vexation
+Voodooism
+Wailing
+Warlock
+Werewolf
+Whispers
+Wretchedness
+Zombification
+Aberrant
+Abhorrent
+Abomination
+Abyss
+Agony
+Apparition
+Baleful
+Banshee
+Beastly
+Bloodthirsty
+Cadaver
+Cataclysmic
+Cauldron
+Chilling
+Cloister
+Consuming
+Corrupt
+Coven
+Cryptic
+Damned
+Darksome
+Deceitful
+Delusion
+Demoniac
+Desolate
+Desperation
+Diabolic
+Disembodied
+Doomsday
+Eldritch
+Enigmatic
+Excruciating
+Exorcist
+Fearful
+Fiendish
+Frenzied
+Ghastly
+Ghoulish
+Grimace
+Grisly
+Halloween
+Harrowing
+Hellish
+Homicidal
+Hypnotize
+Incendiary
+Incantation
+Inferno
+Inquisitor
+Jack-o'-lantern
+Labyrinth
+Lament
+Lethal
+Macabre
+Malevolent
+Maniac
+Mordant
+Mummified
+Necromancer
+Nightshade
+Nocturne
+Ossuary
+Paranormal
+Pestilent
+Phantasm
+Possession
+Purgatorial
+Rancorous
+Reanimation
+Recklessness
+Resurrection
+Rotundity
+Sacrificial
+Sardonicism
+Satanic
+Searing
+Sepulchral
+Shrouded
+Skulls
+Snarling
+Sorcery
+Spectral
+Succubus
+Tentacled
+Thunderstricken
+Torturous
+Toxicity
+Unhallowed
+Vanquishment
+Venomousness
+Vexation
+Voodooism
+Wailing
+Warlock
+Werewolf
+Whispers
+Wretchedness
+Zombification
