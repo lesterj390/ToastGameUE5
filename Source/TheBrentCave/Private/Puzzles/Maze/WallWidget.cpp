@@ -5,6 +5,7 @@
 
 void UWallWidget::NativeConstruct()
 {
+	Super::NativeConstruct();
 	Canvas = Cast<UCanvasPanel>(GetRootWidget());
 }
 

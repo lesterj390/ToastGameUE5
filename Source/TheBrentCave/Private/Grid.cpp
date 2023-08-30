@@ -28,7 +28,6 @@ void AGrid::BeginPlay()
 	getSetupInfo();
 
 	spawnedPlayers = 0;
-
 }
 
 AActor* AGrid::SpawnActor(TSubclassOf<AActor> Actor, FVector Loc, FRotator Rot, FName CellTag, FName Path)

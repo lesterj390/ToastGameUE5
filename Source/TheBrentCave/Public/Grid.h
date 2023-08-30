@@ -112,9 +112,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Players")
 		int spawnedPlayers;
 
-protected:
 	UPROPERTY()
 		TScriptInterface<IMazeAlgorithm> MazeAlgorithm;
+protected:
 
 protected:
 	// Called when the game starts or when spawned
