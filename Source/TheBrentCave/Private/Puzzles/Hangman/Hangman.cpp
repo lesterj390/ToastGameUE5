@@ -154,6 +154,7 @@ void AHangman::ExitPuzzle()
 	if (HangmanInputWidget) {
 		HangmanInputWidget->RemoveFromParent();
 	}
+	UWidgetBlueprintLibrary::SetFocusToGameViewport();
 }
 
 void AHangman::GuessCharacter(FString PGuess)
@@ -209,8 +210,9 @@ void AHangman::GenerateWidget()
 
 	FSoftClassPath inputClassRef(TEXT("/Game/_Main/Puzzles/Hangman/Blueprint/BP_HangmanInputWidget.BP_HangmanInputWidget_C"));
 
-	if (UClass* widgetClass = inputClassRef.TryLoadClass<UUserWidget>()) {
-		HangmanInputWidget = CreateWidget<UUserWidget>(GetWorld(), widgetClass);
+	if (UClass* inputClass = inputClassRef.TryLoadClass<UHangmanInputWidget>()) {
+		HangmanInputWidget = CreateWidget<UHangmanInputWidget>(GetWorld(), inputClass);
+		HangmanInputWidget->OnTextCleared.AddDynamic(this, &AHangman::ExitPuzzle);
 	}
 }
 
@@ -231,13 +233,15 @@ void AHangman::GenerateSentences()
 		if (sentences.Num() > 0) {
 
 			ChosenSentence = sentences[FMath::RandRange(0, sentences.Num() - 1)];
-
 			ChosenSentence = ChosenSentence.ToUpper();
 
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("%s"), *ChosenSentence));
 
 			GenerateWidget();
 
+		}
+		else {
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Problem With Sentence File!")));
 		}
 	}
 }
