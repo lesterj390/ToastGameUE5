@@ -9,6 +9,8 @@
 #include "Components/BoxComponent.h"
 #include "TBCCharacter.h"
 #include "Puzzles/Hangman/HangmanWidget.h"
+#include "Puzzles/Hangman/HangmanInputWidget.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "GameFramework/Actor.h"
 #include "Hangman.generated.h"
 
@@ -90,8 +92,8 @@ public:
 	UPROPERTY()
 		UHangmanWidget* ChosenSentenceWidget;
 
-	UPROPERTY(EditAnywhere)
-		UUserWidget* HangmanInputWidget;
+	UPROPERTY()
+		UHangmanInputWidget* HangmanInputWidget;
 
 	UFUNCTION()
 		void OnOverlapStart(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
