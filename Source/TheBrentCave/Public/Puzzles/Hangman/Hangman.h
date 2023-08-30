@@ -6,6 +6,9 @@
 #include "Camera/CameraComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Components/BoxComponent.h"
+#include "TBCCharacter.h"
+#include "Puzzles/Hangman/HangmanWidget.h"
 #include "GameFramework/Actor.h"
 #include "Hangman.generated.h"
 
@@ -49,19 +52,57 @@ protected:
 	UPROPERTY(EditAnywhere)
 		USpotLightComponent* PuzzleLight;
 
+	UPROPERTY(EditAnywhere)
+		UBoxComponent* Hitbox;
+
+	UPROPERTY(EditAnywhere)
+		UWidgetComponent* InteractComponent;
+
+	UPROPERTY()
+		ATBCCharacter* HitBoxPlayer;
+
 	TArray<FString> sentences;
 	FString ChosenSentence;
 
+	bool inOverlap;
+
+	int guesses;
+
 	// Functions
+	void Interact();
+	void SetupInput();
+	void GenerateWidget();
 	void GenerateSentences();
+
+	void WrongGuess();
+	bool GuessedCorrect(char PGuess);
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(BlueprintReadOnly)
+		bool inPuzzle;
+
 	UPROPERTY(EditAnywhere)
 		UWidgetComponent* ChosenSentenceComponent;
 
 	UPROPERTY()
-		UUserWidget* ChosenSentenceWidget;
+		UHangmanWidget* ChosenSentenceWidget;
+
+	UPROPERTY(EditAnywhere)
+		UUserWidget* HangmanInputWidget;
+
+	UFUNCTION()
+		void OnOverlapStart(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+		void OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION(BlueprintCallable)
+		void ExitPuzzle();
+
+	UFUNCTION(BlueprintCallable)
+		void GuessCharacter(FString PGuess);
+
 };
