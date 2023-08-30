@@ -21,6 +21,7 @@
 #include "Glowstick.h"
 #include "Math/UnrealMathVectorCommon.h"
 #include "Components/TextBlock.h"
+#include "Animation/AnimSequence.h"
 #include "UI/TBC_HUD.h"
 #include "Engine/EngineTypes.h"
 #include "TBCCharacter.generated.h"
@@ -226,6 +227,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<AActor> ToastClass;
+
+	UPROPERTY(EditAnywhere, Category = "AnimationSequences")
+		TSubclassOf<UAnimSequence> FallAnimation;
 
 	UPROPERTY()
 		AActor* ToastRef;
