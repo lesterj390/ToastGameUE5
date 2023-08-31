@@ -227,6 +227,9 @@ void ATBCCharacter::BeginPlay()
 
 	GetWorldTimerManager().SetTimer(sanityHandle, this, &ATBCCharacter::SanityCheck, .25, true);
 	GetWorldTimerManager().SetTimer(BatteryDrain, this, &ATBCCharacter::ReduceBattery, BatteryReductionSpeed, true);
+
+	GetWorldTimerManager().ClearTimer(FallingHandle);
+	GetWorldTimerManager().ClearTimer(StandingHandle);
 }
 
 
@@ -357,6 +360,69 @@ void ATBCCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput
 	PlayerInputComponent->BindKey(FKey(TEXT("Two")), IE_Pressed, this, &ATBCCharacter::BatteryInRadar);
 }
 
+void ATBCCharacter::FallOver()
+{
+	// Set camera to player character if it isn't already
+	UClass* viewClass = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetViewTarget()->GetClass();
+	if (!viewClass->IsChildOf(ATBCCharacter::StaticClass())) {
+		GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(this, 0.2f);
+	}
+
+	float FallAnimLength = FallingAnimation->GetPlayLength();
+
+	DisableInput(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	//GetMesh()->PlayAnimation(FallingAnimation, false);
+	ACharacter::PlayAnimMontage(FallingAnimation);
+
+	TimerDel.BindUFunction(this, FName("StandUp"), -1);
+	GetWorld()->GetTimerManager().SetTimer(StandingHandle, TimerDel, FallAnimLength, false);
+	//GetWorldTimerManager().SetTimer(FallingHandle, this, &ATBCCharacter::StandUp, 3.33, false);
+}
+
+void ATBCCharacter::StandUp(int PCount)
+{
+	float blinkSpeed = 0.5;
+	int count = PCount;
+	count++;
+
+	int stand = FMath::RandRange(0,100);
+	if (stand != 1) {
+		stand = 0;
+	}
+
+	if (count == 0) {
+		PlayAudio(ScaredAudio);
+	}
+
+	if (count == 0 || count == 2) {
+		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->StartCameraFade(0, 1, blinkSpeed, FColor::Black, false, true);
+		TimerDel.BindUFunction(this, FName("StandUp"), count);
+		GetWorld()->GetTimerManager().SetTimer(StandingHandle, TimerDel, blinkSpeed + 0.2, false);
+	}
+	else if (count == 1) {
+		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->StartCameraFade(1, 0, blinkSpeed, FColor::Black, false, true);
+		TimerDel.BindUFunction(this, FName("StandUp"), count);
+		GetWorld()->GetTimerManager().SetTimer(StandingHandle, TimerDel, blinkSpeed + 0.2, false);
+	}
+	else if (count == 3) {
+		float StandAnimLength = StandUpAnimation[stand]->GetPlayLength();
+
+		//GetMesh()->PlayAnimation(StandUpAnimation[stand], false);
+		ACharacter::PlayAnimMontage(StandUpAnimation[stand]);
+		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->StartCameraFade(1, 0, blinkSpeed, FColor::Black, false, true);
+		GetWorldTimerManager().SetTimer(StandingHandle, this, &ATBCCharacter::FinishFall, StandAnimLength, false);
+	}
+}
+
+void ATBCCharacter::FinishFall()
+{
+	EnableInput(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	ACharacter::StopAnimMontage();
+
+	GetWorldTimerManager().ClearTimer(FallingHandle);
+	GetWorldTimerManager().ClearTimer(StandingHandle);
+}
+
 void ATBCCharacter::UpdateRadarDistance()
 {
 
@@ -391,6 +457,12 @@ void ATBCCharacter::UpdateRadarDistance()
 		}
 	}
 
+}
+
+void ATBCCharacter::PlayAudio(USoundCue* PSound)
+{
+	UAudioComponent* AudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), PSound);
+	AudioComponent->Play(0.0);
 }
 
 void ATBCCharacter::OnResetVR()

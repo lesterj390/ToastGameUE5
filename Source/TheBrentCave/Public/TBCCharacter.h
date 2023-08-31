@@ -22,6 +22,8 @@
 #include "Math/UnrealMathVectorCommon.h"
 #include "Components/TextBlock.h"
 #include "Animation/AnimSequence.h"
+#include "Animation/AnimMontage.h"
+#include "TimerManager.h"
 #include "UI/TBC_HUD.h"
 #include "Engine/EngineTypes.h"
 #include "TBCCharacter.generated.h"
@@ -228,8 +230,28 @@ public:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<AActor> ToastClass;
 
-	UPROPERTY(EditAnywhere, Category = "AnimationSequences")
-		TSubclassOf<UAnimSequence> FallAnimation;
+	UFUNCTION(BlueprintCallable)
+		void FallOver();
+
+	UFUNCTION()
+		void StandUp(int PCount);
+
+	UFUNCTION()
+		void FinishFall();
+
+	UPROPERTY(EditAnywhere)
+		UAnimMontage *FallingAnimation;
+
+	UPROPERTY(EditAnywhere)
+		TArray<UAnimMontage*> StandUpAnimation;
+
+	FTimerDelegate TimerDel;
+	FTimerHandle FallingHandle;
+	FTimerHandle StandingHandle;
+	FTimerHandle BlinkingHandle;
+
+	UPROPERTY(EditAnywhere)
+		USoundCue* ScaredAudio;
 
 	UPROPERTY()
 		AActor* ToastRef;
@@ -261,6 +283,8 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		USoundCue* FootstepRef;
+
+	void PlayAudio(USoundCue* PSound);
 
 protected:
 
