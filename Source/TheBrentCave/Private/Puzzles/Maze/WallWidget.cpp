@@ -11,6 +11,9 @@ void UWallWidget::NativeConstruct()
 
 void UWallWidget::SetRotationAndScale(int Rotation, float UnitScale)
 {
+	if (!Canvas) {
+		Canvas = Cast<UCanvasPanel>(GetRootWidget());
+	}
 	if (Canvas)
 	{
 		Canvas->SetRenderScale(FVector2D(UnitScale / 100, UnitScale / 100));

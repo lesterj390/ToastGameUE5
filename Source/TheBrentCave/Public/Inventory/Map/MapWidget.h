@@ -34,7 +34,7 @@ public:
 		TSubclassOf<UWallWidget> WallClass;
 
 	UPROPERTY(EditAnywhere)
-		float Zoom;
+		float VisibleDiameter;
 
 protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
@@ -49,6 +49,8 @@ protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 		UImage* PlayerIcon;
 
+	FVector2D RenderScale;
+
 public:
 	UFUNCTION()
 		void SetupWidget(int Dimension, float WidgetResolution, TArray<FWall> WallsToRemove);
@@ -62,6 +64,9 @@ protected:
 
 	UFUNCTION()
 		void RemoveWalls(TArray<FWall> WallsToRemove);
+
+	UFUNCTION()
+		bool IsTranslationInBounds(float _TranslateX, float _TranslateY, float& MaxTranslation);
 
 private:
 	virtual void NativeTick(const FGeometry& MyGeometry, float DeltaTime);

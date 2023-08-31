@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/Actor.h"
-//#include "Locker.h"
 #include "Grid.h"
 #include "Components/SpotLightComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -13,6 +12,7 @@
 #include "SavedSettings.h"
 #include "Blueprint/UserWidget.h"
 #include "PlayerStatsComponent.h"
+#include "Inventory/InventoryComponent.h"
 #include "Components/AudioComponent.h"
 #include "Sound/SoundCue.h"
 #include "NavigationSystem.h"
@@ -27,7 +27,7 @@
 #include "TBCCharacter.generated.h"
 
 UENUM()
-enum InventoryItem {None = -1, Flashlight, Glowstick, Food, Key, Battery, Radar };
+enum InventoryItems {None = -1, Flashlight, Glowstick, Food, Key, Battery, Radar };
 
 UCLASS(config=Game)
 class ATBCCharacter : public ACharacter
@@ -68,7 +68,7 @@ public:
 		TMap<FString, FString> HintStrings;
 
 	UPROPERTY(EditAnywhere)
-		TMap<TEnumAsByte<InventoryItem>, FString> InventoryHintStrings;
+		TMap<TEnumAsByte<InventoryItems>, FString> InventoryHintStrings;
 
 	UPROPERTY()
 		TSubclassOf<UUserWidget> InteractWidgetSubclass;
@@ -228,6 +228,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<AActor> ToastClass;
 
+	UPROPERTY(EditAnywhere, Category = "Temp")
+		TSubclassOf<UUserWidget> MapWidget;
+
 	UPROPERTY(EditAnywhere, Category = "AnimationSequences")
 		TSubclassOf<UAnimSequence> FallAnimation;
 
@@ -301,7 +304,10 @@ protected:
 
 	void ApplySettings();
 
-	class UPlayerStatsComponent* PlayerStats;
+	UPlayerStatsComponent* PlayerStats;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UInventoryComponent* Inventory;
 
 	FTimerHandle CheckForCooldownTimer;
 
@@ -355,6 +361,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* glowstickThrowPoint;
+
+	UPROPERTY(EditAnywhere)
+		UStaticMeshComponent* SelectedItemMesh;
 
 	//UPROPERTY(EditAnywhere)
 	//	UStaticMeshComponent* FlashlightCone;

@@ -12,6 +12,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Maze/DataTypes.h"
 #include "Grid.h"
+#include "Inventory/Map/MapWidget.h"
 #include "Math/UnrealMathUtility.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -70,6 +71,10 @@ ATBCCharacter::ATBCCharacter()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
 	PlayerStats = CreateDefaultSubobject<UPlayerStatsComponent>(TEXT("PlayerStatsComponent"));
+
+	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
+	SelectedItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SelectedItemMesh"));
+	SelectedItemMesh->SetupAttachment(GetMesh(), TEXT("hand_l"));
 
 	bIsSprinting = false;
 	bStartedSprint = false;
@@ -202,6 +207,9 @@ void ATBCCharacter::BeginPlay()
 		InteractWidget->AddToViewport();
 		InteractWidget->GetWidgetFromName("interactprompt")->SetVisibility(ESlateVisibility::Hidden);
 	}
+
+	// Setting up inventory
+	Inventory->Setup(SelectedItemMesh);
 
 	//Setting up player stats
 
@@ -939,7 +947,7 @@ void ATBCCharacter::ToggleHint()
 
 	// Looking up the Inventory Hint Strings or Hint Strings map to find respective hint
 	if (viewClass->IsChildOf(ATBCCharacter::StaticClass())) { // Inventory hints
-		hintStringReference = InventoryHintStrings.Find((TEnumAsByte<InventoryItem>)selectedItem);
+		hintStringReference = InventoryHintStrings.Find((TEnumAsByte<InventoryItems>)selectedItem);
 	}
 	else { // Normal hints
 		hintStringReference = HintStrings.Find(className);
@@ -995,10 +1003,10 @@ void ATBCCharacter::ToggleFootstepAudio()
 	FString className = viewClass->GetPathName();
 	className = FPaths::GetBaseFilename(className);
 
-	if (viewClass->IsChildOf(ATBCCharacter::StaticClass())) { // Player is in character camera
+	if (viewClass->IsChildOf(ATBCCharacter::StaticClass())) { // PlayerIcon is in character camera
 		FootstepRef->VolumeMultiplier = 0.5f;
 	}
-	else { // Player is outside of body
+	else { // PlayerIcon is outside of body
 		FootstepRef->VolumeMultiplier = 0.0f;
 	}
 }

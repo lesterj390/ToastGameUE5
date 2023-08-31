@@ -20,8 +20,12 @@ void UMapWidget::SetupWidget(int _Dimension, float _WidgetResolution, TArray<FWa
 		SizeCanvasSlot->SetSize(FVector2D(_WidgetResolution));
 
 		// Scaling the walls canvas to zoom in
-		WallsCanvas->SetRenderScale(FVector2D(Zoom));
-		PlayerIcon->SetRenderScale(FVector2D(Zoom));
+		if (VisibleDiameter == 0) {
+			VisibleDiameter = Dimension;
+		}
+		
+		RenderScale = FVector2D(Dimension / (float)VisibleDiameter);
+		WallsCanvas->SetRenderScale(FVector2D(RenderScale));
 
 		GenerateWalls();
 		RemoveWalls(WallsToRemove);
@@ -88,6 +92,20 @@ void UMapWidget::RemoveWalls(TArray<FWall> WallsToRemove)
 	}
 }
 
+
+// Calculates the maximum translation a map can have to stay in bounds and returns a 
+// boolean value representing whether the translation parameters are in bounds.
+bool UMapWidget::IsTranslationInBounds(float _TranslateX, float _TranslateY, float& MaxTranslation)
+{
+	MaxTranslation = WidgetResolution * (RenderScale.X - 1) / 2;
+	if (FMath::Abs(_TranslateX) >= MaxTranslation || FMath::Abs(_TranslateY) >= MaxTranslation) {
+		return false;
+	}
+
+	return true;
+}
+
+
 void UMapWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
 {
 	Super::NativeTick(MyGeometry, DeltaTime);
@@ -113,12 +131,31 @@ void UMapWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
 	float OffsetCellsX = (PlayerX - GridSpawnX) / (1000 * myGrid->GetActorScale3D().X);
 	float OffsetCellsY = (PlayerY - GridSpawnY) / (1000 * myGrid->GetActorScale3D().Y);
 
-	// Calculating translate for widget
-	float CenterCell = myGrid->Dimensions / 2.0;
-	float TranslateX = ((OffsetCellsX - CenterCell) / CenterCell) * (WidgetResolution / 2) * Zoom * -1;
-	float TranslateY = ((OffsetCellsY - CenterCell) / CenterCell) * (WidgetResolution / 2) * Zoom * -1;
 
-	// Setting translate parameter to WallsCanvas and PlayerIcon
-	WallsCanvas->SetRenderTranslation(FVector2D(TranslateX, TranslateY));
-	UE_LOG(LogTemp, Log, TEXT("OffsetX: %f OffsetY: %f"), OffsetCellsX, OffsetCellsY);
+	// Calculating translate for widget
+	float CenterCell = Dimension / 2.0;
+	float TranslateX = ((OffsetCellsX - CenterCell) / CenterCell) * (WidgetResolution / 2) * RenderScale.X * -1;
+	float TranslateY = ((OffsetCellsY - CenterCell) / CenterCell) * (WidgetResolution / 2) * RenderScale.Y * -1;
+
+	float MaxTranslation;
+
+	if (IsTranslationInBounds(TranslateX, TranslateY, MaxTranslation)) {
+		// Setting translate parameter to WallsCanvas and PlayerIcon
+		WallsCanvas->SetRenderTranslation(FVector2D(TranslateX, TranslateY));
+
+		// Putting PlayerIcon in center of the widget
+		PlayerIcon->SetRenderTranslation(FVector2D(0));
+	} else {
+		// Clamping translationX and translationY
+		float ClampedTranslateX = FMath::Clamp(TranslateX, -MaxTranslation, MaxTranslation);
+		float ClampedTranslateY = FMath::Clamp(TranslateY, -MaxTranslation, MaxTranslation);
+
+		WallsCanvas->SetRenderTranslation(FVector2D(ClampedTranslateX, ClampedTranslateY));
+
+		// Getting the offset for PlayerIcon based on translation and clampedtranslation
+
+		float PlayerIconOffsetX = ClampedTranslateX - TranslateX;
+		float PlayerIconOffsetY = ClampedTranslateY - TranslateY;
+		PlayerIcon->SetRenderTranslation(FVector2D(PlayerIconOffsetX, PlayerIconOffsetY));
+	}
 }
