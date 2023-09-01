@@ -21,7 +21,6 @@ void AMapItem::Setup()
 	if (!Grid) return;
 
 	MapWidget->SetupWidget(Grid->Dimensions, 1080, Grid->MazeAlgorithm->RemovedWalls);
-	MapWidget->AddToViewport();
 
 	FVector2D DrawSize = FVector2D(1080);
 
@@ -30,13 +29,9 @@ void AMapItem::Setup()
 	TSharedRef<SWidget> SlateWidget = MapWidget->TakeWidget();
 	WidgetRenderer->DrawWidget(SlateWidget, DrawSize);
 
-	
-
 	// Setting up dynamic material instance
-	UMaterialInterface* Material = Decal->GetMaterial(0);
-	MapMaterialDynamic = UMaterialInstanceDynamic::Create(Material, this);
-	Decal->SetMaterial(0, MapMaterialDynamic);
+	MapMaterialDynamic = Decal->CreateDynamicMaterialInstance();
 
-	//MapMaterialDynamic->SetTextureParameterValue(FName("Texture"), RenderTarget);
-	
+	MapMaterialDynamic->SetTextureParameterValue(FName("Texture"), RenderTarget);
+	Decal->SetDecalMaterial(MapMaterialDynamic);
 }
