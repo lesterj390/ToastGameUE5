@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "Inventory/InventoryItem.h"
 #include "Inventory/Map/MapItem.h"
+#include "Components/ChildActorComponent.h"
 #include "InventoryComponent.generated.h"
 
 
@@ -19,10 +20,10 @@ public:
 	UInventoryComponent();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TArray<TSubclassOf<UInventoryItem>> SpawnItems;
+		TArray<TSubclassOf<AInventoryItem>> SpawnItems;
 
 	UPROPERTY()
-		TArray<UInventoryItem*> Items;
+		TArray<AInventoryItem*> Items;
 
 	UPROPERTY()
 		int SelectedItemIndex;
@@ -35,7 +36,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-		void Setup(UStaticMeshComponent* ItemComponent);
+		void Setup(UChildActorComponent* ItemComponent);
 
 	UFUNCTION()
 		void AddItem(UClass* Class);

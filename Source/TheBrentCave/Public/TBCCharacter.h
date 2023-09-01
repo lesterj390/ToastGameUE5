@@ -26,6 +26,7 @@
 #include "TimerManager.h"
 #include "UI/TBC_HUD.h"
 #include "Engine/EngineTypes.h"
+#include "Components/ChildActorComponent.h"
 #include "TBCCharacter.generated.h"
 
 UENUM()
@@ -230,9 +231,6 @@ public:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<AActor> ToastClass;
 
-	UPROPERTY(EditAnywhere, Category = "Temp")
-		TSubclassOf<UUserWidget> MapWidget;
-
 	UFUNCTION(BlueprintCallable)
 		void FallOver();
 
@@ -390,7 +388,7 @@ protected:
 		UStaticMeshComponent* glowstickThrowPoint;
 
 	UPROPERTY(EditAnywhere)
-		UStaticMeshComponent* SelectedItemMesh;
+		UChildActorComponent* SelectedItem;
 
 	//UPROPERTY(EditAnywhere)
 	//	UStaticMeshComponent* FlashlightCone;

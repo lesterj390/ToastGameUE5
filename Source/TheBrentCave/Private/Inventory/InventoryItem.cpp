@@ -3,6 +3,16 @@
 
 #include "Inventory/InventoryItem.h"
 
-UInventoryItem::UInventoryItem()
+AInventoryItem::AInventoryItem()
 {
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	Mesh->SetupAttachment(RootComponent);
+}
+
+
+void AInventoryItem::Setup()
+{
+
 }

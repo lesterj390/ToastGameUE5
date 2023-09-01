@@ -73,8 +73,8 @@ ATBCCharacter::ATBCCharacter()
 	PlayerStats = CreateDefaultSubobject<UPlayerStatsComponent>(TEXT("PlayerStatsComponent"));
 
 	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
-	SelectedItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SelectedItemMesh"));
-	SelectedItemMesh->SetupAttachment(GetMesh(), TEXT("hand_l"));
+	SelectedItem = CreateDefaultSubobject<UChildActorComponent>(TEXT("SelectedItem"));
+	SelectedItem->SetupAttachment(GetMesh(), TEXT("hand_l"));
 
 	bIsSprinting = false;
 	bStartedSprint = false;
@@ -209,7 +209,7 @@ void ATBCCharacter::BeginPlay()
 	}
 
 	// Setting up inventory
-	Inventory->Setup(SelectedItemMesh);
+	Inventory->Setup(SelectedItem);
 
 	//Setting up player stats
 

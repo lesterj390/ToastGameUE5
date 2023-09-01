@@ -4,36 +4,31 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "Components/DecalComponent.h"
 #include "InventoryItem.generated.h"
 
 /**
  * 
  */
-UCLASS(BlueprintType, Blueprintable)
-class THEBRENTCAVE_API UInventoryItem : public UObject
+UCLASS()
+class THEBRENTCAVE_API AInventoryItem : public AActor
 {
 	GENERATED_BODY()
 	
 public:
-	UInventoryItem();
+	UPROPERTY(EditAnywhere)
+		UStaticMeshComponent* Mesh;
 
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<UAnimSequence> HoldingAnimation;
-
-	UPROPERTY(EditAnywhere)
-		UStaticMesh* Mesh;
-
-	UPROPERTY(EditAnywhere)
-		float MeshScale;
-
-	UPROPERTY(EditAnywhere)
-		FRotator MeshRotation;
-
+		UAnimSequence* HoldingAnimation;
 
 protected:
 
-public:
 
+public:
+	AInventoryItem();
+
+	virtual void Setup();
 protected:
 
 };

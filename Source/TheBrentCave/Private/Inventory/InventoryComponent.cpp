@@ -32,24 +32,22 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	// ...
 }
 
-void UInventoryComponent::Setup(UStaticMeshComponent* ItemComponent)
+void UInventoryComponent::Setup(UChildActorComponent* ItemComponent)
 {
-	for (TSubclassOf<UInventoryItem> ItemClass : SpawnItems) {
-		UInventoryItem* NewItem = NewObject<UInventoryItem>(this, ItemClass);
-		Items.Add(NewItem);
+	for (TSubclassOf<AInventoryItem> ItemClass : SpawnItems) {
+		AddItem(ItemClass);
 	}
 
 	if (Items.Num() == 0) return;
-	UInventoryItem* SelectedItem = Items[SelectedItemIndex];
-	if (!SelectedItem->Mesh) return;
-
-	ItemComponent->SetStaticMesh(SelectedItem->Mesh);
-	ItemComponent->SetRelativeScale3D(FVector(SelectedItem->MeshScale));	
+	AInventoryItem* SelectedItem = Items[SelectedItemIndex];
+	SelectedItem->Setup();
+	ItemComponent->SetChildActorClass(SelectedItem->GetClass(), SelectedItem);
 }
 
 void UInventoryComponent::AddItem(UClass* Class)
 {
-	UInventoryItem* NewItem = NewObject<UInventoryItem>(this, Class);
+	AInventoryItem* NewItem = NewObject<AInventoryItem>(this, Class);
+	NewItem->Setup();
 	Items.Add(NewItem);
 }
 
