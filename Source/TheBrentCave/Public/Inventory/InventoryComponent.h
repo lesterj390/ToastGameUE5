@@ -7,8 +7,11 @@
 #include "Inventory/InventoryItem.h"
 #include "Inventory/Map/MapItem.h"
 #include "Components/ChildActorComponent.h"
+#include "GameFramework/Character.h"
 #include "InventoryComponent.generated.h"
 
+
+DECLARE_MULTICAST_DELEGATE(FOnItemChange);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class THEBRENTCAVE_API UInventoryComponent : public UActorComponent
@@ -19,33 +22,47 @@ public:
 	// Sets default values for this component's properties
 	UInventoryComponent();
 
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TArray<TSubclassOf<AInventoryItem>> SpawnItems;
+		TArray<TSubclassOf<AInventoryItem>> InitialItems;
 
 	UPROPERTY()
 		TArray<AInventoryItem*> Items;
 
 	UPROPERTY()
-		int SelectedItemIndex;
+		UAnimMontage* CurrentAnimation;
 
 protected:
+	UPROPERTY()
+		int SelectedItemIndex;
 
+	UPROPERTY()
+		USceneComponent* ItemComponent;
+
+	UPROPERTY()
+		ACharacter* Player;
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-		void Setup(UChildActorComponent* ItemComponent);
+		void Setup(USceneComponent* InItemComponent, ACharacter* PlayerP);
 
 	UFUNCTION()
 		void AddItem(UClass* Class);
+	
+		FOnItemChange NextItem();
+	
+		FOnItemChange PreviousItem();
 
 	UFUNCTION()
-		void NextItem();
+		void RemoveItem(int itemIndex);
 
 	UFUNCTION()
-		void PreviousItem();
+		void UseEquipedItem();
+	
+		FOnItemChange SwitchToItem(int newItemIndex);
 
 
 protected:

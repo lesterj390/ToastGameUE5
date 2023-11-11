@@ -37,14 +37,7 @@ void AGlowstick::BeginPlay()
 	glowstickMat = UMaterialInstanceDynamic::Create(tempMat, this);
 	Glowstick->SetMaterial(0, glowstickMat);
 
-	glowColor = FLinearColor(FMath::RandRange(0.0f, 1.0f), FMath::RandRange(0.0f, 1.0f), FMath::RandRange(0.0f, 1.0f));
-
-	glowstickMat->SetVectorParameterValue(TEXT("GlowstickColor"), glowColor);
-	glowstickMat->SetScalarParameterValue(TEXT("Glow"), 50);
-	stickLight->SetLightColor(glowColor);
-
 	SetupFadeCurve();
-
 }
 
 // Called every frame
@@ -86,6 +79,13 @@ void AGlowstick::SetupFadeCurve()
 
 	}
 
+}
+
+void AGlowstick::SetGlowstickColour(FLinearColor newColour)
+{
+	glowstickMat->SetVectorParameterValue(TEXT("GlowstickColor"), newColour);
+	glowstickMat->SetScalarParameterValue(TEXT("Glow"), 50);
+	stickLight->SetLightColor(newColour);
 }
 
 void AGlowstick::FinishTimeline()

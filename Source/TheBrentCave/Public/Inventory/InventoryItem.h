@@ -19,8 +19,17 @@ public:
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* Mesh;
 
+	UPROPERTY(EditAnywhere, Category = "Animations")
+		UAnimMontage* EquipAnimation;
+
+	UPROPERTY(EditAnywhere, Category = "Animations")
+		UAnimMontage* UseAnimation;
+
 	UPROPERTY(EditAnywhere)
-		UAnimSequence* HoldingAnimation;
+		int ItemQuantity;
+
+	UPROPERTY(EditAnywhere)
+		int MaxQuantity;
 
 protected:
 
@@ -28,7 +37,12 @@ protected:
 public:
 	AInventoryItem();
 
-	virtual void Setup();
-protected:
+	virtual void Equip();
 
+	virtual void Unequip();
+
+	virtual void Use();
+
+protected:
+	virtual void BeginPlay() override;
 };

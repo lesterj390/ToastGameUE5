@@ -8,6 +8,7 @@
 #include "Blueprint/WidgetTree.h"
 #include "Maze/DataTypes.h"
 #include "Components/Border.h"
+#include "Components/RetainerBox.h"
 #include "Components/Image.h"
 #include "Components/CanvasPanel.h"
 #include "Kismet/GameplayStatics.h"
@@ -39,6 +40,9 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 		UCanvasPanel* Canvas;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+		URetainerBox* RetainerBox;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 		UCanvasPanel* SizeCanvas;

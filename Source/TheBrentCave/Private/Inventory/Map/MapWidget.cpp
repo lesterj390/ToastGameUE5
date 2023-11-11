@@ -16,14 +16,14 @@ void UMapWidget::SetupWidget(int _Dimension, float _WidgetResolution, TArray<FWa
 		WidgetTree->RootWidget = Canvas;
 
 		// Settings the size of SizeCanvas and making it clip overflow
-		UCanvasPanelSlot* SizeCanvasSlot = (UCanvasPanelSlot*)SizeCanvas->Slot;
-		SizeCanvasSlot->SetSize(FVector2D(_WidgetResolution));
+		//UCanvasPanelSlot* SizeCanvasSlot = (UCanvasPanelSlot*)SizeCanvas->Slot;
+		//SizeCanvasSlot->SetSize(FVector2D(_WidgetResolution));
 
 		// Scaling the walls canvas to zoom in
 		if (VisibleDiameter == 0) {
 			VisibleDiameter = Dimension;
 		}
-		
+
 		RenderScale = FVector2D(Dimension / (float)VisibleDiameter);
 		WallsCanvas->SetRenderScale(FVector2D(RenderScale));
 

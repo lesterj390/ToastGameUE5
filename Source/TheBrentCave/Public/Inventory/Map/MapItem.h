@@ -8,6 +8,7 @@
 #include "Inventory/Map/MapWidget.h"
 #include "Grid.h"
 #include "Slate/WidgetRenderer.h"
+#include "Components/WidgetComponent.h"
 #include "MapItem.generated.h"
 
 /**
@@ -25,20 +26,33 @@ public:
 	UPROPERTY(EditAnywhere)
 		UDecalComponent* Decal;
 
-protected:
 	UPROPERTY()
 		UMapWidget* MapWidget;
 
+	UPROPERTY(EditAnywhere)
+		UTextureRenderTarget2D* MapRenderTarget;
+
+	FWidgetRenderer* WidgetRenderer;
+
+	TSharedPtr<SWidget> MapSlateWidget;
+
 	UPROPERTY()
-		UTextureRenderTarget2D* RenderTarget;
+		FVector2D DrawSize;
 
 	UPROPERTY()
 		UMaterialInstanceDynamic* MapMaterialDynamic;
 
+protected:
+
 public:
 	AMapItem();
 
-	virtual void Setup() override;
+	void UpdateMapMaterial();
 
 protected:
+	virtual void Tick(float DeltaTime) override;
+
+	virtual void BeginPlay() override;
+
+	virtual void BeginDestroy() override;
 };

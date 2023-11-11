@@ -10,8 +10,10 @@ AMapItem::AMapItem()
 }
 
 
-void AMapItem::Setup()
+void AMapItem::BeginPlay()
 {
+	Super::BeginPlay();
+
 	if (!MapWidgetClass) return;
 	MapWidget = CreateWidget<UMapWidget>(GetWorld(), MapWidgetClass);
 
@@ -21,17 +23,29 @@ void AMapItem::Setup()
 	if (!Grid) return;
 
 	MapWidget->SetupWidget(Grid->Dimensions, 1080, Grid->MazeAlgorithm->RemovedWalls);
-
-	FVector2D DrawSize = FVector2D(1080);
-
-	FWidgetRenderer* WidgetRenderer = new FWidgetRenderer(true);
-	RenderTarget = WidgetRenderer->CreateTargetFor(DrawSize, TF_Bilinear, false);
-	TSharedRef<SWidget> SlateWidget = MapWidget->TakeWidget();
-	WidgetRenderer->DrawWidget(SlateWidget, DrawSize);
+	
+	MapSlateWidget = TSharedPtr<SWidget>(MapWidget->TakeWidget());
+	DrawSize = FVector2D(1080);
+	WidgetRenderer = new FWidgetRenderer(false);
 
 	// Setting up dynamic material instance
 	MapMaterialDynamic = Decal->CreateDynamicMaterialInstance();
+}
 
-	MapMaterialDynamic->SetTextureParameterValue(FName("Texture"), RenderTarget);
-	Decal->SetDecalMaterial(MapMaterialDynamic);
+void AMapItem::UpdateMapMaterial()
+{
+	WidgetRenderer->DrawWidget(MapRenderTarget, MapSlateWidget.ToSharedRef(), DrawSize, 0, false);
+	MapMaterialDynamic->SetTextureParameterValue(FName("Texture"), MapRenderTarget);
+}
+
+void AMapItem::Tick(float DeltaTime)
+{
+	UpdateMapMaterial();
+}
+
+void AMapItem::BeginDestroy()
+{
+	Super::BeginDestroy();
+	if (WidgetRenderer) delete WidgetRenderer;
+	MapSlateWidget.Reset();
 }

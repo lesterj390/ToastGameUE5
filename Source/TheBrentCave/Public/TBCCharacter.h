@@ -288,6 +288,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		USoundCue* FootstepRef;
 
+	UPROPERTY(EditAnywhere)
+		USceneComponent* CurrentItem;
+
 	void PlayAudio(USoundCue* PSound);
 
 protected:
@@ -386,9 +389,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* glowstickThrowPoint;
-
-	UPROPERTY(EditAnywhere)
-		UChildActorComponent* SelectedItem;
 
 	//UPROPERTY(EditAnywhere)
 	//	UStaticMeshComponent* FlashlightCone;

@@ -73,8 +73,8 @@ ATBCCharacter::ATBCCharacter()
 	PlayerStats = CreateDefaultSubobject<UPlayerStatsComponent>(TEXT("PlayerStatsComponent"));
 
 	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
-	SelectedItem = CreateDefaultSubobject<UChildActorComponent>(TEXT("SelectedItem"));
-	SelectedItem->SetupAttachment(GetMesh(), TEXT("hand_l"));
+	CurrentItem = CreateDefaultSubobject<USceneComponent>(TEXT("CurrentItem"));
+	CurrentItem->SetupAttachment(GetMesh(), TEXT("hand_l"));
 
 	bIsSprinting = false;
 	bStartedSprint = false;
@@ -209,7 +209,8 @@ void ATBCCharacter::BeginPlay()
 	}
 
 	// Setting up inventory
-	Inventory->Setup(SelectedItem);
+	Inventory->Setup(CurrentItem, this);
+	
 
 	//Setting up player stats
 
@@ -357,7 +358,7 @@ void ATBCCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Hint", IE_Pressed, this, &ATBCCharacter::ToggleHint);
 
 	//Button for throwing using item
-	PlayerInputComponent->BindAction("Use", IE_Pressed, this, &ATBCCharacter::UseItem);
+	PlayerInputComponent->BindAction("Use", IE_Pressed, Inventory, &UInventoryComponent::UseEquipedItem);
 
 	//Scroll Inputs for changing item in inventory
 	PlayerInputComponent->BindAction("ScrollUp", IE_Pressed, this, &ATBCCharacter::ScrolledUp);
@@ -604,6 +605,7 @@ void ATBCCharacter::MoveRight(float Value)
 
 void ATBCCharacter::UseItem()
 {
+	return;
 	// If I'm not in the POV of TBCCharacter, don't use
 	if (bInPuzzle || bIsHiding) {
 		return;
@@ -676,6 +678,8 @@ void ATBCCharacter::ScrolledUp()
 {
 
 	selectedItem++;
+	Inventory->NextItem();
+	return;
 
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("%d"), selectedItem));
 
@@ -783,13 +787,13 @@ void ATBCCharacter::ScrolledUp()
 	if (HintWidget && HintWidget->IsInViewport()) {
 		ToggleHint();
 	}
-
 }
 
 void ATBCCharacter::ScrolledDown()
 {
-
 	selectedItem--;
+	Inventory->PreviousItem();
+	return;
 
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("%d"), selectedItem));
 

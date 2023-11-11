@@ -49,6 +49,9 @@ public:
 	UFUNCTION()
 		void SetupFadeCurve();
 
+	UFUNCTION()
+		void SetGlowstickColour(FLinearColor newColour);
+
 	UPROPERTY(EditAnywhere)
 		UCurveFloat* fadeCurve;
 
