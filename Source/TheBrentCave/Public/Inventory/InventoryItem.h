@@ -31,6 +31,12 @@ public:
 	UPROPERTY(EditAnywhere)
 		int MaxQuantity;
 
+	UPROPERTY(EditAnywhere, Category = "Shelf")
+		FVector ShelfLocation;
+
+	UPROPERTY(EditAnywhere, Category = "Shelf")
+		FVector ShelfScale;
+
 protected:
 
 
