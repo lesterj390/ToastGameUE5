@@ -17,25 +17,28 @@ class THEBRENTCAVE_API AInventoryItem : public AActor
 	
 public:
 	UPROPERTY(EditAnywhere)
-		UStaticMeshComponent* Mesh;
+	UStaticMeshComponent* Mesh;
 
 	UPROPERTY(EditAnywhere, Category = "Animations")
-		UAnimMontage* EquipAnimation;
+	UAnimMontage* EquipAnimation;
 
 	UPROPERTY(EditAnywhere, Category = "Animations")
-		UAnimMontage* UseAnimation;
+	UAnimMontage* UseAnimation;
 
 	UPROPERTY(EditAnywhere)
-		int ItemQuantity;
+	int ItemQuantity;
 
 	UPROPERTY(EditAnywhere)
-		int MaxQuantity;
+	int MaxQuantity;
 
 	UPROPERTY(EditAnywhere, Category = "Shelf")
-		FVector ShelfLocation;
+	FVector ShelfLocation;
 
 	UPROPERTY(EditAnywhere, Category = "Shelf")
-		FVector ShelfScale;
+	FVector ShelfScale;
+
+	UPROPERTY(EditAnywhere)
+	UTexture2D* Icon;
 
 protected:
 

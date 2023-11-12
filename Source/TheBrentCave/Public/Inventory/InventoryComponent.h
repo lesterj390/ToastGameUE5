@@ -8,6 +8,8 @@
 #include "Inventory/Map/MapItem.h"
 #include "Components/ChildActorComponent.h"
 #include "GameFramework/Character.h"
+#include "UI/PlayerStatsWidget.h"
+#include "UI/TBC_HUD.h"
 #include "InventoryComponent.generated.h"
 
 
@@ -32,6 +34,9 @@ public:
 	UPROPERTY()
 	UAnimMontage* CurrentAnimation;
 
+	UPROPERTY(EditAnywhere, Category = "UI")
+	UTexture2D* DefaultIcon;
+
 protected:
 	UPROPERTY()
 	int SelectedItemIndex;
@@ -41,6 +46,9 @@ protected:
 
 	UPROPERTY()
 	ACharacter* Player;
+
+	UPROPERTY()
+	UPlayerStatsWidget* PlayerStatsWidget;
 
 	FOnItemUnequip onItemUnequiped;
 

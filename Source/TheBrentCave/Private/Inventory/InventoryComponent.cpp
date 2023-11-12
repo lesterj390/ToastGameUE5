@@ -36,6 +36,11 @@ void UInventoryComponent::Setup(USceneComponent* InItemComponent, ACharacter* Pl
 	if (!InItemComponent) return;
 
 	Player = PlayerP;
+	 //Getting player stats widget
+	APlayerController* playerController = Cast<APlayerController>(Player->GetController());
+	ATBC_HUD* playerHUD = Cast<ATBC_HUD>(playerController->MyHUD);
+	PlayerStatsWidget = playerHUD->PlayerStatsWidget;
+	
 	ItemComponent = InItemComponent;
 
 	for (TSubclassOf<AInventoryItem> ItemClass : InitialItems) {
@@ -98,6 +103,7 @@ void UInventoryComponent::SwitchToItem(int newItemIndex)
 	AInventoryItem* currentItem = Items[SelectedItemIndex];
 	if (!newItem || !currentItem) return;
 	UAnimMontage* newAnimation = newItem->EquipAnimation;
+	UTexture2D* newIcon = newItem->Icon;	
 
 	onItemUnequiped.RemoveAll(this);
 
@@ -109,7 +115,7 @@ void UInventoryComponent::SwitchToItem(int newItemIndex)
 		{
 			currentItem->Unequip();
 			onItemUnequiped.Broadcast();
-			newItem->Equip();
+			newItem->Equip();			
 			if (newAnimation) {
 				Player->PlayAnimMontage(newAnimation);
 			}
@@ -130,5 +136,7 @@ void UInventoryComponent::SwitchToItem(int newItemIndex)
 		CurrentAnimation = newAnimation;
 		SelectedItemIndex = newItemIndex;		
 	}
+	if (!newIcon) newIcon = DefaultIcon;
+	PlayerStatsWidget->SelectedItem->SetBrushFromTexture(newIcon);			
 }
 
