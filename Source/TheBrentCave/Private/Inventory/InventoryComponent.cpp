@@ -53,37 +53,31 @@ void UInventoryComponent::AddItem(UClass* Class)
 	Items.Add(NewItem);
 }
 
-FOnItemChange UInventoryComponent::NextItem()
+void UInventoryComponent::NextItem()
 {
-	FOnItemChange itemDelegate;
-	if (Items.Num() <= 1) return itemDelegate;
+	if (Items.Num() <= 1) return;
 
-	int nextIndex = (SelectedItemIndex + 1) % Items.Num();
-
-	GEngine->AddOnScreenDebugMessage(-1,  3.f, FColor::Cyan, FString::Printf(TEXT("Current Index Is: %d"), nextIndex));
-	return SwitchToItem(nextIndex);
+	int nextIndex = (SelectedItemIndex + 1) % Items.Num();		
+	SwitchToItem(nextIndex);
 }
 
-FOnItemChange UInventoryComponent::PreviousItem()
-{
-	FOnItemChange itemDelegate;
-	if (Items.Num() <= 1) return itemDelegate;
+void UInventoryComponent::PreviousItem()
+{	
+	if (Items.Num() <= 1) return;
 
 	int nextIndex = (SelectedItemIndex + Items.Num() - 1) % Items.Num();
-
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, FString::Printf(TEXT("Current Index Is: %d"), nextIndex));
-	
-	return SwitchToItem(nextIndex);
+	SwitchToItem(nextIndex);
 }
 
 void UInventoryComponent::RemoveItem(int itemIndex)
 {
-	AInventoryItem* CurrentItem = Items[itemIndex];
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, FString::Printf(TEXT("Removing index: %d"), itemIndex));
-	FOnItemChange itemDelegate = NextItem();
-	itemDelegate.AddLambda([&]() {
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, FString::Printf(TEXT("Animation is done")));
+	if (!Items.IsValidIndex(itemIndex)) return;
+	AInventoryItem* currentItem = Items[itemIndex];	
+	NextItem();
+	// Wait for item unequip animation to play before destroying item
+	onItemUnequiped.AddWeakLambda(this, [this, itemIndex, currentItem] () {
 		Items.RemoveAt(itemIndex);
+		currentItem->Destroy();
 	});
 }
 
@@ -97,24 +91,34 @@ void UInventoryComponent::UseEquipedItem()
 	}
 }
 
-FOnItemChange UInventoryComponent::SwitchToItem(int newItemIndex)
+void UInventoryComponent::SwitchToItem(int newItemIndex)
 {
-	UAnimMontage* newAnimation = Items[newItemIndex]->EquipAnimation;
-	FOnItemChange itemChangeDelegate;
+	if (!Items.IsValidIndex(newItemIndex) || !Items.IsValidIndex(SelectedItemIndex)) return;
+	AInventoryItem* newItem = Items[newItemIndex];
+	AInventoryItem* currentItem = Items[SelectedItemIndex];
+	if (!newItem || !currentItem) return;
+	UAnimMontage* newAnimation = newItem->EquipAnimation;
+
+	onItemUnequiped.RemoveAll(this);
+
 	if (CurrentAnimation) {
 		UAnimInstance* currentInstance = Player->GetMesh()->GetAnimInstance();
 		FOnMontageEnded montageEndedDelegate;
-		montageEndedDelegate.BindLambda([&](UAnimMontage* montage, bool interrupted)
+		// This lambda function executes when the unequip animation finishes playing / the equip animation blends out
+		montageEndedDelegate.BindLambda([=](UAnimMontage* montage, bool interrupted)
 		{
-			Items[SelectedItemIndex]->Unequip();
-			Items[newItemIndex]->Equip();
+			currentItem->Unequip();
+			onItemUnequiped.Broadcast();
+			newItem->Equip();
 			if (newAnimation) {
 				Player->PlayAnimMontage(newAnimation);
 			}
 			SelectedItemIndex = newItemIndex;
-			itemChangeDelegate.Broadcast();
 		});
-		currentInstance->Montage_SetEndDelegate(montageEndedDelegate, CurrentAnimation);		
+		
+		// Binds the delegate to the animation instances montage end delegate
+		currentInstance->Montage_SetEndDelegate(montageEndedDelegate, CurrentAnimation);
+
 		Player->StopAnimMontage();
 		CurrentAnimation = newAnimation;
 	}
@@ -124,9 +128,7 @@ FOnItemChange UInventoryComponent::SwitchToItem(int newItemIndex)
 			Player->PlayAnimMontage(newAnimation);
 		}
 		CurrentAnimation = newAnimation;
-		SelectedItemIndex = newItemIndex;
-		itemChangeDelegate.Broadcast();
+		SelectedItemIndex = newItemIndex;		
 	}
-	return itemChangeDelegate;
 }
 

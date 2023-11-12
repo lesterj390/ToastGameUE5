@@ -11,9 +11,9 @@
 #include "InventoryComponent.generated.h"
 
 
-DECLARE_MULTICAST_DELEGATE(FOnItemChange);
+DECLARE_MULTICAST_DELEGATE(FOnItemUnequip);
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class THEBRENTCAVE_API UInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -24,46 +24,47 @@ public:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TArray<TSubclassOf<AInventoryItem>> InitialItems;
+	TArray<TSubclassOf<AInventoryItem>> InitialItems;
 
 	UPROPERTY()
-		TArray<AInventoryItem*> Items;
+	TArray<AInventoryItem*> Items;
 
 	UPROPERTY()
-		UAnimMontage* CurrentAnimation;
+	UAnimMontage* CurrentAnimation;
 
 protected:
 	UPROPERTY()
-		int SelectedItemIndex;
+	int SelectedItemIndex;
 
 	UPROPERTY()
-		USceneComponent* ItemComponent;
+	USceneComponent* ItemComponent;
 
 	UPROPERTY()
-		ACharacter* Player;
+	ACharacter* Player;
+
+	FOnItemUnequip onItemUnequiped;
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-		void Setup(USceneComponent* InItemComponent, ACharacter* PlayerP);
+	void Setup(USceneComponent* InItemComponent, ACharacter* PlayerP);
 
 	UFUNCTION()
-		void AddItem(UClass* Class);
+	void AddItem(UClass* Class);
 	
-		FOnItemChange NextItem();
+	void NextItem();
 	
-		FOnItemChange PreviousItem();
+	void PreviousItem();
 
 	UFUNCTION()
-		void RemoveItem(int itemIndex);
+	void RemoveItem(int itemIndex);
 
 	UFUNCTION()
-		void UseEquipedItem();
+	void UseEquipedItem();
 	
-		FOnItemChange SwitchToItem(int newItemIndex);
-
+	void SwitchToItem(int newItemIndex);
 
 protected:
 	// Called when the game starts
