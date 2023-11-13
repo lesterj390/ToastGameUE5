@@ -9,16 +9,16 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/WidgetComponent.h"
 #include "Math/UnrealMathUtility.h"
-#include "ItemSelf.generated.h"
+#include "ItemShelf.generated.h"
 
 UCLASS()
-class THEBRENTCAVE_API AItemSelf : public AActor
+class THEBRENTCAVE_API AItemShelf : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AItemSelf();
+	AItemShelf();
 
 protected:
 	// Called when the game starts or when spawned

@@ -1,10 +1,10 @@
 // Don't steal out game please :( we worked hard on it!
 
 
-#include "Props/ItemSelf.h"
+#include "Props/ItemShelf.h"
 
 // Sets default values
-AItemSelf::AItemSelf()
+AItemShelf::AItemShelf()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -27,7 +27,7 @@ AItemSelf::AItemSelf()
 }
 
 // Called when the game starts or when spawned
-void AItemSelf::BeginPlay()
+void AItemShelf::BeginPlay()
 {
 	Super::BeginPlay();
 	
@@ -35,20 +35,20 @@ void AItemSelf::BeginPlay()
 	GenerateItem();
 }
 
-void AItemSelf::SetupShelf()
+void AItemShelf::SetupShelf()
 {
 	InteractComponent->SetVisibility(false);
 
-	Hitbox->OnComponentBeginOverlap.AddDynamic(this, &AItemSelf::OnOverlapStart);
-	Hitbox->OnComponentEndOverlap.AddDynamic(this, &AItemSelf::OnOverlapEnd);
+	Hitbox->OnComponentBeginOverlap.AddDynamic(this, &AItemShelf::OnOverlapStart);
+	Hitbox->OnComponentEndOverlap.AddDynamic(this, &AItemShelf::OnOverlapEnd);
 
 	InputComponent = NewObject<UInputComponent>(this);
 	InputComponent->RegisterComponent();
 
-	InputComponent->BindAction("Interact", IE_Pressed, this, &AItemSelf::PickupItem);
+	InputComponent->BindAction("Interact", IE_Pressed, this, &AItemShelf::PickupItem);
 }
 
-void AItemSelf::GenerateItem()
+void AItemShelf::GenerateItem()
 {
 	FVector Location = FVector(0);
 	FRotator Rotation = FRotator(0);
@@ -76,7 +76,7 @@ void AItemSelf::GenerateItem()
 	}
 }
 
-void AItemSelf::PickupItem()
+void AItemShelf::PickupItem()
 {
 	canPickup = false;
 
@@ -87,7 +87,7 @@ void AItemSelf::PickupItem()
 	DisableInput(GetWorld()->GetFirstPlayerController());
 }
 
-void AItemSelf::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AItemShelf::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ATBCCharacter* OtherTBCCharacter = Cast<ATBCCharacter>(OtherActor);
 	if (OtherTBCCharacter) {
@@ -113,7 +113,7 @@ void AItemSelf::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* Othe
 	}
 }
 
-void AItemSelf::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void AItemShelf::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (HitBoxPlayer) {
 		if (canPickup) {
@@ -124,7 +124,7 @@ void AItemSelf::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 }
 
 // Called every frame
-void AItemSelf::Tick(float DeltaTime)
+void AItemShelf::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
