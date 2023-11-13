@@ -293,6 +293,9 @@ public:
 
 	void PlayAudio(USoundCue* PSound);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UInventoryComponent* Inventory;
+
 protected:
 
 	/** Resets HMD orientation in VR. */
@@ -331,11 +334,7 @@ protected:
 	void EndSprint();
 
 	void ApplySettings();
-
 	UPlayerStatsComponent* PlayerStats;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		UInventoryComponent* Inventory;
 
 	FTimerHandle CheckForCooldownTimer;
 
