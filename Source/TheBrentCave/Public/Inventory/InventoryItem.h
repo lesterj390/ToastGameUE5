@@ -43,6 +43,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	UTexture2D* Icon;
 
+	UPROPERTY()
+	bool bIsEquipped;
+
 protected:
 
 

@@ -19,7 +19,7 @@ void AGlowstickItem::Use()
 	spawnedGlowstick->SetGlowstickColour(CurrentColor);
 	CurrentColor = SetRandomGlowstickColour();
 
-	Super::Use();
+	ItemQuantity--;
 }
 
 void AGlowstickItem::BeginPlay()
@@ -39,7 +39,7 @@ FLinearColor AGlowstickItem::SetRandomGlowstickColour()
 	}
 
 	DynamicMaterial->SetVectorParameterValue(TEXT("GlowstickColor"), newColour);
-	DynamicMaterial->SetScalarParameterValue(TEXT("Glow"), 50);
+	DynamicMaterial->SetScalarParameterValue(TEXT("Glow"), 0.1);
 
 	return newColour;
 }

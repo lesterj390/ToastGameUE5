@@ -29,7 +29,7 @@ protected:
 public:
 	AGlowstickItem();
 
-	virtual void Use();
+	virtual void Use() override;
 
 protected:
 	virtual void BeginPlay() override;

@@ -5,6 +5,8 @@
 
 void UMapWidget::SetupWidget(int _Dimension, float _WidgetResolution, TArray<FWall> WallsToRemove)
 {
+	bCanTick = false;
+
 	if (WidgetTree) {
 		Dimension = _Dimension;
 
@@ -109,6 +111,8 @@ bool UMapWidget::IsTranslationInBounds(float _TranslateX, float _TranslateY, flo
 void UMapWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
 {
 	Super::NativeTick(MyGeometry, DeltaTime);
+
+	if (!bCanTick) return;
 
 	// Setting the rotation of the PlayerIcon icon
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();

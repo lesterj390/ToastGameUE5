@@ -37,6 +37,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		float VisibleDiameter;
 
+	UPROPERTY()
+		bool bCanTick;
+
 protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 		UCanvasPanel* Canvas;

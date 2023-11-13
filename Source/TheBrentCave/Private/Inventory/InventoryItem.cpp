@@ -12,28 +12,27 @@ AInventoryItem::AInventoryItem()
 
 	PrimaryActorTick.bCanEverTick = true;
 
-	// One an item is spawned for the first time, it should be unequiped and hidden
-	Unequip();
 }
 
 void AInventoryItem::Use()
 {
-	if (ItemQuantity > 0) {
-		ItemQuantity--;
-	}
+	// Use function is different for each object
 }
 
 void AInventoryItem::BeginPlay()
 {
 	Super::BeginPlay();
-	// Any specific code needed for item setup will go here
+
+	// One an item is spawned for the first time, it should be unequiped and hidden
+	Unequip();
 }
 
 void AInventoryItem::Equip()
 {
 	SetActorTickEnabled(true);
 	SetActorHiddenInGame(false);
-	SetActorEnableCollision(true);	
+	SetActorEnableCollision(true);
+	bIsEquipped = true;
 }
 
 void AInventoryItem::Unequip()
@@ -41,4 +40,5 @@ void AInventoryItem::Unequip()
 	SetActorTickEnabled(false);
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
+	bIsEquipped = false;
 }

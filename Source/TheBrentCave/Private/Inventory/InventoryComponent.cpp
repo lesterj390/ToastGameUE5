@@ -136,6 +136,7 @@ void UInventoryComponent::SwitchToItem(int newItemIndex)
 		CurrentAnimation = newAnimation;
 		SelectedItemIndex = newItemIndex;		
 	}
+
 	if (!newIcon) newIcon = DefaultIcon;
 	PlayerStatsWidget->SelectedItem->SetBrushFromTexture(newIcon);			
 }

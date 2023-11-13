@@ -7,6 +7,9 @@ AMapItem::AMapItem()
 {
 	Decal = CreateDefaultSubobject<UDecalComponent>(TEXT("Decal"));
 	Decal->SetupAttachment(Mesh);
+
+	Spotlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Spotlight"));
+	Spotlight->SetupAttachment(Mesh);
 }
 
 
@@ -38,9 +41,33 @@ void AMapItem::UpdateMapMaterial()
 	MapMaterialDynamic->SetTextureParameterValue(FName("Texture"), MapRenderTarget);
 }
 
+void AMapItem::Equip()
+{
+	Super::Equip();
+
+	bIsEquipped = true;
+	MapWidget->bCanTick = true;
+	Spotlight->SetHiddenInGame(false);
+	Decal->SetHiddenInGame(false);
+}
+
+void AMapItem::Unequip()
+{
+	Super::Unequip();
+	
+	bIsEquipped = false;
+	if (MapWidget) {
+		MapWidget->bCanTick = false;		
+	}
+	Spotlight->SetHiddenInGame(true);
+	Decal->SetHiddenInGame(true);
+} 
+
 void AMapItem::Tick(float DeltaTime)
 {
-	UpdateMapMaterial();
+	if (bIsEquipped) {
+		UpdateMapMaterial();
+	}
 }
 
 void AMapItem::BeginDestroy()

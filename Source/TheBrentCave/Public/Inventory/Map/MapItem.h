@@ -9,6 +9,7 @@
 #include "Grid.h"
 #include "Slate/WidgetRenderer.h"
 #include "Components/WidgetComponent.h"
+#include "Components/SpotlightComponent.h"
 #include "MapItem.generated.h"
 
 /**
@@ -21,26 +22,29 @@ class THEBRENTCAVE_API AMapItem : public AInventoryItem
 	
 public:
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<UMapWidget> MapWidgetClass;
+	TSubclassOf<UMapWidget> MapWidgetClass;
 
 	UPROPERTY(EditAnywhere)
-		UDecalComponent* Decal;
+	UDecalComponent* Decal;
+
+	UPROPERTY(EditAnywhere)
+	USpotLightComponent* Spotlight;
 
 	UPROPERTY()
-		UMapWidget* MapWidget;
+	UMapWidget* MapWidget;
 
 	UPROPERTY(EditAnywhere)
-		UTextureRenderTarget2D* MapRenderTarget;
+	UTextureRenderTarget2D* MapRenderTarget;
 
 	FWidgetRenderer* WidgetRenderer;
 
 	TSharedPtr<SWidget> MapSlateWidget;
 
 	UPROPERTY()
-		FVector2D DrawSize;
+	FVector2D DrawSize;
 
 	UPROPERTY()
-		UMaterialInstanceDynamic* MapMaterialDynamic;
+	UMaterialInstanceDynamic* MapMaterialDynamic;
 
 protected:
 
@@ -49,10 +53,15 @@ public:
 
 	void UpdateMapMaterial();
 
+	virtual void Equip() override;
+
+	virtual void Unequip() override;
+
 protected:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void BeginPlay() override;
+
 
 	virtual void BeginDestroy() override;
 };
