@@ -10,6 +10,7 @@ ARadarItem::ARadarItem()
 
 void ARadarItem::BeginPlay()
 {
+	Super::BeginPlay();
 
 }
 
