@@ -35,6 +35,9 @@ public:
 	FVector ShelfLocation;
 
 	UPROPERTY(EditAnywhere, Category = "Shelf")
+	FRotator ShelfRotation;
+
+	UPROPERTY(EditAnywhere, Category = "Shelf")
 	FVector ShelfScale;
 
 	UPROPERTY(EditAnywhere)
